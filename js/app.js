@@ -6,9 +6,11 @@ import { initCalendar } from "./calendar/calendar.js";
 import { showView, goToDashboard } from "./router.js";
 import { initTodo } from "./todo/todo.js";
 import { initBackup } from "./backup/backup.js";
+import { initPacklists } from "./packlists/packlists.js";
+
 
 // ✅ EINZIGE Quelle der Wahrheit für die UI-Version
-const APP_VERSION = 0.20;
+const APP_VERSION = 0.21;
 
 /*
  Einstiegspunkt der App.
@@ -29,6 +31,8 @@ document.addEventListener("DOMContentLoaded", () => {
     initBackup();
     initNotes();
     initCalendar();
+ initPacklists();
+
 
     // ✅ Zentrale Zurück-Buttons verbinden
     document.querySelectorAll("[data-back]").forEach((button) => {
