@@ -341,3 +341,23 @@ html, body {
         margin-inline: auto;
     }
 }
+
+/* ======================================================
+   APP VERSION ANZEIGE
+   ====================================================== */
+
+.dashboard-title {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.app-version {
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 6px;
+}
+
