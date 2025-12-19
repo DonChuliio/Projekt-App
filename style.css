@@ -1,16 +1,57 @@
 /* ======================================================
+   CSS VARIABLES (Theme)
+   ====================================================== */
+
+:root {
+    --bg: #121212;
+    --surface: #1e1e1e;
+    --border: #2a2a2a;
+
+    --text: #eaeaea;
+    --text-muted: #9aa0a6;
+
+    --petrol: #2bb0a6;
+    --petrol-hover: #24968e;
+
+    --danger: #ff5f56;
+}
+
+/* ======================================================
    GLOBAL
    ====================================================== */
 
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: system-ui, sans-serif;
+    margin: 0;
     padding: 16px;
+
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+    background: var(--bg);
+    color: var(--text);
+
     max-width: 600px;
-    margin: auto;
+    margin-inline: auto;
 }
 
 .hidden {
     display: none;
+}
+
+/* ======================================================
+   TYPOGRAPHY
+   ====================================================== */
+
+h1, h2, h3 {
+    margin-top: 0;
+    color: var(--text);
+}
+
+h3 {
+    margin-bottom: 8px;
 }
 
 /* ======================================================
@@ -21,52 +62,132 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
-    margin-top: 30px;
+    margin-top: 24px;
 }
 
 .tile {
-    background: #f0f0f0;
-    padding: 30px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+
+    padding: 28px 20px;
+
     text-align: center;
-    font-size: 20px;
-    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 500;
+
     cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
 }
 
 .tile:hover {
-    background: #e0e0e0;
+    background: #242424;
+    transform: translateY(-2px);
 }
 
 /* ======================================================
-   FORMULARE & BUTTONS
+   BUTTONS
    ====================================================== */
 
-textarea {
-    width: 100%;
-    height: 300px;
-    font-size: 16px;
-}
-
 button {
-    padding: 10px;
-    margin-top: 10px;
-    font-size: 16px;
+    background: var(--petrol);
+    color: #000;
+
+    border: none;
+    border-radius: 10px;
+
+    padding: 10px 14px;
+    font-size: 15px;
+    font-weight: 500;
+
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
 }
 
-/* Zurück-Button (SPA-Navigation) */
+button:hover {
+    background: var(--petrol-hover);
+}
+
+button:active {
+    transform: scale(0.97);
+}
+
+/* Zurück-Button (Navigation) */
 .back-button {
     background: none;
-    border: none;
-    color: #007aff;          /* iOS-Blau */
-    font-size: 16px;
-    font-weight: 500;
-    padding: 8px 0;
-    margin-bottom: 12px;
-    cursor: pointer;
+    color: var(--petrol);
+
+    padding: 0;
+    margin-bottom: 16px;
+
+    font-size: 15px;
 }
 
 .back-button:hover {
     text-decoration: underline;
+}
+
+/* ======================================================
+   INPUTS / TEXTAREA
+   ====================================================== */
+
+input,
+textarea {
+    width: 100%;
+    background: var(--surface);
+    color: var(--text);
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    padding: 10px 12px;
+    font-size: 15px;
+
+    margin-top: 6px;
+}
+
+textarea {
+    height: 280px;
+    resize: vertical;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--text-muted);
+}
+
+/* ======================================================
+   TO-DO LISTEN
+   ====================================================== */
+
+ul {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 8px;
+}
+
+li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    padding: 10px 12px;
+    margin-bottom: 6px;
+}
+
+li button {
+    background: none;
+    color: var(--danger);
+    padding: 0;
+    font-size: 16px;
+}
+
+li button:hover {
+    opacity: 0.8;
 }
 
 /* ======================================================
@@ -87,54 +208,39 @@ button {
 }
 
 .day {
-    border: 1px solid #ccc;
-    padding: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
     min-height: 60px;
+    padding: 8px;
+
     cursor: pointer;
-    background: white; /* Standard */
+    text-align: center;
 }
 
 /* ======================================================
-   STATUS-FARBEN
+   STATUS-FARBEN (Kalender)
    ====================================================== */
 
 .status-0 {
-    background: #4caf50; /* grün */
+    background: #2e7d32; /* grün */
 }
 
 .status-1-3 {
-    background: #ffeb3b; /* gelb */
+    background: #f9a825; /* gelb */
+    color: #000;
 }
 
 .status-4-7 {
-    background: #ff9800; /* orange */
+    background: #ef6c00; /* orange */
 }
 
 .status-7plus {
-    background: #f44336; /* rot */
+    background: #c62828; /* rot */
 }
 
 .status-blackout {
-    background: #000000; /* schwarz */
-    color: white;
-}
-
-ul {
-    list-style: none;
-    padding-left: 0;
-}
-
-li {
-    margin: 6px 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-li button {
-    background: none;
-    border: none;
-    color: red;
-    cursor: pointer;
-    font-size: 16px;
+    background: #000;
+    color: #fff;
 }
