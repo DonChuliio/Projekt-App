@@ -19,6 +19,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Dashboard initialisieren
     initDashboard();
 
+     // to-do initialisieren
+    initTodo();
+
     // Notizen initialisieren
     initNotes();
 
