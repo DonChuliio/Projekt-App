@@ -1,4 +1,4 @@
-const APP_VERSION = 15;
+const APP_VERSION = 16;
 
 // js/app.js
 console.log("APP VERSION 10 GELADEN");
@@ -33,6 +33,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Kalender initialisieren
     initCalendar();
+document.addEventListener("DOMContentLoaded", () => {
+
+    const versionEl = document.getElementById("app-version");
+
+    if (versionEl) {
+        versionEl.textContent = `v${APP_VERSION}`;
+    }
+
+    // … deine restlichen init-Aufrufe
+});
 
     // Zentrale Zurück-Buttons verbinden
     document.querySelectorAll("[data-back]").forEach(button => {
