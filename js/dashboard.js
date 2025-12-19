@@ -6,6 +6,7 @@ export function initDashboard() {
     const notesTile    = document.querySelector("[data-tile='notes']");
     const calendarTile = document.querySelector("[data-tile='calendar']");
     const todoTile     = document.querySelector("[data-tile='todo']");
+    const backupBtn = document.getElementById("open-backup");
 
     console.log("Dashboard Tiles gefunden:", {
         notes: !!notesTile,
