@@ -118,3 +118,23 @@ button {
     background: #000000; /* schwarz */
     color: white;
 }
+
+ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+li {
+    margin: 6px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+li button {
+    background: none;
+    border: none;
+    color: red;
+    cursor: pointer;
+    font-size: 16px;
+}
