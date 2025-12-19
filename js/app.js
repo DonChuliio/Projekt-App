@@ -1,32 +1,44 @@
+// js/app.js
 
-// Importiert die Initialisierungsfunktion für das Dashboard
 import { initDashboard } from "./dashboard.js";
-
-// Importiert die Initialisierungsfunktion für die Notizen
 import { initNotes } from "./notes/notes.js";
-
-// Importiert die Initialisierungsfunktion für den Kalender
 import { initCalendar } from "./calendar/calendar.js";
-
-// Importiert die Router-Funktion zum Anzeigen von Views
 import { showView } from "./router.js";
 
-/*
- Wird ausgeführt, sobald das HTML-Dokument vollständig geladen ist.
- Das ist wichtig, damit alle DOM-Elemente existieren,
- bevor wir sie per JavaScript ansprechen.
-*/
+// Sofortiger Beweis, dass app.js überhaupt geladen wurde
+console.log("✅ app.js geladen");
+
+// Wartet, bis das DOM da ist
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("✅ DOMContentLoaded");
 
-    // Initialisiert das Dashboard (Kacheln, Klick-Events)
+  // Jedes Modul einzeln schützen, damit ein Fehler nicht alles killt
+  try {
     initDashboard();
+    console.log("✅ Dashboard init ok");
+  } catch (e) {
+    console.error("❌ Dashboard init FEHLER:", e);
+  }
 
-    // Initialisiert die Notizen-Funktionalität
+  try {
     initNotes();
+    console.log("✅ Notes init ok");
+  } catch (e) {
+    console.error("❌ Notes init FEHLER:", e);
+  }
 
-    // Initialisiert den Kalender
+  try {
     initCalendar();
+    console.log("✅ Calendar init ok");
+  } catch (e) {
+    console.error("❌ Calendar init FEHLER:", e);
+  }
 
-    // Zeigt beim Start immer das Dashboard an
+  // Startansicht
+  try {
     showView("dashboard");
+    console.log("✅ View dashboard angezeigt");
+  } catch (e) {
+    console.error("❌ showView FEHLER:", e);
+  }
 });
