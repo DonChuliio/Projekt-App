@@ -33,4 +33,12 @@ export function initDashboard() {
         console.log("🟦 To-Do-Kachel geklickt");
         showView("todo");
     });
+   
+    if (backupBtn) {
+    backupBtn.addEventListener("click", () => {
+        console.log("🟦 Backup geöffnet");
+        showView("backup");
+    });
+}
+
 }
