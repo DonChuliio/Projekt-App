@@ -1,21 +1,15 @@
-// Sammelt alle HTML-Elemente, die ein data-view-Attribut haben
-// z. B. <div data-view="dashboard">
-const views = document.querySelectorAll("[data-view]");
-
-/*
- Zeigt genau eine View an und versteckt alle anderen.
- name = Wert von data-view, z. B. "calendar"
-*/
 export function showView(name) {
+  const views = document.querySelectorAll("[data-view]");
 
-    // Über alle Views iterieren
-    views.forEach(view => {
+  if (!views.length) {
+    console.error("Router: Keine data-view Elemente gefunden. Prüfe HTML.");
+    return;
+  }
 
-        // Prüfen, ob diese View die gewünschte ist
-        const isActive = view.dataset.view === name;
+  views.forEach((view) => {
+    const isActive = view.dataset.view === name;
+    view.classList.toggle("hidden", !isActive);
+  });
 
-        // Wenn nicht aktiv → verstecken
-        // Wenn aktiv → anzeigen
-        view.classList.toggle("hidden", !isActive);
-    });
+  console.log("View gewechselt zu:", name);
 }
