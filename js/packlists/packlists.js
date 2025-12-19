@@ -1,6 +1,7 @@
 // js/packlists/packlists.js
 
 import { showView } from "../router.js";
+import { initPacklistEditor } from "./packlist-editor.js";
 
 /*
  Schlüssel im localStorage, unter dem alle Packlisten gespeichert werden
