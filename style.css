@@ -244,3 +244,23 @@ li button:hover {
     background: #000;
     color: #fff;
 }
+
+/* ======================================================
+   BACKUP / SYNC VIEW
+   ====================================================== */
+
+.backup-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.backup-actions button {
+    width: 100%;
+}
+
+#backup-status {
+    color: var(--text-muted);
+    margin-top: 8px;
+}
