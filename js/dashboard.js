@@ -13,7 +13,7 @@ export function initDashboard() {
     });
 
     if (!notesTile || !calendarTile || !todoTile) {
-        console.error("❌ Mindestens eine Dashboard-Kachel fehlt im DOM");
+        console.error("❌ Mindestens eine Dashboard-Kachel fehlt in DOM");
         return;
     }
 
