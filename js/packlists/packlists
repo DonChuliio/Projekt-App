@@ -1,1 +1,53 @@
 
+// js/packlists/packlists.js
+
+const STORAGE_KEY = "packlists";
+
+/* Lädt alle Packlisten aus dem localStorage */
+function loadPacklists() {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+}
+
+/* Speichert alle Packlisten */
+function savePacklists(packlists) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(packlists));
+}
+
+/* Rendert die Liste im UI */
+function renderPacklists() {
+    const listEl = document.getElementById("packlists-list");
+    if (!listEl) return;
+
+    listEl.innerHTML = "";
+
+    const packlists = loadPacklists();
+
+    packlists.forEach(pl => {
+        const li = document.createElement("li");
+        li.textContent = pl.name;
+        listEl.appendChild(li);
+    });
+}
+
+/* Initialisierung */
+export function initPacklists() {
+    const createBtn = document.getElementById("create-packlist");
+    if (!createBtn) return;
+
+    createBtn.addEventListener("click", () => {
+        const name = prompt("Name der Packliste:");
+        if (!name) return;
+
+        const packlists = loadPacklists();
+
+        packlists.push({
+            id: Date.now().toString(),
+            name
+        });
+
+        savePacklists(packlists);
+        renderPacklists();
+    });
+
+    renderPacklists();
+}
