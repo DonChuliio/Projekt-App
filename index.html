@@ -28,6 +28,11 @@
                 📝 Notizen
             </div>
 
+            <!-- Kachel: To-Do -->
+            <div class="tile" data-tile="todo">
+                ✅ To-Do
+            </div>
+
             <!-- Kachel: Kalender -->
             <div class="tile" data-tile="calendar">
                 📅 Kalender
@@ -79,6 +84,41 @@
         <div id="calendar"></div>
     </div>
 
+        <!-- ======================================================
+         KALENDER
+         ====================================================== -->
+<div data-view="todo" class="hidden">
+
+    <button class="back-button" data-back>Zurück</button>
+
+    <h2>✅ To-Do</h2>
+
+    <!-- A-Aufgaben -->
+    <section>
+        <h3>A-Aufgaben</h3>
+        <input id="todo-a-input" placeholder="Neue A-Aufgabe" />
+        <button id="todo-a-add">Hinzufügen</button>
+        <ul id="todo-a-list"></ul>
+    </section>
+
+    <!-- B-Aufgaben -->
+    <section>
+        <h3>B-Aufgaben</h3>
+        <input id="todo-b-input" placeholder="Neue B-Aufgabe" />
+        <button id="todo-b-add">Hinzufügen</button>
+        <ul id="todo-b-list"></ul>
+    </section>
+
+    <!-- C-Aufgaben -->
+    <section>
+        <h3>C-Aufgaben</h3>
+        <input id="todo-c-input" placeholder="Neue C-Aufgabe" />
+        <button id="todo-c-add">Hinzufügen</button>
+        <ul id="todo-c-list"></ul>
+    </section>
+
+</div>
+
     <!-- ======================================================
          APP-START (ES MODULE ENTRY POINT)
          ====================================================== -->
@@ -86,4 +126,5 @@
 
 </body>
 </html>
+
 
