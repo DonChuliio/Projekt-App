@@ -361,3 +361,36 @@ html, body {
     padding: 2px 6px;
 }
 
+/* ======================================================
+   PACKLISTEN (RUN) – Interaktion
+   ====================================================== */
+
+.pack-item.clickable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.pack-item.packed {
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+.bucket-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.bucket-toggle {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 6px 10px;
+}
+
+.packlist-progress {
+    color: var(--text-muted);
+    margin-top: 0;
+}
+
