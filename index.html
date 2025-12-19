@@ -7,21 +7,25 @@
 <div id="app">
 
     <!-- DASHBOARD -->
-<div class="dashboard-header">
-    <div class="dashboard-title">
-        <h1>📱 Dashboard</h1>
-        <span id="app-version" class="app-version">v?</span>
-    </div>
+    <div data-view="dashboard">
 
-    <button id="open-backup" class="backup-btn">Backup</button>
-</div>
+        <div class="dashboard-header">
+            <div class="dashboard-title">
+                <h1>📱 Dashboard</h1>
+                <span id="app-version" class="app-version">v?</span>
+            </div>
 
+            <button id="open-backup" class="backup-btn">Backup</button>
+        </div>
 
         <div class="tiles">
             <div class="tile" data-tile="notes">📝 Notizen</div>
             <div class="tile" data-tile="todo">✅ To-Do</div>
             <div class="tile" data-tile="calendar">📅 Kalender</div>
         </div>
+
+    </div>
+
     
 
     <!-- andere Views (notes, todo, calendar, backup) kommen hier drunter -->
@@ -103,10 +107,11 @@
 
 </div>
 
-<script type="module" src="js/app.js?v=17"></script>
+<script type="module" src="js/app.js?v=18"></script>
 <link rel="stylesheet" href="style.css?v=3">
 
 </body>
+
 
 
 
