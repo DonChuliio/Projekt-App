@@ -16,10 +16,10 @@ export function initDashboard() {
         packlists: !!packlistsTile
     });
 
-    if (!notesTile || !calendarTile || !packlistsTile || !todoTile) {
-        console.error("❌ Mindestens eine Dashboard-Kachel fehlt in DOM");
-        return;
-    }
+if (!notesTile || !calendarTile || !todoTile || !packlistsTile) {
+    console.error("❌ Mindestens eine Dashboard-Kachel fehlt in DOM");
+    return;
+}
 
     notesTile.addEventListener("click", () => {
         console.log("🟦 Notizen-Kachel geklickt");
