@@ -1,94 +1,86 @@
 <!DOCTYPE html>
-<!-- Sagt dem Browser: Das ist ein HTML5-Dokument -->
-
 <html lang="de">
-<!-- Wurzelelement der Seite, Sprache Deutsch -->
-
 <head>
     <meta charset="UTF-8">
-    <!-- Zeichencodierung, damit Umlaute korrekt angezeigt werden -->
+    <!-- Stellt sicher, dass Umlaute & Sonderzeichen korrekt dargestellt werden -->
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Wichtig für Mobile:
-         sorgt dafür, dass die Seite auf Smartphones richtig skaliert -->
+    <!-- Wichtig für Mobile: korrektes Skalieren auf iPhone & Co. -->
 
-    <title>Meine App</title>
-    <!-- Titel der Seite (Tab-Name im Browser) -->
+    <title>Projekt App</title>
+    <!-- Titel im Browser / App-Icon -->
 
     <link rel="stylesheet" href="style.css">
-    <!-- Verknüpft die CSS-Datei für das Design -->
+    <!-- Zentrales Styling -->
 </head>
 
 <body>
 
-    <!-- ================= DASHBOARD ================= -->
-
-    <div id="dashboard">
-        <!-- Container für die Startseite -->
-
+    <!-- ======================================================
+         DASHBOARD (Startseite)
+         ====================================================== -->
+    <div data-view="dashboard">
         <h1>📱 Dashboard</h1>
-        <!-- Überschrift -->
 
         <div class="tiles">
-            <!-- Container für die Kacheln -->
-
-            <div class="tile" onclick="openNotes()">
-                <!-- Kachel, klickbar, ruft JS-Funktion openNotes auf -->
+            <!-- Kachel: Notizen -->
+            <div class="tile" data-tile="notes">
                 📝 Notizen
             </div>
 
-            <div class="tile" onclick="openCalendar()">
-                <!-- Zweite Kachel, öffnet den Kalender -->
+            <!-- Kachel: Kalender -->
+            <div class="tile" data-tile="calendar">
                 📅 Kalender
             </div>
+
+            <!-- 🔮 Zukünftige Kacheln kommen einfach hier dazu -->
+            <!--
+            <div class="tile" data-tile="xyz">
+                🔧 Neue Anwendung
+            </div>
+            -->
         </div>
     </div>
 
-    <!-- ================= NOTIZEN ================= -->
+    <!-- ======================================================
+         NOTIZEN
+         ====================================================== -->
+    <div data-view="notes" class="hidden">
+        <button onclick="history.back()">⬅ Zurück</button>
 
-    <div id="notesView" class="hidden">
-        <!-- Notiz-Ansicht, anfangs versteckt -->
+        <h2>📝 Notizen</h2>
 
-        <button onclick="goHome()">⬅ Zurück</button>
-        <!-- Button, um zurück zum Dashboard zu gehen -->
-
-        <h2>📝 Meine Notiz</h2>
-
-        <textarea id="note"></textarea>
-        <!-- Texteingabefeld für die Notiz -->
+        <textarea
+            id="note"
+            placeholder="Schreibe hier deine Notiz..."
+        ></textarea>
 
         <button id="saveBtn">Speichern</button>
-        <!-- Button zum Speichern -->
     </div>
 
-    <!-- ================= KALENDER ================= -->
-
-    <div id="calendarView" class="hidden">
-        <!-- Kalender-Ansicht, anfangs versteckt -->
-
-        <button onclick="goHome()">⬅ Zurück</button>
+    <!-- ======================================================
+         KALENDER
+         ====================================================== -->
+    <div data-view="calendar" class="hidden">
+        <button onclick="history.back()">⬅ Zurück</button>
 
         <h2>📅 Kalender</h2>
 
         <div class="calendar-header">
-            <!-- Kopfbereich für Monatsnavigation -->
-
-            <button onclick="prevMonth()">◀</button>
-            <!-- Geht einen Monat zurück -->
+            <button id="prevMonth">◀</button>
 
             <span id="monthYear"></span>
-            <!-- Zeigt aktuellen Monat + Jahr -->
 
-            <button onclick="nextMonth()">▶</button>
-            <!-- Geht einen Monat vor -->
+            <button id="nextMonth">▶</button>
         </div>
 
         <div id="calendar"></div>
-        <!-- Hier wird der Kalender per JavaScript erzeugt -->
     </div>
 
-    <script src="script.js"></script>
-    <!-- Bindet die JavaScript-Datei ein -->
+    <!-- ======================================================
+         APP-START (ES MODULE ENTRY POINT)
+         ====================================================== -->
+    <script type="module" src="js/app.js"></script>
 
 </body>
 </html>
