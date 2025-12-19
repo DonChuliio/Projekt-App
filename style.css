@@ -264,3 +264,71 @@ li button:hover {
     color: var(--text-muted);
     margin-top: 8px;
 }
+
+/* ======================================================
+   LAYOUT-STABILITÄT (überschneidungsfrei)
+   ====================================================== */
+
+/* Jede View soll nie breiter als der Screen sein */
+[data-view] {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Verhindert horizontales Scrollen durch einzelne Elemente */
+html, body {
+    overflow-x: hidden;
+}
+
+/* ======================================================
+   MOBILE OPTIMIERUNG (nur kleine Screens)
+   ====================================================== */
+
+@media (max-width: 480px) {
+
+    /* Container darf volle Breite nutzen */
+    body {
+        max-width: 100%;
+        padding: 12px;
+    }
+
+    /* Dashboard-Header: sauber untereinander */
+    .dashboard-header {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    /* Backup-Button nicht quetschen */
+    .backup-btn {
+        align-self: flex-end;
+    }
+
+    /* Kacheln: 1 Spalte statt 2 */
+    .tiles {
+        grid-template-columns: 1fr;
+    }
+
+    /* Buttons touch-freundlicher */
+    button {
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    /* Inputs verhindern Safari-Zoom */
+    input,
+    textarea {
+        font-size: 16px;
+    }
+
+    textarea {
+        height: 220px;
+    }
+
+    /* Kalender-Tage nicht zu klein */
+    .day {
+        min-height: 50px;
+        padding: 6px;
+    }
+}
