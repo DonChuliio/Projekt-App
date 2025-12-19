@@ -8,7 +8,7 @@ import { initTodo } from "./todo/todo.js";
 import { initBackup } from "./backup/backup.js";
 
 // ✅ EINZIGE Quelle der Wahrheit für die UI-Version
-const APP_VERSION = 17;
+const APP_VERSION = 0.18;
 
 /*
  Einstiegspunkt der App.
