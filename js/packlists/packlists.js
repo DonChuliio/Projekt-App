@@ -3,6 +3,7 @@
 import { showView } from "../router.js";
 import { initPacklistEditor } from "./packlist-editor.js";
 import { initPacklistRun } from "./packlist-run.js";
+
 /*
  Schlüssel im localStorage, unter dem alle Packlisten gespeichert werden
 */
