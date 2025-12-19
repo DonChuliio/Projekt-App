@@ -1,3 +1,5 @@
+const APP_VERSION = 15;
+
 // js/app.js
 console.log("APP VERSION 10 GELADEN");
 
