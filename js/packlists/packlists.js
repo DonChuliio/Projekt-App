@@ -69,24 +69,30 @@ function renderPacklists() {
             );
 
             // Fortsetzen
-            if (choice === "1") {
-                localStorage.setItem("active-packlist-id", pl.id);
-                localStorage.setItem("packlist-run-mode", "continue");
+            // Fortsetzen
+if (choice === "1") {
+    localStorage.setItem("active-packlist-id", pl.id);
+    localStorage.setItem("packlist-run-mode", "continue");
 
-                setRunTitle(pl.name);
-                showView("packlist-run");
-            }
+    setRunTitle(pl.name);
+    showView("packlist-run");
 
-            // Neu starten
-            if (choice === "2") {
-                localStorage.setItem("active-packlist-id", pl.id);
-                localStorage.setItem("packlist-run-mode", "new");
+    // 🔑 View initialisieren
+    initPacklistRun();
+}
 
-                setRunTitle(pl.name);
-                showView("packlist-run");
-            }
+// Neu starten
+if (choice === "2") {
+    localStorage.setItem("active-packlist-id", pl.id);
+    localStorage.setItem("packlist-run-mode", "new");
 
-            // Bearbeiten
+    setRunTitle(pl.name);
+    showView("packlist-run");
+
+    // 🔑 View initialisieren
+    initPacklistRun();
+}
+
 // Bearbeiten
 if (choice === "3") {
     localStorage.setItem("active-packlist-id", pl.id);
@@ -94,15 +100,10 @@ if (choice === "3") {
     setEditTitle(pl.name);
     showView("packlist-edit");
 
-    // 🔑 FEHLENDER AUFRUF
+    // 🔑 View initialisieren
     initPacklistEditor();
 }
 
-        });
-
-        listEl.appendChild(li);
-    });
-}
 
 /*
  Initialisierung der Packlisten-Funktion
