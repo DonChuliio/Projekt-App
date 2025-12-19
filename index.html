@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<!-- Sagt dem Browser: Das ist ein HTML5-Dokument -->
+
+<html lang="de">
+<!-- Wurzelelement der Seite, Sprache Deutsch -->
+
+<head>
+    <meta charset="UTF-8">
+    <!-- Zeichencodierung, damit Umlaute korrekt angezeigt werden -->
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Wichtig für Mobile:
+         sorgt dafür, dass die Seite auf Smartphones richtig skaliert -->
+
+    <title>Meine App</title>
+    <!-- Titel der Seite (Tab-Name im Browser) -->
+
+    <link rel="stylesheet" href="style.css">
+    <!-- Verknüpft die CSS-Datei für das Design -->
+</head>
+
+<body>
+
+    <!-- ================= DASHBOARD ================= -->
+
+    <div id="dashboard">
+        <!-- Container für die Startseite -->
+
+        <h1>📱 Dashboard</h1>
+        <!-- Überschrift -->
+
+        <div class="tiles">
+            <!-- Container für die Kacheln -->
+
+            <div class="tile" onclick="openNotes()">
+                <!-- Kachel, klickbar, ruft JS-Funktion openNotes auf -->
+                📝 Notizen
+            </div>
+
+            <div class="tile" onclick="openCalendar()">
+                <!-- Zweite Kachel, öffnet den Kalender -->
+                📅 Kalender
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= NOTIZEN ================= -->
+
+    <div id="notesView" class="hidden">
+        <!-- Notiz-Ansicht, anfangs versteckt -->
+
+        <button onclick="goHome()">⬅ Zurück</button>
+        <!-- Button, um zurück zum Dashboard zu gehen -->
+
+        <h2>📝 Meine Notiz</h2>
+
+        <textarea id="note"></textarea>
+        <!-- Texteingabefeld für die Notiz -->
+
+        <button id="saveBtn">Speichern</button>
+        <!-- Button zum Speichern -->
+    </div>
+
+    <!-- ================= KALENDER ================= -->
+
+    <div id="calendarView" class="hidden">
+        <!-- Kalender-Ansicht, anfangs versteckt -->
+
+        <button onclick="goHome()">⬅ Zurück</button>
+
+        <h2>📅 Kalender</h2>
+
+        <div class="calendar-header">
+            <!-- Kopfbereich für Monatsnavigation -->
+
+            <button onclick="prevMonth()">◀</button>
+            <!-- Geht einen Monat zurück -->
+
+            <span id="monthYear"></span>
+            <!-- Zeigt aktuellen Monat + Jahr -->
+
+            <button onclick="nextMonth()">▶</button>
+            <!-- Geht einen Monat vor -->
+        </div>
+
+        <div id="calendar"></div>
+        <!-- Hier wird der Kalender per JavaScript erzeugt -->
+    </div>
+
+    <script src="script.js"></script>
+    <!-- Bindet die JavaScript-Datei ein -->
+
+</body>
+</html>
