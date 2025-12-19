@@ -1,3 +1,4 @@
+import { showView } from "./router.js";
 export function initDashboard() {
 
     console.log("✅ initDashboard läuft");
