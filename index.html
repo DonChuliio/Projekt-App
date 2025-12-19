@@ -1,22 +1,28 @@
 <body>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- ======================================================
      DASHBOARD (Startseite)
      ====================================================== -->
-<div data-view="dashboard">
+<div id="app">
 
-    <div class="dashboard-header">
-        <h1>📱 Dashboard</h1>
-        <button id="open-backup" class="backup-btn">Backup</button>
+    <!-- DASHBOARD -->
+    <div data-view="dashboard">
+        <div class="dashboard-header">
+            <h1>📱 Dashboard</h1>
+            <button id="open-backup" class="backup-btn">Backup</button>
+        </div>
+
+        <div class="tiles">
+            <div class="tile" data-tile="notes">📝 Notizen</div>
+            <div class="tile" data-tile="todo">✅ To-Do</div>
+            <div class="tile" data-tile="calendar">📅 Kalender</div>
+        </div>
     </div>
 
-    <div class="tiles">
-        <div class="tile" data-tile="notes">📝 Notizen</div>
-        <div class="tile" data-tile="todo">✅ To-Do</div>
-        <div class="tile" data-tile="calendar">📅 Kalender</div>
-    </div>
+    <!-- andere Views (notes, todo, calendar, backup) kommen hier drunter -->
 
-</div>
+
 
 <!-- ======================================================
      NOTIZEN
@@ -93,10 +99,11 @@
 
 </div>
 
-<script type="module" src="js/app.js?v=13"></script>
+<script type="module" src="js/app.js?v=14"></script>
 <link rel="stylesheet" href="style.css?v=3">
 
 </body>
+
 
 
 
