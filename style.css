@@ -33,9 +33,11 @@ body {
     background: var(--bg);
     color: var(--text);
 
-    max-width: 600px;
-    margin-inline: auto;
+    /* ⛔ NICHT mehr hier einschränken */
+    /* max-width: 600px; */
+    /* margin-inline: auto; */
 }
+
 
 .hidden {
     display: none;
@@ -330,5 +332,12 @@ html, body {
     .day {
         min-height: 50px;
         padding: 6px;
+    }
+}
+
+@media (min-width: 600px) {
+    body {
+        max-width: 600px;
+        margin-inline: auto;
     }
 }
