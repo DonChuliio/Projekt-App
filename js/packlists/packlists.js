@@ -86,12 +86,17 @@ function renderPacklists() {
             }
 
             // Bearbeiten
-            if (choice === "3") {
-                localStorage.setItem("active-packlist-id", pl.id);
+// Bearbeiten
+if (choice === "3") {
+    localStorage.setItem("active-packlist-id", pl.id);
 
-                setEditTitle(pl.name);
-                showView("packlist-edit");
-            }
+    setEditTitle(pl.name);
+    showView("packlist-edit");
+
+    // 🔑 FEHLENDER AUFRUF
+    initPacklistEditor();
+}
+
         });
 
         listEl.appendChild(li);
