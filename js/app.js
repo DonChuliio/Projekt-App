@@ -3,42 +3,33 @@
 import { initDashboard } from "./dashboard.js";
 import { initNotes } from "./notes/notes.js";
 import { initCalendar } from "./calendar/calendar.js";
-import { showView } from "./router.js";
+import { showView, goToDashboard } from "./router.js";
 
-// Sofortiger Beweis, dass app.js überhaupt geladen wurde
-console.log("✅ app.js geladen");
-
-// Wartet, bis das DOM da ist
+/*
+ Einstiegspunkt der App.
+ Wird ausgeführt, sobald das DOM vollständig geladen ist.
+*/
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("✅ DOMContentLoaded");
 
-  // Jedes Modul einzeln schützen, damit ein Fehler nicht alles killt
-  try {
+    // Debug-Hinweis: zeigt, dass app.js geladen wurde
+    console.log("✅ app.js geladen");
+
+    // Dashboard initialisieren
     initDashboard();
-    console.log("✅ Dashboard init ok");
-  } catch (e) {
-    console.error("❌ Dashboard init FEHLER:", e);
-  }
 
-  try {
+    // Notizen initialisieren
     initNotes();
-    console.log("✅ Notes init ok");
-  } catch (e) {
-    console.error("❌ Notes init FEHLER:", e);
-  }
 
-  try {
+    // Kalender initialisieren
     initCalendar();
-    console.log("✅ Calendar init ok");
-  } catch (e) {
-    console.error("❌ Calendar init FEHLER:", e);
-  }
 
-  // Startansicht
-  try {
+    // Zentrale Zurück-Buttons verbinden
+    document.querySelectorAll("[data-back]").forEach(button => {
+        button.addEventListener("click", () => {
+            goToDashboard();
+        });
+    });
+
+    // Startansicht: Dashboard
     showView("dashboard");
-    console.log("✅ View dashboard angezeigt");
-  } catch (e) {
-    console.error("❌ showView FEHLER:", e);
-  }
 });
