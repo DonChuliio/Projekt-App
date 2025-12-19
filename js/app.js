@@ -1,4 +1,5 @@
 // js/app.js
+console.log("APP VERSION 10 GELADEN");
 
 
 import { initDashboard } from "./dashboard.js";
