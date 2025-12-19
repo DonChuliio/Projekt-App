@@ -7,10 +7,12 @@ import { showView, goToDashboard } from "./router.js";
 import { initTodo } from "./todo/todo.js";
 import { initBackup } from "./backup/backup.js";
 import { initPacklists } from "./packlists/packlists.js";
+import { initPacklistEditor } from "./packlists/packlist-editor.js";
+import { initPacklistRun } from "./packlists/packlist-run.js";
 
 
 // ✅ EINZIGE Quelle der Wahrheit für die UI-Version
-const APP_VERSION = 0.21;
+const APP_VERSION = 0.30;
 
 /*
  Einstiegspunkt der App.
@@ -32,6 +34,8 @@ document.addEventListener("DOMContentLoaded", () => {
     initNotes();
     initCalendar();
  initPacklists();
+initPacklistEditor();
+initPacklistRun();
 
 
     // ✅ Zentrale Zurück-Buttons verbinden
