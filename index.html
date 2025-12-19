@@ -7,11 +7,15 @@
 <div id="app">
 
     <!-- DASHBOARD -->
-    <div data-view="dashboard">
-        <div class="dashboard-header">
-            <h1>📱 Dashboard</h1>
-            <button id="open-backup" class="backup-btn">Backup</button>
-        </div>
+<div class="dashboard-header">
+    <div class="dashboard-title">
+        <h1>📱 Dashboard</h1>
+        <span id="app-version" class="app-version">v?</span>
+    </div>
+
+    <button id="open-backup" class="backup-btn">Backup</button>
+</div>
+
 
         <div class="tiles">
             <div class="tile" data-tile="notes">📝 Notizen</div>
@@ -99,10 +103,11 @@
 
 </div>
 
-<script type="module" src="js/app.js?v=14"></script>
+<script type="module" src="js/app.js?v=15"></script>
 <link rel="stylesheet" href="style.css?v=3">
 
 </body>
+
 
 
 
