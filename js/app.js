@@ -12,7 +12,7 @@ import { initPacklistRun } from "./packlists/packlist-run.js";
 
 
 // ✅ EINZIGE Quelle der Wahrheit für die UI-Version
-const APP_VERSION = 0.30;
+const APP_VERSION = 0.32;
 
 /*
  Einstiegspunkt der App.
