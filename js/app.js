@@ -6,6 +6,7 @@ import { initNotes } from "./notes/notes.js";
 import { initCalendar } from "./calendar/calendar.js";
 import { showView, goToDashboard } from "./router.js";
 import { initTodo } from "./todo/todo.js";
+import { initBackup } from "./backup/backup.js";
 
 
 /*
@@ -22,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
      // to-do initialisieren
     initTodo();
+    initBackup();
 
     // Notizen initialisieren
     initNotes();
