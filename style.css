@@ -1,112 +1,103 @@
+/* ======================================================
+   GLOBAL
+   ====================================================== */
+
 body {
     font-family: system-ui, sans-serif;
-    /* Nutzt die Systemschrift des Geräts (fühlt sich "nativer" an) */
-
     padding: 16px;
-    /* Abstand zum Rand */
-
     max-width: 600px;
-    /* Begrenzung für große Bildschirme */
-
     margin: auto;
-    /* Zentriert den Inhalt */
 }
 
 .hidden {
     display: none;
-    /* Versteckt Elemente vollständig */
 }
+
+/* ======================================================
+   DASHBOARD / KACHELN
+   ====================================================== */
 
 .tiles {
     display: grid;
-    /* Grid-Layout für Kacheln */
-
     grid-template-columns: 1fr 1fr;
-    /* Zwei gleich breite Spalten */
-
     gap: 16px;
-    /* Abstand zwischen Kacheln */
-
     margin-top: 30px;
 }
 
 .tile {
     background: #f0f0f0;
-    /* Hintergrundfarbe */
-
     padding: 30px;
-    /* Innenabstand */
-
     text-align: center;
-    /* Text zentriert */
-
     font-size: 20px;
-
     border-radius: 12px;
-    /* Abgerundete Ecken */
-
     cursor: pointer;
-    /* Mauszeiger als Hand */
 }
 
 .tile:hover {
     background: #e0e0e0;
-    /* Hover-Effekt */
 }
+
+/* ======================================================
+   FORMULARE & BUTTONS
+   ====================================================== */
 
 textarea {
     width: 100%;
-    /* Volle Breite */
-
     height: 300px;
-
     font-size: 16px;
 }
 
 button {
     padding: 10px;
-
     margin-top: 10px;
-
     font-size: 16px;
 }
 
+/* Zurück-Button (SPA-Navigation) */
+.back-button {
+    background: none;
+    border: none;
+    color: #007aff;          /* iOS-Blau */
+    font-size: 16px;
+    font-weight: 500;
+    padding: 8px 0;
+    margin-bottom: 12px;
+    cursor: pointer;
+}
+
+.back-button:hover {
+    text-decoration: underline;
+}
+
+/* ======================================================
+   KALENDER
+   ====================================================== */
+
 .calendar-header {
     display: flex;
-    /* Flexbox für horizontale Ausrichtung */
-
     justify-content: space-between;
-    /* Abstand zwischen Buttons */
-
     align-items: center;
-
     margin: 16px 0;
 }
 
 #calendar {
     display: grid;
-
     grid-template-columns: repeat(7, 1fr);
-    /* 7 Spalten für Wochentage */
-
     gap: 8px;
 }
 
 .day {
     border: 1px solid #ccc;
-
     padding: 10px;
-
     min-height: 60px;
-
     cursor: pointer;
-}
-/* Standard: kein Eintrag */
-.day {
-    background: white;
+    background: white; /* Standard */
 }
 
-/* Status-Farben */
+/* ======================================================
+   STATUS-FARBEN
+   ====================================================== */
+
 .status-0 {
     background: #4caf50; /* grün */
 }
@@ -125,5 +116,5 @@ button {
 
 .status-blackout {
     background: #000000; /* schwarz */
-    color: white;        /* Text lesbar machen */
+    color: white;
 }
