@@ -1,106 +1,57 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <!-- Stellt sicher, dass Umlaute & Sonderzeichen korrekt dargestellt werden -->
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Wichtig für Mobile: korrektes Skalieren auf iPhone & Co. -->
-
-    <title>Projekt App</title>
-    <!-- Titel im Browser / App-Icon -->
-
-    <link rel="stylesheet" href="style.css">
-    <!-- Zentrales Styling -->
-</head>
-
 <body>
 
-    <!-- ======================================================
-         DASHBOARD (Startseite)
-         ====================================================== -->
-<div class="dashboard-header">
-    <h1>📱 Dashboard</h1>
+<!-- ======================================================
+     DASHBOARD (Startseite)
+     ====================================================== -->
+<div data-view="dashboard">
 
-    <button id="open-backup" class="backup-btn">
-        Backup
-    </button>
+    <div class="dashboard-header">
+        <h1>📱 Dashboard</h1>
+        <button id="open-backup" class="backup-btn">Backup</button>
+    </div>
+
+    <div class="tiles">
+        <div class="tile" data-tile="notes">📝 Notizen</div>
+        <div class="tile" data-tile="todo">✅ To-Do</div>
+        <div class="tile" data-tile="calendar">📅 Kalender</div>
+    </div>
+
 </div>
 
+<!-- ======================================================
+     NOTIZEN
+     ====================================================== -->
+<div data-view="notes" class="hidden">
+    <button class="back-button" data-back>Zurück</button>
+    <h2>📝 Notizen</h2>
+    <textarea id="note" placeholder="Schreibe hier deine Notiz..."></textarea>
+    <button id="saveBtn">Speichern</button>
+</div>
 
+<!-- ======================================================
+     KALENDER
+     ====================================================== -->
+<div data-view="calendar" class="hidden">
+    <button class="back-button" data-back>Zurück</button>
+    <h2>📅 Kalender</h2>
 
-        <div class="tiles">
-            <!-- Kachel: Notizen -->
-            <div class="tile" data-tile="notes">
-                📝 Notizen
-            </div>
-
-            <!-- Kachel: To-Do -->
-            <div class="tile" data-tile="todo">
-                ✅ To-Do
-            </div>
-
-            <!-- Kachel: Kalender -->
-            <div class="tile" data-tile="calendar">
-                📅 Kalender
-            </div>
-
-            <!-- 🔮 Zukünftige Kacheln kommen einfach hier dazu -->
-            <!--
-            <div class="tile" data-tile="xyz">
-                🔧 Neue Anwendung
-            </div>
-            -->
-        </div>
+    <div class="calendar-header">
+        <button id="prevMonth">◀</button>
+        <span id="monthYear"></span>
+        <button id="nextMonth">▶</button>
     </div>
 
-    <!-- ======================================================
-         NOTIZEN
-         ====================================================== -->
-    <div data-view="notes" class="hidden">
-<button class="back-button" data-back>Zurück</button>
+    <div id="calendar"></div>
+</div>
 
-
-        <h2>📝 Notizen</h2>
-
-        <textarea
-            id="note"
-            placeholder="Schreibe hier deine Notiz..."
-        ></textarea>
-
-        <button id="saveBtn">Speichern</button>
-    </div>
-
-    <!-- ======================================================
-         KALENDER
-         ====================================================== -->
-    <div data-view="calendar" class="hidden">
-      <button class="back-button" data-back>Zurück</button>
-
-
-        <h2>📅 Kalender</h2>
-
-        <div class="calendar-header">
-            <button id="prevMonth">◀</button>
-
-            <span id="monthYear"></span>
-
-            <button id="nextMonth">▶</button>
-        </div>
-
-        <div id="calendar"></div>
-    </div>
-
-        <!-- ======================================================
-         KALENDER
-         ====================================================== -->
+<!-- ======================================================
+     TO-DO
+     ====================================================== -->
 <div data-view="todo" class="hidden">
 
     <button class="back-button" data-back>Zurück</button>
-
     <h2>✅ To-Do</h2>
 
-    <!-- A-Aufgaben -->
     <section>
         <h3>A-Aufgaben</h3>
         <input id="todo-a-input" placeholder="Neue A-Aufgabe" />
@@ -108,7 +59,6 @@
         <ul id="todo-a-list"></ul>
     </section>
 
-    <!-- B-Aufgaben -->
     <section>
         <h3>B-Aufgaben</h3>
         <input id="todo-b-input" placeholder="Neue B-Aufgabe" />
@@ -116,7 +66,6 @@
         <ul id="todo-b-list"></ul>
     </section>
 
-    <!-- C-Aufgaben -->
     <section>
         <h3>C-Aufgaben</h3>
         <input id="todo-c-input" placeholder="Neue C-Aufgabe" />
@@ -124,15 +73,18 @@
         <ul id="todo-c-list"></ul>
     </section>
 
+</div>
+
+<!-- ======================================================
+     BACKUP / SYNC
+     ====================================================== -->
 <div data-view="backup" class="hidden">
 
     <button class="back-button" data-back>Zurück</button>
 
     <h2>🔄 Synchronisation & Backup</h2>
 
-    <p id="backup-status">
-        Letztes Backup: nie
-    </p>
+    <p id="backup-status">Letztes Backup: nie</p>
 
     <div class="backup-actions">
         <button id="backup-export">Backup exportieren</button>
@@ -141,26 +93,6 @@
 
 </div>
 
-    
-</div>
-
-    <!-- ======================================================
-         APP-START (ES MODULE ENTRY POINT)
-         ====================================================== -->
-    <script type="module" src="js/app.js?v=9"></script>
-    <link rel="stylesheet" href="style.css?v=3">
-
+<script type="module" src="js/app.js?v=10"></script>
 
 </body>
-</html>
-
-
-
-
-
-
-
-
-
-
-
