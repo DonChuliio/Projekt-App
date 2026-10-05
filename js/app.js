@@ -11,9 +11,6 @@ import { initPacklistEditor } from "./packlists/packlist-editor.js";
 import { initPacklistRun } from "./packlists/packlist-run.js";
 
 
-// ✅ EINZIGE Quelle der Wahrheit für die UI-Version
-const APP_VERSION = 0.37;
-
 /*
  Einstiegspunkt der App.
  Wird ausgeführt, sobald das DOM vollständig geladen ist.
@@ -21,11 +18,19 @@ const APP_VERSION = 0.37;
 document.addEventListener("DOMContentLoaded", () => {
     console.log("✅ app.js geladen");
 
-    // ✅ Versionsanzeige setzen
-    const versionEl = document.getElementById("app-version");
-    if (versionEl) {
-        versionEl.textContent = `v${APP_VERSION}`;
-    }
+// Versionsnummer direkt aus der URL von app.js lesen.
+// Beispiel: js/app.js?v=0.36 → Version 0.36
+
+const appScript = document.getElementById("app-script");
+const scriptUrl = new URL(appScript.src);
+
+const APP_VERSION = scriptUrl.searchParams.get("v");
+
+const versionEl = document.getElementById("app-version");
+
+if (versionEl) {
+    versionEl.textContent = `v${APP_VERSION}`;
+}
 
     // ✅ Feature-Module initialisieren
     initDashboard();
