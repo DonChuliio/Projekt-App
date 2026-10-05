@@ -1,31 +1,19 @@
 // js/watertest/watertest.js
 
+import { showView } from "../router.js";
+
 
 /*
  =========================================================
- WASSERTEST – KONFIGURATION
+ WASSERWERTE
  =========================================================
-
- Hier stehen alle Messwerte des JBL-Teststreifens.
-
- value:
- Der Messwert, der gespeichert und angezeigt wird.
-
- status:
- green  = guter Bereich
- orange = Warnbereich
- red    = kritischer Bereich
 */
 const WATER_VALUES = [
 
-    /* ==================================================
-       NO3
-       ================================================== */
     {
         id: "no3",
         name: "NO₃",
         unit: "mg/l",
-
         values: [
             { value: "0",   status: "green" },
             { value: "10",  status: "green" },
@@ -37,15 +25,10 @@ const WATER_VALUES = [
         ]
     },
 
-
-    /* ==================================================
-       NO2
-       ================================================== */
     {
         id: "no2",
         name: "NO₂",
         unit: "mg/l",
-
         values: [
             { value: "0",   status: "green" },
             { value: "0,5", status: "green" },
@@ -55,15 +38,10 @@ const WATER_VALUES = [
         ]
     },
 
-
-    /* ==================================================
-       GH
-       ================================================== */
     {
         id: "gh",
         name: "GH",
         unit: "°dH",
-
         values: [
             { value: "<3",  status: "red" },
             { value: "<4",  status: "green" },
@@ -73,15 +51,10 @@ const WATER_VALUES = [
         ]
     },
 
-
-    /* ==================================================
-       KH
-       ================================================== */
     {
         id: "kh",
         name: "KH",
         unit: "°dH",
-
         values: [
             { value: "0",  status: "red" },
             { value: "3",  status: "orange" },
@@ -92,15 +65,10 @@ const WATER_VALUES = [
         ]
     },
 
-
-    /* ==================================================
-       pH
-       ================================================== */
     {
         id: "ph",
         name: "pH",
         unit: "",
-
         values: [
             { value: "6.4", status: "orange" },
             { value: "6.8", status: "green" },
@@ -112,15 +80,10 @@ const WATER_VALUES = [
         ]
     },
 
-
-    /* ==================================================
-       Chlor / Cl2
-       ================================================== */
     {
         id: "cl2",
         name: "Cl₂",
         unit: "mg/l",
-
         values: [
             { value: "0",   status: "green" },
             { value: "0.8", status: "red" },
@@ -132,25 +95,6 @@ const WATER_VALUES = [
 ];
 
 
-/*
- =========================================================
- AKTUELLE EINGABE
- =========================================================
-
- Hier speichern wir vorübergehend die Werte,
- die gerade in der Eingabemaske ausgewählt wurden.
-
- Beispiel:
-
- {
-     no3: "25",
-     no2: "0",
-     gh: "<7",
-     kh: "6",
-     ph: "7.2",
-     cl2: "0"
- }
-*/
 let currentValues = {};
 
 
@@ -161,27 +105,63 @@ let currentValues = {};
 */
 export function initWatertest() {
 
-    const container =
-        document.getElementById("watertest-form");
+    const addButton =
+        document.getElementById("watertest-add");
+
+    const backButton =
+        document.getElementById("watertest-entry-back");
 
 
-    if (!container) {
+    if (!addButton || !backButton) {
 
         console.error(
-            "❌ watertest-form nicht gefunden"
+            "❌ Wassertest-Navigation nicht gefunden"
         );
 
         return;
     }
 
 
-    renderWatertestForm();
+    /*
+     Übersicht beim Start vorbereiten.
+    */
+    renderOverview();
+
+
+    /*
+     Neuen Test beginnen.
+    */
+    addButton.addEventListener("click", () => {
+
+        // Alte Eingabe leeren
+        currentValues = {};
+
+        // Aktuelle KW anzeigen
+        renderCurrentWeekTitle();
+
+        // Eingabemaske erstellen
+        renderWatertestForm();
+
+        // Eingabe öffnen
+        showView("watertest-entry");
+    });
+
+
+    /*
+     Von Eingabe zurück zur Übersicht.
+    */
+    backButton.addEventListener("click", () => {
+
+        renderOverview();
+
+        showView("watertest");
+    });
 }
 
 
 /*
  =========================================================
- EINGABEMASKE AUFBAUEN
+ EINGABEMASKE
  =========================================================
 */
 function renderWatertestForm() {
@@ -195,23 +175,11 @@ function renderWatertestForm() {
     }
 
 
-    /*
-     Alten Inhalt entfernen.
-
-     Danach bauen wir die komplette Maske
-     mit dem aktuellen Auswahlzustand neu auf.
-    */
     container.innerHTML = "";
 
 
-    /*
-     Jeden Wasserparameter durchgehen.
-    */
     WATER_VALUES.forEach(parameter => {
 
-        /*
-         Bereich für einen Wasserwert erstellen.
-        */
         const section =
             document.createElement("section");
 
@@ -219,12 +187,6 @@ function renderWatertestForm() {
             "watertest-section";
 
 
-        /*
-         Überschrift erstellen.
-
-         Beispiel:
-         NO₃ (mg/l)
-        */
         const title =
             document.createElement("h3");
 
@@ -238,9 +200,6 @@ function renderWatertestForm() {
         section.appendChild(title);
 
 
-        /*
-         Container für die Auswahlbuttons.
-        */
         const buttons =
             document.createElement("div");
 
@@ -248,49 +207,26 @@ function renderWatertestForm() {
             "watertest-values";
 
 
-        /*
-         Alle möglichen Werte dieses
-         Parameters durchgehen.
-        */
         parameter.values.forEach(option => {
 
-            /*
-             Button erstellen.
-            */
             const button =
                 document.createElement("button");
 
 
-            button.type =
-                "button";
-
+            button.type = "button";
 
             button.className =
                 "watertest-value";
 
-
-            /*
-             Messwert auf dem Button anzeigen.
-            */
             button.textContent =
                 option.value;
 
 
-            /*
-             Prüfen, ob dieser Wert gerade
-             ausgewählt ist.
-            */
             const isSelected =
                 currentValues[parameter.id]
                 === option.value;
 
 
-            /*
-             Wenn ausgewählt:
-
-             - selected hinzufügen
-             - passende Feedbackfarbe hinzufügen
-            */
             if (isSelected) {
 
                 button.classList.add(
@@ -300,68 +236,45 @@ function renderWatertestForm() {
             }
 
 
-            /*
-             Klick auf einen Wert.
-            */
             button.addEventListener(
                 "click",
                 () => {
 
-                    /*
-                     Ausgewählten Wert speichern.
-                    */
                     currentValues[
                         parameter.id
                     ] = option.value;
 
-
-                    /*
-                     Eingabemaske neu zeichnen.
-
-                     Dadurch wird nur der aktuell
-                     ausgewählte Wert eingefärbt.
-                    */
                     renderWatertestForm();
-
                 }
             );
 
 
             buttons.appendChild(button);
-
         });
 
 
         section.appendChild(buttons);
 
         container.appendChild(section);
-
     });
 
 
-    /* ==================================================
-       SPEICHERN-BUTTON
-       ================================================== */
-
+    /*
+     Speichern
+    */
     const saveButton =
         document.createElement("button");
-
 
     saveButton.type =
         "button";
 
-
     saveButton.className =
         "watertest-save";
-
 
     saveButton.textContent =
         "Wassertest speichern";
 
 
-    /*
-     Beim Klick wird der komplette Test gespeichert.
-    */
     saveButton.addEventListener(
         "click",
         saveWatertest
@@ -374,14 +287,13 @@ function renderWatertestForm() {
 
 /*
  =========================================================
- WASSERTEST SPEICHERN
+ TEST SPEICHERN
  =========================================================
 */
 function saveWatertest() {
 
     /*
-     Prüfen, ob für alle sechs Parameter
-     ein Wert ausgewählt wurde.
+     Sind alle sechs Werte ausgewählt?
     */
     const allSelected =
         WATER_VALUES.every(
@@ -392,10 +304,6 @@ function saveWatertest() {
         );
 
 
-    /*
-     Falls noch etwas fehlt:
-     nicht speichern.
-    */
     if (!allSelected) {
 
         alert(
@@ -406,49 +314,40 @@ function saveWatertest() {
     }
 
 
+    const today =
+        new Date();
+
+    const week =
+        getISOWeek(today);
+
+    const year =
+        getISOWeekYear(today);
+
+
+    let history =
+        loadHistory();
+
+
     /*
-     Bereits vorhandene Wassertests laden.
+     Gibt es bereits einen Test
+     für diese KW und dieses Jahr?
+
+     Dann entfernen wir ihn.
+
+     Dadurch gibt es immer nur
+     EINEN Test pro Kalenderwoche.
     */
-    const raw =
-        localStorage.getItem(
-            "watertest-history"
+    history =
+        history.filter(test =>
+            !(
+                test.week === week &&
+                test.year === year
+            )
         );
 
 
-    let history = [];
-
-
     /*
-     Falls bereits Daten vorhanden sind,
-     versuchen wir sie einzulesen.
-    */
-    if (raw) {
-
-        try {
-
-            history =
-                JSON.parse(raw);
-
-        } catch (error) {
-
-            console.error(
-                "❌ Wassertest-Verlauf konnte nicht geladen werden",
-                error
-            );
-
-            history = [];
-        }
-    }
-
-
-    /*
-     Neuen Wassertest erstellen.
-
-     Wir speichern:
-
-     - eindeutige ID
-     - Datum und Uhrzeit
-     - die sechs Messwerte
+     Neuen Test erstellen.
     */
     const test = {
 
@@ -458,6 +357,12 @@ function saveWatertest() {
         date:
             new Date().toISOString(),
 
+        year:
+            year,
+
+        week:
+            week,
+
         values: {
             ...currentValues
         }
@@ -465,14 +370,11 @@ function saveWatertest() {
     };
 
 
-    /*
-     Neuen Test zum Verlauf hinzufügen.
-    */
     history.push(test);
 
 
     /*
-     Kompletten Verlauf wieder speichern.
+     Verlauf speichern.
     */
     localStorage.setItem(
         "watertest-history",
@@ -481,21 +383,402 @@ function saveWatertest() {
 
 
     /*
-     Aktuelle Eingabe zurücksetzen.
+     Eingabe zurücksetzen.
     */
     currentValues = {};
 
 
     /*
-     Eingabemaske zurücksetzen.
+     Übersicht aktualisieren.
     */
-    renderWatertestForm();
+    renderOverview();
 
 
     /*
-     Kurze Bestätigung.
+     Direkt zurück zur Übersicht.
     */
-    alert(
-        "Wassertest gespeichert."
+    showView("watertest");
+}
+
+
+/*
+ =========================================================
+ ÜBERSICHT
+ =========================================================
+*/
+function renderOverview() {
+
+    const container =
+        document.getElementById(
+            "watertest-overview"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML = "";
+
+
+    const history =
+        loadHistory();
+
+
+    /*
+     Noch keine Tests vorhanden.
+    */
+    if (history.length === 0) {
+
+        const empty =
+            document.createElement("p");
+
+        empty.className =
+            "watertest-empty";
+
+        empty.textContent =
+            "Noch keine Wassertests gespeichert.";
+
+        container.appendChild(empty);
+
+        return;
+    }
+
+
+    /*
+     Neueste KW zuerst.
+    */
+    const sortedHistory =
+        [...history].sort((a, b) => {
+
+            if (a.year !== b.year) {
+                return b.year - a.year;
+            }
+
+            return b.week - a.week;
+        });
+
+
+    /*
+     Horizontal scrollbar,
+     falls die Tabelle auf dem Handy
+     breiter als der Bildschirm ist.
+    */
+    const scroll =
+        document.createElement("div");
+
+    scroll.className =
+        "watertest-overview-scroll";
+
+
+    const table =
+        document.createElement("table");
+
+    table.className =
+        "watertest-overview-table";
+
+
+    /*
+     Tabellenkopf
+    */
+    const thead =
+        document.createElement("thead");
+
+    const headerRow =
+        document.createElement("tr");
+
+
+    const kwHeader =
+        document.createElement("th");
+
+    kwHeader.textContent = "KW";
+
+    headerRow.appendChild(kwHeader);
+
+
+    WATER_VALUES.forEach(parameter => {
+
+        const th =
+            document.createElement("th");
+
+        th.textContent =
+            parameter.name;
+
+        headerRow.appendChild(th);
+    });
+
+
+    thead.appendChild(headerRow);
+
+    table.appendChild(thead);
+
+
+    /*
+     Tabelleninhalt
+    */
+    const tbody =
+        document.createElement("tbody");
+
+
+    sortedHistory.forEach(test => {
+
+        const row =
+            document.createElement("tr");
+
+
+        /*
+         KW
+        */
+        const weekCell =
+            document.createElement("th");
+
+        weekCell.textContent =
+            `${test.week}`;
+
+        row.appendChild(weekCell);
+
+
+        /*
+         Sechs Wasserwerte
+        */
+        WATER_VALUES.forEach(parameter => {
+
+            const cell =
+                document.createElement("td");
+
+
+            const value =
+                test.values[
+                    parameter.id
+                ];
+
+
+            const status =
+                getStatus(
+                    parameter,
+                    value
+                );
+
+
+            /*
+             Farbiger Punkt.
+            */
+            const dot =
+                document.createElement("span");
+
+            dot.className =
+                `watertest-status-dot status-${status}`;
+
+
+            /*
+             Messwert als kleiner Text darunter.
+             Damit wissen wir nicht nur die Farbe,
+             sondern auch den tatsächlichen Wert.
+            */
+            const valueText =
+                document.createElement("span");
+
+            valueText.className =
+                "watertest-overview-value";
+
+            valueText.textContent =
+                value;
+
+
+            cell.appendChild(dot);
+
+            cell.appendChild(valueText);
+
+            row.appendChild(cell);
+        });
+
+
+        tbody.appendChild(row);
+    });
+
+
+    table.appendChild(tbody);
+
+    scroll.appendChild(table);
+
+    container.appendChild(scroll);
+}
+
+
+/*
+ =========================================================
+ STATUS EINES WERTES BESTIMMEN
+ =========================================================
+*/
+function getStatus(
+    parameter,
+    value
+) {
+
+    const option =
+        parameter.values.find(
+            option =>
+                option.value === value
+        );
+
+
+    return option
+        ? option.status
+        : "unknown";
+}
+
+
+/*
+ =========================================================
+ VERLAUF LADEN
+ =========================================================
+*/
+function loadHistory() {
+
+    const raw =
+        localStorage.getItem(
+            "watertest-history"
+        );
+
+
+    if (!raw) {
+        return [];
+    }
+
+
+    try {
+
+        const history =
+            JSON.parse(raw);
+
+        return Array.isArray(history)
+            ? history
+            : [];
+
+    } catch (error) {
+
+        console.error(
+            "❌ Wassertest-Verlauf konnte nicht geladen werden",
+            error
+        );
+
+        return [];
+    }
+}
+
+
+/*
+ =========================================================
+ AKTUELLE KW IN DER EINGABE
+ =========================================================
+*/
+function renderCurrentWeekTitle() {
+
+    const element =
+        document.getElementById(
+            "watertest-current-week"
+        );
+
+
+    if (!element) {
+        return;
+    }
+
+
+    const today =
+        new Date();
+
+    const week =
+        getISOWeek(today);
+
+    const year =
+        getISOWeekYear(today);
+
+
+    element.textContent =
+        `KW ${week} · ${year}`;
+}
+
+
+/*
+ =========================================================
+ ISO-KALENDERWOCHE
+ =========================================================
+*/
+function getISOWeek(date) {
+
+    const tempDate =
+        new Date(
+            Date.UTC(
+                date.getFullYear(),
+                date.getMonth(),
+                date.getDate()
+            )
+        );
+
+
+    const dayNumber =
+        tempDate.getUTCDay() || 7;
+
+
+    tempDate.setUTCDate(
+        tempDate.getUTCDate()
+        + 4
+        - dayNumber
     );
+
+
+    const yearStart =
+        new Date(
+            Date.UTC(
+                tempDate.getUTCFullYear(),
+                0,
+                1
+            )
+        );
+
+
+    return Math.ceil(
+        (
+            (
+                (tempDate - yearStart)
+                / 86400000
+            )
+            + 1
+        )
+        / 7
+    );
+}
+
+
+/*
+ =========================================================
+ ISO-JAHR
+ =========================================================
+*/
+function getISOWeekYear(date) {
+
+    const tempDate =
+        new Date(
+            Date.UTC(
+                date.getFullYear(),
+                date.getMonth(),
+                date.getDate()
+            )
+        );
+
+
+    const dayNumber =
+        tempDate.getUTCDay() || 7;
+
+
+    tempDate.setUTCDate(
+        tempDate.getUTCDate()
+        + 4
+        - dayNumber
+    );
+
+
+    return tempDate.getUTCFullYear();
 }
