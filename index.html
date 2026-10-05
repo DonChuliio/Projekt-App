@@ -237,92 +237,104 @@
          TO-DO
          ================================================== -->
 
-    <div
-        data-view="todo"
-        class="hidden"
+<!-- ==================================================
+     TO-DO
+     ================================================== -->
+
+<div
+    data-view="todo"
+    class="hidden"
+>
+
+    <button
+        class="back-button"
+        data-back
     >
-
-        <button
-            class="back-button"
-            data-back
-        >
-            Zurück
-        </button>
+        Zurück
+    </button>
 
 
-        <h2>To-Do</h2>
+    <h2>To-Do</h2>
 
 
-        <!-- A-Aufgaben -->
+    <!-- A-Aufgaben -->
 
-        <section>
+    <section class="todo-section">
 
-            <h3>A-Aufgaben</h3>
+        <h3>A-Aufgaben</h3>
 
+
+        <div class="todo-input-row">
 
             <input
                 id="todo-a-input"
                 placeholder="Neue A-Aufgabe"
             >
 
-
             <button id="todo-a-add">
                 Hinzufügen
             </button>
 
-
-            <ul id="todo-a-list"></ul>
-
-        </section>
+        </div>
 
 
-        <!-- B-Aufgaben -->
+        <ul id="todo-a-list"></ul>
 
-        <section>
+    </section>
 
-            <h3>B-Aufgaben</h3>
 
+    <!-- B-Aufgaben -->
+
+    <section class="todo-section">
+
+        <h3>B-Aufgaben</h3>
+
+
+        <div class="todo-input-row">
 
             <input
                 id="todo-b-input"
                 placeholder="Neue B-Aufgabe"
             >
 
-
             <button id="todo-b-add">
                 Hinzufügen
             </button>
 
-
-            <ul id="todo-b-list"></ul>
-
-        </section>
+        </div>
 
 
-        <!-- C-Aufgaben -->
+        <ul id="todo-b-list"></ul>
 
-        <section>
+    </section>
 
-            <h3>C-Aufgaben</h3>
 
+    <!-- C-Aufgaben -->
+
+    <section class="todo-section">
+
+        <h3>C-Aufgaben</h3>
+
+
+        <div class="todo-input-row">
 
             <input
                 id="todo-c-input"
                 placeholder="Neue C-Aufgabe"
             >
 
-
             <button id="todo-c-add">
                 Hinzufügen
             </button>
 
+        </div>
 
-            <ul id="todo-c-list"></ul>
 
-        </section>
+        <ul id="todo-c-list"></ul>
 
-    </div>
+    </section>
 
+</div>
 
 
     <!-- ==================================================
