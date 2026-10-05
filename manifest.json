@@ -1,0 +1,11 @@
+{
+    "id": "/Projekt-App/",
+    "name": "Projekt App",
+    "short_name": "Projekt App",
+    "description": "Meine persönliche Projekt App",
+    "start_url": "/Projekt-App/",
+    "scope": "/Projekt-App/",
+    "display": "standalone",
+    "background_color": "#121212",
+    "theme_color": "#121212"
+}
