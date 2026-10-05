@@ -566,13 +566,6 @@ html, body {
 
 
 /*
- Ausgewählter Wert
-*/
-.watertest-value.selected {
-    background: var(--petrol);
-    color: #000;
-    border-color: var(--petrol);
-}
 
 
 /*
