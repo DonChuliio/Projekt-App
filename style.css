@@ -625,7 +625,24 @@ html, body {
     -webkit-overflow-scrolling: touch;
 }
 
+/* Erste Spalte: NO₃, NO₂, GH usw. */
+.watertest-overview-table th:first-child {
+    width: 48px;
+    min-width: 48px;
+    padding-left: 4px;
+    padding-right: 8px;
+    text-align: left;
+}
 
+
+/* KW-Spalten kompakt halten */
+.watertest-overview-table th:not(:first-child),
+.watertest-overview-table td {
+    width: 54px;
+    min-width: 54px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
 /*
  Übersichtstabelle
 */
