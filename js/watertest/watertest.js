@@ -96,6 +96,12 @@ const WATER_VALUES = [
 ];
 
 
+/*
+ =========================================================
+ AKTUELL BEARBEITETE WERTE
+ =========================================================
+*/
+
 let currentValues = {};
 
 
@@ -131,89 +137,122 @@ export function initWatertest() {
 
 
     /*
-     Neuen Test beginnen.
+     =====================================================
+     WASSERTEST DER AKTUELLEN KW ÖFFNEN
+     =====================================================
+
+     Wenn bereits ein Test existiert:
+     -> gespeicherte Werte laden
+
+     Wenn noch keiner existiert:
+     -> leere Eingabe öffnen
     */
-addButton.addEventListener("click", () => {
+    addButton.addEventListener("click", () => {
 
-    /*
-     Aktuelle Kalenderwoche bestimmen.
-    */
-    const today =
-        new Date();
+        const today =
+            new Date();
 
-    const week =
-        getISOWeek(today);
+        const week =
+            getISOWeek(today);
 
-    const year =
-        getISOWeekYear(today);
+        const year =
+            getISOWeekYear(today);
 
 
-    /*
-     Gespeicherte Wassertests laden.
-    */
-    const history =
-        loadHistory();
+        const history =
+            loadHistory();
 
-
-    /*
-     Prüfen, ob für die aktuelle KW
-     bereits ein Wassertest existiert.
-    */
-    const existingTest =
-        history.find(test =>
-            test.week === week &&
-            test.year === year
-        );
-
-
-    /*
-     EXISTIERT BEREITS EIN TEST:
-
-     Dann übernehmen wir seine Werte
-     in die Eingabemaske.
-
-     Dadurch sind die bisherigen Werte
-     direkt ausgewählt und können
-     verändert werden.
-    */
-    if (existingTest) {
-
-        currentValues = {
-            ...existingTest.values
-        };
-
-    } else {
 
         /*
-         NOCH KEIN TEST:
+         Test der aktuellen KW suchen.
 
-         Dann beginnen wir mit einer
-         komplett leeren Eingabe.
+         Number() sorgt dafür, dass es auch
+         funktioniert, falls ältere Daten
+         Woche/Jahr als Text gespeichert haben.
         */
-        currentValues = {};
-    }
+        const existingTest =
+            history.find(test =>
+
+                Number(test.week) === week &&
+
+                Number(test.year) === year
+            );
 
 
-    /*
-     Aktuelle KW anzeigen.
-    */
-    renderCurrentWeekTitle();
+        /*
+         Es gibt bereits einen Test
+         für die aktuelle KW.
+        */
+        if (
+            existingTest &&
+            existingTest.values
+        ) {
+
+            currentValues = {
+
+                no3:
+                    existingTest.values.no3,
+
+                no2:
+                    existingTest.values.no2,
+
+                gh:
+                    existingTest.values.gh,
+
+                kh:
+                    existingTest.values.kh,
+
+                ph:
+                    existingTest.values.ph,
+
+                cl2:
+                    existingTest.values.cl2,
+
+                temperature:
+                    existingTest.values.temperature ?? ""
+            };
 
 
-    /*
-     Eingabemaske erstellen.
+            console.log(
+                "💧 Bestehender Wassertest geladen:",
+                currentValues
+            );
 
-     Falls ein Test existiert, werden
-     seine Werte automatisch angezeigt.
-    */
-    renderWatertestForm();
+        } else {
+
+            /*
+             Noch kein Test für diese KW.
+             Deshalb leere Eingabe.
+            */
+            currentValues = {};
 
 
-    /*
-     Eingabeseite öffnen.
-    */
-    showView("watertest-entry");
-});
+            console.log(
+                "💧 Noch kein Wassertest für diese KW"
+            );
+        }
+
+
+        /*
+         Aktuelle KW oben anzeigen.
+        */
+        renderCurrentWeekTitle();
+
+
+        /*
+         Eingabemaske erstellen.
+
+         Wenn bereits Werte geladen wurden,
+         werden diese direkt markiert.
+        */
+        renderWatertestForm();
+
+
+        /*
+         Eingabeseite öffnen.
+        */
+        showView("watertest-entry");
+    });
 
 
     /*
@@ -237,7 +276,9 @@ addButton.addEventListener("click", () => {
 function renderWatertestForm() {
 
     const container =
-        document.getElementById("watertest-form");
+        document.getElementById(
+            "watertest-form"
+        );
 
 
     if (!container) {
@@ -249,7 +290,9 @@ function renderWatertestForm() {
 
 
     /*
-     Normale Wasserwerte
+     =====================================================
+     WASSERWERTE
+     =====================================================
     */
     WATER_VALUES.forEach(parameter => {
 
@@ -280,13 +323,17 @@ function renderWatertestForm() {
             "watertest-values";
 
 
+        /*
+         Auswahlmöglichkeiten erzeugen.
+        */
         parameter.values.forEach(option => {
 
             const button =
                 document.createElement("button");
 
 
-            button.type = "button";
+            button.type =
+                "button";
 
             button.className =
                 "watertest-value";
@@ -295,11 +342,24 @@ function renderWatertestForm() {
                 option.value;
 
 
+            /*
+             Prüfen, ob dieser Wert bereits
+             ausgewählt / gespeichert ist.
+            */
             const isSelected =
-                currentValues[parameter.id]
-                === option.value;
+                String(
+                    currentValues[
+                        parameter.id
+                    ] ?? ""
+                )
+                ===
+                String(option.value);
 
 
+            /*
+             Bereits gespeicherten Wert
+             farbig markieren.
+            */
             if (isSelected) {
 
                 button.classList.add(
@@ -309,6 +369,9 @@ function renderWatertestForm() {
             }
 
 
+            /*
+             Wert auswählen.
+            */
             button.addEventListener(
                 "click",
                 () => {
@@ -317,6 +380,12 @@ function renderWatertestForm() {
                         parameter.id
                     ] = option.value;
 
+
+                    /*
+                     Formular neu zeichnen,
+                     damit die neue Auswahl
+                     farbig dargestellt wird.
+                    */
                     renderWatertestForm();
                 }
             );
@@ -332,9 +401,11 @@ function renderWatertestForm() {
     });
 
 
-    /* ==================================================
-       TEMPERATUR – MANUELLE EINGABE
-       ================================================== */
+    /*
+     =====================================================
+     TEMPERATUR
+     =====================================================
+    */
 
     const temperatureSection =
         document.createElement("section");
@@ -349,16 +420,17 @@ function renderWatertestForm() {
     temperatureTitle.textContent =
         "Temperatur (°C)";
 
+
     temperatureSection.appendChild(
         temperatureTitle
     );
 
 
     /*
-     Textfeld statt number verwenden.
+     Manuelles Eingabefeld.
 
-     Dadurch können wir auf dem iPhone
-     sowohl 24,5 als auch 24.5 akzeptieren.
+     inputMode decimal sorgt auf dem
+     Handy für eine passende Tastatur.
     */
     const temperatureInput =
         document.createElement("input");
@@ -377,13 +449,31 @@ function renderWatertestForm() {
 
 
     /*
-     Falls bereits etwas eingegeben wurde,
-     bleibt es beim erneuten Rendern erhalten.
+     Gespeicherte Temperatur anzeigen.
+
+     Intern kann sie mit Punkt gespeichert sein.
+     Für die Eingabe zeigen wir ein Komma.
     */
-    temperatureInput.value =
-        currentValues.temperature ?? "";
+    if (
+        currentValues.temperature !== undefined &&
+        currentValues.temperature !== null &&
+        currentValues.temperature !== ""
+    ) {
+
+        temperatureInput.value =
+            String(
+                currentValues.temperature
+            ).replace(".", ",");
+
+    } else {
+
+        temperatureInput.value = "";
+    }
 
 
+    /*
+     Eingabe merken.
+    */
     temperatureInput.addEventListener(
         "input",
         () => {
@@ -398,14 +488,18 @@ function renderWatertestForm() {
         temperatureInput
     );
 
+
     container.appendChild(
         temperatureSection
     );
 
 
     /*
-     Speichern
+     =====================================================
+     SPEICHERN
+     =====================================================
     */
+
     const saveButton =
         document.createElement("button");
 
@@ -425,7 +519,9 @@ function renderWatertestForm() {
     );
 
 
-    container.appendChild(saveButton);
+    container.appendChild(
+        saveButton
+    );
 }
 
 
@@ -438,7 +534,8 @@ function renderWatertestForm() {
 function saveWatertest() {
 
     /*
-     Sind alle sechs Wasserwerte ausgewählt?
+     Prüfen, ob alle sechs Wasserwerte
+     ausgewählt wurden.
     */
     const allSelected =
         WATER_VALUES.every(
@@ -460,15 +557,17 @@ function saveWatertest() {
 
 
     /*
-     Temperatur prüfen.
-
-     Komma und Punkt werden beide akzeptiert.
+     =====================================================
+     TEMPERATUR PRÜFEN
+     =====================================================
     */
+
     const temperature =
         parseFloat(
             String(
                 currentValues.temperature ?? ""
-            ).replace(",", ".")
+            )
+            .replace(",", ".")
         );
 
 
@@ -483,8 +582,8 @@ function saveWatertest() {
 
 
     /*
-     Temperatur immer mit genau
-     einer Nachkommastelle speichern.
+     Temperatur mit genau einer
+     Nachkommastelle speichern.
 
      Beispiel:
      24,5 -> "24.5"
@@ -494,6 +593,9 @@ function saveWatertest() {
         temperature.toFixed(1);
 
 
+    /*
+     Aktuelle KW bestimmen.
+    */
     const today =
         new Date();
 
@@ -509,26 +611,28 @@ function saveWatertest() {
 
 
     /*
-     Gibt es bereits einen Test
-     für diese KW und dieses Jahr?
+     =====================================================
+     ALTEN TEST DIESER KW ENTFERNEN
+     =====================================================
 
-     Dann entfernen wir ihn.
-
-     Dadurch gibt es immer nur
-     EINEN Test pro Kalenderwoche.
+     Dadurch bearbeiten wir einen bestehenden
+     Test, statt einen zweiten anzulegen.
     */
     history =
         history.filter(test =>
             !(
-                test.week === week &&
-                test.year === year
+                Number(test.week) === week &&
+                Number(test.year) === year
             )
         );
 
 
     /*
-     Neuen Test erstellen.
+     =====================================================
+     NEUEN / BEARBEITETEN TEST ERSTELLEN
+     =====================================================
     */
+
     const test = {
 
         id:
@@ -575,7 +679,7 @@ function saveWatertest() {
 
 
     /*
-     Direkt zurück zur Übersicht.
+     Zurück zur Übersicht.
     */
     showView("watertest");
 }
@@ -621,6 +725,7 @@ function renderOverview() {
         empty.textContent =
             "Noch keine Wassertests gespeichert.";
 
+
         container.appendChild(empty);
 
         return;
@@ -629,23 +734,31 @@ function renderOverview() {
 
     /*
      Neueste Kalenderwoche zuerst.
-
-     Dadurch steht die aktuellste KW
-     direkt links in der Tabelle.
     */
     const sortedHistory =
         [...history].sort((a, b) => {
 
-            if (a.year !== b.year) {
-                return b.year - a.year;
+            if (
+                Number(a.year) !==
+                Number(b.year)
+            ) {
+
+                return (
+                    Number(b.year) -
+                    Number(a.year)
+                );
             }
 
-            return b.week - a.week;
+
+            return (
+                Number(b.week) -
+                Number(a.week)
+            );
         });
 
 
     /*
-     Scrollbarer Bereich für das Handy.
+     Scrollbarer Bereich.
     */
     const scroll =
         document.createElement("div");
@@ -655,7 +768,7 @@ function renderOverview() {
 
 
     /*
-     Tabelle erstellen.
+     Tabelle.
     */
     const table =
         document.createElement("table");
@@ -664,12 +777,11 @@ function renderOverview() {
         "watertest-overview-table";
 
 
-    /* ==================================================
-       TABELLENKOPF
-
-       Erste Spalte = Wasserwert
-       Danach kommen die Kalenderwochen
-       ================================================== */
+    /*
+     =====================================================
+     TABELLENKOPF
+     =====================================================
+    */
 
     const thead =
         document.createElement("thead");
@@ -680,7 +792,7 @@ function renderOverview() {
 
 
     /*
-     Linke obere Ecke bleibt leer.
+     Linke obere Ecke.
     */
     const emptyHeader =
         document.createElement("th");
@@ -693,8 +805,7 @@ function renderOverview() {
 
 
     /*
-     Jede gespeicherte KW bekommt
-     eine eigene Spalte.
+     Kalenderwochen als Spalten.
     */
     sortedHistory.forEach(test => {
 
@@ -710,17 +821,21 @@ function renderOverview() {
     });
 
 
-    thead.appendChild(headerRow);
+    thead.appendChild(
+        headerRow
+    );
 
-    table.appendChild(thead);
+
+    table.appendChild(
+        thead
+    );
 
 
-    /* ==================================================
-       TABELLENINHALT
-
-       Jeder Wasserwert bekommt
-       eine eigene Zeile.
-       ================================================== */
+    /*
+     =====================================================
+     WASSERWERTE ALS ZEILEN
+     =====================================================
+    */
 
     const tbody =
         document.createElement("tbody");
@@ -733,7 +848,7 @@ function renderOverview() {
 
 
         /*
-         Name des Wasserwertes links.
+         Name links.
         */
         const parameterCell =
             document.createElement("th");
@@ -749,8 +864,7 @@ function renderOverview() {
 
 
         /*
-         Für jede KW den gespeicherten
-         Messwert anzeigen.
+         Werte der einzelnen KWs.
         */
         sortedHistory.forEach(test => {
 
@@ -759,20 +873,48 @@ function renderOverview() {
 
 
             const value =
-                test.values[
+                test.values?.[
                     parameter.id
                 ];
+
+
+            /*
+             Falls ein sehr alter Test
+             diesen Wert nicht enthält.
+            */
+            if (
+                value === undefined ||
+                value === null
+            ) {
+
+                const valueText =
+                    document.createElement("span");
+
+                valueText.className =
+                    "watertest-overview-value";
+
+                valueText.textContent =
+                    "–";
+
+                cell.appendChild(
+                    valueText
+                );
+
+                row.appendChild(cell);
+
+                return;
+            }
 
 
             const status =
                 getStatus(
                     parameter,
-                    value
+                    String(value)
                 );
 
 
             /*
-             Farbiger Statuspunkt.
+             Farbiger Punkt.
             */
             const dot =
                 document.createElement("span");
@@ -783,7 +925,7 @@ function renderOverview() {
 
 
             /*
-             Tatsächlicher Messwert.
+             Messwert.
             */
             const valueText =
                 document.createElement("span");
@@ -812,9 +954,11 @@ function renderOverview() {
     });
 
 
-    /* ==================================================
-       TEMPERATUR-ZEILE
-       ================================================== */
+    /*
+     =====================================================
+     TEMPERATUR-ZEILE
+     =====================================================
+    */
 
     const temperatureRow =
         document.createElement("tr");
@@ -826,15 +970,12 @@ function renderOverview() {
     temperatureName.textContent =
         "Temp.";
 
+
     temperatureRow.appendChild(
         temperatureName
     );
 
 
-    /*
-     Für jede gespeicherte KW
-     die Temperatur anzeigen.
-    */
     sortedHistory.forEach(test => {
 
         const cell =
@@ -846,11 +987,7 @@ function renderOverview() {
 
 
         /*
-         Alte Tests wurden noch ohne
-         Temperatur gespeichert.
-
-         In diesem Fall zeigen wir
-         einfach einen Strich.
+         Alte Tests ohne Temperatur.
         */
         if (
             rawTemperature === undefined ||
@@ -867,9 +1004,14 @@ function renderOverview() {
             valueText.textContent =
                 "–";
 
-            cell.appendChild(valueText);
 
-            temperatureRow.appendChild(cell);
+            cell.appendChild(
+                valueText
+            );
+
+            temperatureRow.appendChild(
+                cell
+            );
 
             return;
         }
@@ -882,6 +1024,34 @@ function renderOverview() {
             );
 
 
+        /*
+         Falls aus irgendeinem Grund
+         keine gültige Zahl gespeichert ist.
+        */
+        if (!Number.isFinite(temperature)) {
+
+            const valueText =
+                document.createElement("span");
+
+            valueText.className =
+                "watertest-overview-value";
+
+            valueText.textContent =
+                "–";
+
+
+            cell.appendChild(
+                valueText
+            );
+
+            temperatureRow.appendChild(
+                cell
+            );
+
+            return;
+        }
+
+
         const status =
             getTemperatureStatus(
                 temperature
@@ -889,10 +1059,11 @@ function renderOverview() {
 
 
         /*
-         Farbiger Statuspunkt.
+         Farbiger Punkt.
         */
         const dot =
             document.createElement("span");
+
 
         dot.className =
             `watertest-status-dot status-${status}`;
@@ -900,15 +1071,14 @@ function renderOverview() {
 
         /*
          Temperatur anzeigen.
-
-         Punkt wird für die Anzeige
-         wieder zum deutschen Komma.
         */
         const valueText =
             document.createElement("span");
 
+
         valueText.className =
             "watertest-overview-value";
+
 
         valueText.textContent =
             `${temperature
@@ -922,7 +1092,10 @@ function renderOverview() {
             valueText
         );
 
-        temperatureRow.appendChild(cell);
+
+        temperatureRow.appendChild(
+            cell
+        );
     });
 
 
@@ -931,17 +1104,25 @@ function renderOverview() {
     );
 
 
-    table.appendChild(tbody);
+    table.appendChild(
+        tbody
+    );
 
-    scroll.appendChild(table);
 
-    container.appendChild(scroll);
+    scroll.appendChild(
+        table
+    );
+
+
+    container.appendChild(
+        scroll
+    );
 }
 
 
 /*
  =========================================================
- TEMPERATUR-STATUS BESTIMMEN
+ TEMPERATUR-STATUS
  =========================================================
 */
 
@@ -950,23 +1131,24 @@ function getTemperatureStatus(
 ) {
 
     /*
-     GRÜN:
+     GRÜN
      22,0 bis unter 26,0 °C
     */
     if (
         temperature >= 22 &&
         temperature < 26
     ) {
+
         return "green";
     }
 
 
     /*
-     ORANGE:
+     ORANGE
 
      20,0 bis unter 22,0 °C
 
-     ODER
+     oder
 
      26,0 bis unter 28,0 °C
     */
@@ -974,18 +1156,20 @@ function getTemperatureStatus(
         (
             temperature >= 20 &&
             temperature < 22
-        ) ||
+        )
+        ||
         (
             temperature >= 26 &&
             temperature < 28
         )
     ) {
+
         return "orange";
     }
 
 
     /*
-     Alles andere ist ROT:
+     ROT
 
      unter 20,0 °C
      oder ab 28,0 °C
@@ -996,7 +1180,7 @@ function getTemperatureStatus(
 
 /*
  =========================================================
- STATUS EINES WASSERWERTES BESTIMMEN
+ STATUS EINES WASSERWERTES
  =========================================================
 */
 
@@ -1008,7 +1192,9 @@ function getStatus(
     const option =
         parameter.values.find(
             option =>
-                option.value === value
+                String(option.value)
+                ===
+                String(value)
         );
 
 
@@ -1042,6 +1228,7 @@ function loadHistory() {
         const history =
             JSON.parse(raw);
 
+
         return Array.isArray(history)
             ? history
             : [];
@@ -1053,6 +1240,7 @@ function loadHistory() {
             error
         );
 
+
         return [];
     }
 }
@@ -1060,7 +1248,7 @@ function loadHistory() {
 
 /*
  =========================================================
- AKTUELLE KW IN DER EINGABE
+ AKTUELLE KW ANZEIGEN
  =========================================================
 */
 
