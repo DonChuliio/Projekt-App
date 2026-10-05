@@ -41,7 +41,7 @@ if (versionEl) {
  initPacklists();
 initPacklistEditor();
 initPacklistRun();
-
+initWatertest();
 
     // ✅ Zentrale Zurück-Buttons verbinden
     document.querySelectorAll("[data-back]").forEach((button) => {
