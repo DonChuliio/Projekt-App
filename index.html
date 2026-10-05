@@ -46,17 +46,29 @@
 <!-- ======================================================
      KALENDER
      ====================================================== -->
+<!-- ======================================================
+     KALENDER / WOCHENPLAN
+     ====================================================== -->
 <div data-view="calendar" class="hidden">
+
     <button class="back-button" data-back>Zurück</button>
-    <h2>📅 Kalender</h2>
 
     <div class="calendar-header">
-        <button id="prevMonth">◀</button>
-        <span id="monthYear"></span>
-        <button id="nextMonth">▶</button>
+        <h2>📅 Kalender</h2>
+
+        <button id="calendar-edit">
+            Bearbeiten
+        </button>
     </div>
 
-    <div id="calendar"></div>
+    <!-- Hier zeigen wir später automatisch die aktuelle KW an -->
+    <h3 id="calendar-current-week">
+        KW --
+    </h3>
+
+    <!-- Hier erscheinen die Aufgaben der aktuellen KW -->
+    <div id="calendar-week-tasks"></div>
+
 </div>
 
 <!-- ======================================================
