@@ -1,26 +1,42 @@
 // js/calendar/calendar.js
 
-/*
- Initialisiert unseren neuen KW-Kalender.
+// Router importieren, damit wir zwischen
+// Kalender und Bearbeitungsansicht wechseln können
+import { showView } from "../router.js";
 
- Aktuell macht er nur:
+
+/*
+ Initialisiert unseren KW-Kalender.
+
+ Aktuell macht er:
  - aktuelles Jahr bestimmen
  - aktuelle ISO-Kalenderwoche bestimmen
- - beides anzeigen
-
- Die Aufgaben und der Bearbeiten-Modus
- kommen in den nächsten Schritten dazu.
+ - KW und Jahr anzeigen
+ - Bearbeitungsansicht öffnen
+ - von Bearbeitung zurück zum Kalender wechseln
 */
 export function initCalendar() {
 
-    // Element holen, in dem die aktuelle KW angezeigt wird
+    // Anzeige für die aktuelle Kalenderwoche
     const weekElement = document.getElementById("calendar-current-week");
 
+    // Bearbeiten-Button in der normalen Kalenderansicht
+    const editButton = document.getElementById("calendar-edit");
+
+    // Zurück-Button in der Bearbeitungsansicht
+    const editBackButton = document.getElementById("calendar-edit-back");
+
+
     // Sicherheitscheck
-    if (!weekElement) {
-        console.error("❌ calendar-current-week nicht gefunden");
+    if (!weekElement || !editButton || !editBackButton) {
+        console.error("❌ Kalender-Elemente nicht gefunden");
         return;
     }
+
+
+    /* ==================================================
+       AKTUELLE KALENDERWOCHE
+       ================================================== */
 
     // Heutiges Datum
     const today = new Date();
@@ -28,27 +44,42 @@ export function initCalendar() {
     // Aktuelle ISO-Kalenderwoche berechnen
     const week = getISOWeek(today);
 
-    // Das zur ISO-Kalenderwoche gehörende Jahr bestimmen
+    // Passendes ISO-Jahr bestimmen
     const year = getISOWeekYear(today);
 
-    // Ausgabe in der Kalenderansicht
+    // KW und Jahr anzeigen
     weekElement.textContent = `KW ${week} · ${year}`;
 
     console.log(`📅 Aktuelle Kalenderwoche: KW ${week} / ${year}`);
+
+
+    /* ==================================================
+       NAVIGATION
+       ================================================== */
+
+    // Klick auf "Bearbeiten"
+    editButton.addEventListener("click", () => {
+        showView("calendar-edit");
+    });
+
+    // Klick auf "Zurück" im Editor
+    editBackButton.addEventListener("click", () => {
+        showView("calendar");
+    });
 }
 
 
 /*
- Berechnet die ISO-Kalenderwoche eines Datums.
+ Berechnet die ISO-Kalenderwoche.
 
- ISO-Kalenderwochen:
+ ISO-Regeln:
  - Woche beginnt am Montag
- - KW 1 ist die Woche mit dem ersten Donnerstag des Jahres
+ - KW 1 ist die Woche mit dem ersten
+   Donnerstag des Jahres
 */
 function getISOWeek(date) {
 
-    // Kopie des Datums erstellen,
-    // damit wir das ursprüngliche Datum nicht verändern
+    // Kopie des Datums erstellen
     const tempDate = new Date(
         Date.UTC(
             date.getFullYear(),
@@ -57,18 +88,24 @@ function getISOWeek(date) {
         )
     );
 
-    // Sonntag liefert getUTCDay() als 0.
-    // Für ISO brauchen wir Montag = 1 bis Sonntag = 7.
+    // ISO-Wochentag:
+    // Montag = 1
+    // ...
+    // Sonntag = 7
     const dayNumber = tempDate.getUTCDay() || 7;
 
-    // Auf den Donnerstag derselben Woche springen
+    // Auf Donnerstag derselben Woche springen
     tempDate.setUTCDate(
         tempDate.getUTCDate() + 4 - dayNumber
     );
 
-    // Ersten Tag dieses Jahres bestimmen
+    // Jahresanfang bestimmen
     const yearStart = new Date(
-        Date.UTC(tempDate.getUTCFullYear(), 0, 1)
+        Date.UTC(
+            tempDate.getUTCFullYear(),
+            0,
+            1
+        )
     );
 
     // Kalenderwoche berechnen
@@ -81,12 +118,13 @@ function getISOWeek(date) {
 /*
  Bestimmt das ISO-Jahr.
 
- Das ist wichtig rund um Silvester/Neujahr:
- z.B. kann der 31. Dezember bereits zu KW 1
- des nächsten Jahres gehören.
+ Wichtig beim Jahreswechsel:
+ Beispielsweise kann Ende Dezember bereits
+ zu KW 1 des nächsten Jahres gehören.
 */
 function getISOWeekYear(date) {
 
+    // Kopie des Datums erstellen
     const tempDate = new Date(
         Date.UTC(
             date.getFullYear(),
@@ -97,10 +135,11 @@ function getISOWeekYear(date) {
 
     const dayNumber = tempDate.getUTCDay() || 7;
 
-    // Wieder auf Donnerstag derselben ISO-Woche gehen
+    // Donnerstag derselben ISO-Woche bestimmen
     tempDate.setUTCDate(
         tempDate.getUTCDate() + 4 - dayNumber
     );
 
+    // Das Jahr dieses Donnerstags ist das ISO-Jahr
     return tempDate.getUTCFullYear();
 }
