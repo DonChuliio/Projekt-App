@@ -772,3 +772,60 @@ html, body {
 
     border: 1px solid var(--border);
 }
+/* =========================================================
+   TODO – EINGABE
+   ========================================================= */
+
+.todo-section form,
+.todo-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.todo-section input {
+    flex: 1;
+    min-width: 0;
+}
+
+.todo-section form button,
+.todo-input-row button {
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   TODO – AUFGABEN
+   ========================================================= */
+
+.todo-section li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.todo-text {
+    flex: 1;
+    min-width: 0;
+}
+
+
+/* Kleiner X-Button rechts */
+.todo-delete {
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+
+    padding: 0;
+    margin: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 24px;
+    line-height: 1;
+
+    flex-shrink: 0;
+}
