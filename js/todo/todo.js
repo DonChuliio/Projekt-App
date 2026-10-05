@@ -1,95 +1,233 @@
-// Importiert Speicherfunktionen
+// js/todo/todo.js
+
+// Speicherfunktionen
 import { save, load } from "../storage.js";
 
-/*
- Initialisiert das komplette To-Do-Feature
-*/
+// Synchronisierung für Push-Benachrichtigungen
+import {
+    syncNotificationState
+} from "../push/notification-state.js";
+
+
+/* =========================================================
+   TODO INITIALISIEREN
+   ========================================================= */
+
 export function initTodo() {
 
-    // Initialisierung aller drei Listen
     initList("a");
     initList("b");
     initList("c");
+
+
+    /*
+     Beim Start einmal synchronisieren.
+
+     Dadurch wird Supabase auch aktualisiert,
+     wenn sich seit dem letzten Öffnen z. B.
+     die Kalenderwoche geändert hat.
+    */
+    syncNotificationState();
 }
 
-/*
- Initialisiert eine einzelne Liste (A, B oder C)
-*/
+
+/* =========================================================
+   EINZELNE LISTE INITIALISIEREN
+   ========================================================= */
+
 function initList(type) {
 
-    // IDs dynamisch zusammensetzen
-    const input = document.getElementById(`todo-${type}-input`);
-    const addButton = document.getElementById(`todo-${type}-add`);
-    const list = document.getElementById(`todo-${type}-list`);
+    const input =
+        document.getElementById(
+            `todo-${type}-input`
+        );
 
-    // Sicherheitscheck
-    if (!input || !addButton || !list) {
-        console.error(`To-Do ${type}: Elemente fehlen`);
+    const addButton =
+        document.getElementById(
+            `todo-${type}-add`
+        );
+
+    const list =
+        document.getElementById(
+            `todo-${type}-list`
+        );
+
+
+    if (
+        !input ||
+        !addButton ||
+        !list
+    ) {
+
+        console.error(
+            `To-Do ${type}: Elemente fehlen`
+        );
+
         return;
     }
 
-    // Key für localStorage
-    const storageKey = `todo-${type}`;
 
-    // Gespeicherte Aufgaben laden (oder leeres Array)
-    let todos = load(storageKey, []);
+    const storageKey =
+        `todo-${type}`;
 
-    // Liste initial anzeigen
-    renderList(list, todos, storageKey);
 
-    // Klick auf "Hinzufügen"
-    addButton.addEventListener("click", () => {
+    let todos =
+        load(
+            storageKey,
+            []
+        );
 
-        const text = input.value.trim();
 
-        // Leere Einträge ignorieren
-        if (text === "") return;
+    renderList(
+        list,
+        todos,
+        storageKey,
+        type
+    );
 
-        // Aufgabe hinzufügen
-        todos.push(text);
 
-        // Speichern
-        save(storageKey, todos);
+    /* =====================================================
+       TODO HINZUFÜGEN
+       ===================================================== */
 
-        // Input leeren
-        input.value = "";
+    addButton.addEventListener(
+        "click",
+        () => {
 
-        // Neu rendern
-        renderList(list, todos, storageKey);
-    });
+            const text =
+                input.value.trim();
+
+
+            if (text === "") {
+                return;
+            }
+
+
+            todos.push(text);
+
+
+            save(
+                storageKey,
+                todos
+            );
+
+
+            input.value = "";
+
+
+            renderList(
+                list,
+                todos,
+                storageKey,
+                type
+            );
+
+
+            /*
+             Nur A-To-Dos sind für unsere
+             Push-Benachrichtigung relevant.
+            */
+            if (type === "a") {
+
+                syncNotificationState();
+            }
+        }
+    );
 }
 
-/*
- Rendert eine To-Do-Liste komplett neu
-*/
-function renderList(listElement, todos, storageKey) {
 
-    // Liste leeren
+/* =========================================================
+   TODO-LISTE ANZEIGEN
+   ========================================================= */
+
+function renderList(
+    listElement,
+    todos,
+    storageKey,
+    type
+) {
+
     listElement.innerHTML = "";
 
-    // Jede Aufgabe darstellen
-    todos.forEach((text, index) => {
 
-        const li = document.createElement("li");
+    todos.forEach(
+        (text, index) => {
 
-        li.textContent = text;
+            const li =
+                document.createElement("li");
 
-        // Löschen-Button
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "✖";
 
-        deleteButton.style.marginLeft = "10px";
+            li.textContent = text;
 
-        // Klick → Aufgabe löschen
-        deleteButton.addEventListener("click", () => {
 
-            todos.splice(index, 1);
-            save(storageKey, todos);
-            renderList(listElement, todos, storageKey);
-        });
+            /* =============================================
+               LÖSCHEN-BUTTON
+               ============================================= */
 
-        li.appendChild(deleteButton);
-        listElement.appendChild(li);
-    });
+            const deleteButton =
+                document.createElement(
+                    "button"
+                );
+
+
+            /*
+             Kein Emoji/Symbol mehr.
+            */
+            deleteButton.textContent =
+                "Löschen";
+
+
+            deleteButton.style.marginLeft =
+                "10px";
+
+
+            deleteButton.addEventListener(
+                "click",
+                () => {
+
+                    /*
+                     Aufgabe lokal löschen.
+                    */
+                    todos.splice(
+                        index,
+                        1
+                    );
+
+
+                    save(
+                        storageKey,
+                        todos
+                    );
+
+
+                    renderList(
+                        listElement,
+                        todos,
+                        storageKey,
+                        type
+                    );
+
+
+                    /*
+                     Bei einer Änderung der
+                     A-Liste Supabase aktualisieren.
+                    */
+                    if (type === "a") {
+
+                        syncNotificationState();
+                    }
+                }
+            );
+
+
+            li.appendChild(
+                deleteButton
+            );
+
+
+            listElement.appendChild(
+                li
+            );
+        }
+    );
 }
-
