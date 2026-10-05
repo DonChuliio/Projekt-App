@@ -1,108 +1,106 @@
-
-// Importiert Speicherfunktionen
-import { save, load } from "../storage.js";
-
-// Aktuell angezeigtes Datum (Monat/Jahr)
-let currentDate = new Date();
+// js/calendar/calendar.js
 
 /*
- Initialisiert den Kalender.
- Wird einmal beim App-Start aufgerufen.
+ Initialisiert unseren neuen KW-Kalender.
+
+ Aktuell macht er nur:
+ - aktuelles Jahr bestimmen
+ - aktuelle ISO-Kalenderwoche bestimmen
+ - beides anzeigen
+
+ Die Aufgaben und der Bearbeiten-Modus
+ kommen in den nächsten Schritten dazu.
 */
 export function initCalendar() {
 
-    // Navigationselemente holen
-    document
-        .getElementById("prevMonth")
-        .addEventListener("click", () => changeMonth(-1));
+    // Element holen, in dem die aktuelle KW angezeigt wird
+    const weekElement = document.getElementById("calendar-current-week");
 
-    document
-        .getElementById("nextMonth")
-        .addEventListener("click", () => changeMonth(1));
-
-    // Kalender initial rendern
-    renderCalendar();
-}
-
-/*
- Wechselt den Monat.
- offset = -1 → zurück
- offset = +1 → vor
-*/
-function changeMonth(offset) {
-    currentDate.setMonth(currentDate.getMonth() + offset);
-    renderCalendar();
-}
-
-/*
- Baut den Kalender für den aktuellen Monat neu auf.
-*/
-function renderCalendar() {
-
-    const calendar = document.getElementById("calendar");
-    const monthYear = document.getElementById("monthYear");
-
-    // Kalender leeren
-    calendar.innerHTML = "";
-
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-
-    // Monatsname + Jahr anzeigen
-    monthYear.textContent = currentDate.toLocaleString("de-DE", {
-        month: "long",
-        year: "numeric"
-    });
-
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    // Leere Felder vor dem ersten Tag
-    for (let i = 0; i < (firstDay + 6) % 7; i++) {
-        calendar.appendChild(document.createElement("div"));
+    // Sicherheitscheck
+    if (!weekElement) {
+        console.error("❌ calendar-current-week nicht gefunden");
+        return;
     }
 
-    // Tage erzeugen
-    for (let day = 1; day <= daysInMonth; day++) {
+    // Heutiges Datum
+    const today = new Date();
 
-        const cell = document.createElement("div");
-        cell.className = "day";
-        cell.textContent = day;
+    // Aktuelle ISO-Kalenderwoche berechnen
+    const week = getISOWeek(today);
 
-        // Status aus Storage laden
-        const key = `status-${year}-${month}-${day}`;
-        const status = load(key, null);
+    // Das zur ISO-Kalenderwoche gehörende Jahr bestimmen
+    const year = getISOWeekYear(today);
 
-        if (status) {
-            cell.classList.add(`status-${status}`);
-        }
+    // Ausgabe in der Kalenderansicht
+    weekElement.textContent = `KW ${week} · ${year}`;
 
-        // Klick auf Tag → Status ändern
-        cell.addEventListener("click", () => {
-            setDayStatus(year, month, day);
-        });
-
-        calendar.appendChild(cell);
-    }
+    console.log(`📅 Aktuelle Kalenderwoche: KW ${week} / ${year}`);
 }
 
-/*
- Setzt oder entfernt den Status eines Tages
-*/
-function setDayStatus(year, month, day) {
-    const key = `status-${year}-${month}-${day}`;
 
-    const value = prompt(
-        "Status wählen:\n0\n1-3\n4-7\n7+\nblackout\n(Leer = löschen)"
+/*
+ Berechnet die ISO-Kalenderwoche eines Datums.
+
+ ISO-Kalenderwochen:
+ - Woche beginnt am Montag
+ - KW 1 ist die Woche mit dem ersten Donnerstag des Jahres
+*/
+function getISOWeek(date) {
+
+    // Kopie des Datums erstellen,
+    // damit wir das ursprüngliche Datum nicht verändern
+    const tempDate = new Date(
+        Date.UTC(
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate()
+        )
     );
 
-    if (value === null) return;
+    // Sonntag liefert getUTCDay() als 0.
+    // Für ISO brauchen wir Montag = 1 bis Sonntag = 7.
+    const dayNumber = tempDate.getUTCDay() || 7;
 
-    if (value.trim() === "") {
-        localStorage.removeItem(key);
-    } else {
-        save(key, value);
-    }
+    // Auf den Donnerstag derselben Woche springen
+    tempDate.setUTCDate(
+        tempDate.getUTCDate() + 4 - dayNumber
+    );
 
-    renderCalendar();
+    // Ersten Tag dieses Jahres bestimmen
+    const yearStart = new Date(
+        Date.UTC(tempDate.getUTCFullYear(), 0, 1)
+    );
+
+    // Kalenderwoche berechnen
+    return Math.ceil(
+        (((tempDate - yearStart) / 86400000) + 1) / 7
+    );
+}
+
+
+/*
+ Bestimmt das ISO-Jahr.
+
+ Das ist wichtig rund um Silvester/Neujahr:
+ z.B. kann der 31. Dezember bereits zu KW 1
+ des nächsten Jahres gehören.
+*/
+function getISOWeekYear(date) {
+
+    const tempDate = new Date(
+        Date.UTC(
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate()
+        )
+    );
+
+    const dayNumber = tempDate.getUTCDay() || 7;
+
+    // Wieder auf Donnerstag derselben ISO-Woche gehen
+    tempDate.setUTCDate(
+        tempDate.getUTCDate() + 4 - dayNumber
+    );
+
+    return tempDate.getUTCFullYear();
 }
