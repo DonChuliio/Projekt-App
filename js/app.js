@@ -10,7 +10,7 @@ import { initPacklists } from "./packlists/packlists.js";
 import { initPacklistEditor } from "./packlists/packlist-editor.js";
 import { initPacklistRun } from "./packlists/packlist-run.js";
 import { initWatertest } from "./watertest/watertest.js";
-import { initPush } from "./push/push.js?v=0.65";
+import { initPush } from "./push/push.js?v=0.66";
 /*
  Einstiegspunkt der App.
  Wird ausgeführt, sobald das DOM vollständig geladen ist.
