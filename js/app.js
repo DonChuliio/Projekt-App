@@ -2,7 +2,7 @@
 
 import { initDashboard } from "./dashboard.js";
 import { initNotes } from "./notes/notes.js";
-import { initCalendar } from "./calendar/calendar.js";
+//import { initCalendar } from "./calendar/calendar.js";
 import { showView, goToDashboard } from "./router.js";
 import { initTodo } from "./todo/todo.js";
 import { initBackup } from "./backup/backup.js";
@@ -10,7 +10,7 @@ import { initPacklists } from "./packlists/packlists.js";
 import { initPacklistEditor } from "./packlists/packlist-editor.js";
 import { initPacklistRun } from "./packlists/packlist-run.js";
 import { initWatertest } from "./watertest/watertest.js";
-import { initPush } from "./push/push.js?v=0.68";
+//import { initPush } from "./push/push.js?v=0.68";
 /*
  Einstiegspunkt der App.
  Wird ausgeführt, sobald das DOM vollständig geladen ist.
@@ -37,12 +37,12 @@ if (versionEl) {
     initTodo();
     initBackup();
     initNotes();
-    initCalendar();
+    //initCalendar();
  initPacklists();
 initPacklistEditor();
 initPacklistRun();
 initWatertest();
-initPush();
+//initPush();
 
     // ✅ Zentrale Zurück-Buttons verbinden
     document.querySelectorAll("[data-back]").forEach((button) => {
