@@ -496,3 +496,34 @@ html, body {
 .week-plan-scroll {
     -webkit-overflow-scrolling: touch;
 }
+/* ======================================================
+   KW-TABELLE: Touch-Verhalten
+   ====================================================== */
+
+/*
+ Verhindert auf iPhone/iPad, dass der allgemeine
+ button:hover-Zustand nach einem Tap sichtbar bleibt.
+*/
+.week-task-toggle:not(.active):hover {
+    background: var(--surface);
+}
+
+.week-task-toggle.active:hover {
+    background: var(--petrol);
+}
+
+
+/* ======================================================
+   AKTUELLE WOCHENAUFGABEN
+   ====================================================== */
+
+.calendar-task-list li {
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Erledigte Aufgabe */
+.calendar-task-list li.done {
+    text-decoration: line-through;
+    opacity: 0.55;
+}
