@@ -2,6 +2,7 @@
 
 import { showView } from "../router.js";
 
+
 /*
  Feste Aufgaben unseres Wochenplans.
 
@@ -37,12 +38,20 @@ const WEEK_TASKS = [
 */
 export function initCalendar() {
 
-    const weekElement = document.getElementById("calendar-current-week");
-    const tasksElement = document.getElementById("calendar-week-tasks");
+    const weekElement =
+        document.getElementById("calendar-current-week");
 
-    const editButton = document.getElementById("calendar-edit");
-    const editBackButton = document.getElementById("calendar-edit-back");
+    const tasksElement =
+        document.getElementById("calendar-week-tasks");
 
+    const editButton =
+        document.getElementById("calendar-edit");
+
+    const editBackButton =
+        document.getElementById("calendar-edit-back");
+
+
+    // Sicherheitscheck
     if (
         !weekElement ||
         !tasksElement ||
@@ -54,16 +63,16 @@ export function initCalendar() {
     }
 
 
-    /* ------------------------------------------
-       Normale Kalenderansicht anzeigen
-       ------------------------------------------ */
+    /* ==================================================
+       NORMALE KALENDERANSICHT
+       ================================================== */
 
     renderCurrentWeek();
 
 
-    /* ------------------------------------------
-       Bearbeiten öffnen
-       ------------------------------------------ */
+    /* ==================================================
+       BEARBEITEN ÖFFNEN
+       ================================================== */
 
     editButton.addEventListener("click", () => {
 
@@ -75,13 +84,13 @@ export function initCalendar() {
     });
 
 
-    /* ------------------------------------------
-       Bearbeiten verlassen
-       ------------------------------------------ */
+    /* ==================================================
+       BEARBEITEN VERLASSEN
+       ================================================== */
 
     editBackButton.addEventListener("click", () => {
 
-        // Normale Ansicht aktualisieren
+        // Normale Kalenderansicht aktualisieren
         renderCurrentWeek();
 
         // Zurück zum Kalender
@@ -95,35 +104,66 @@ export function initCalendar() {
 */
 function renderCurrentWeek() {
 
-    const weekElement = document.getElementById("calendar-current-week");
-    const tasksElement = document.getElementById("calendar-week-tasks");
+    const weekElement =
+        document.getElementById("calendar-current-week");
 
-    if (!weekElement || !tasksElement) return;
+    const tasksElement =
+        document.getElementById("calendar-week-tasks");
 
+
+    if (!weekElement || !tasksElement) {
+        return;
+    }
+
+
+    // Heutiges Datum
     const today = new Date();
 
+
+    // Aktuelle ISO-Kalenderwoche
     const week = getISOWeek(today);
+
+
+    // Aktuelles ISO-Jahr
     const year = getISOWeekYear(today);
 
-    weekElement.textContent = `KW ${week} · ${year}`;
+
+    // Überschrift anzeigen
+    weekElement.textContent =
+        `KW ${week} · ${year}`;
+
 
     // Gespeicherten Jahresplan laden
     const plan = loadYearPlan(year);
 
-    // Aufgaben dieser KW ermitteln
-    const activeTaskIds = plan[week] || [];
+
+    // Aufgaben dieser KW
+    const activeTaskIds =
+        plan[week] || [];
+
+
+    // Bereits erledigte Aufgaben dieser KW laden
+    let doneTaskIds =
+        loadDoneTasks(year, week);
+
 
     // Alte Anzeige löschen
     tasksElement.innerHTML = "";
 
+
     /*
-     Falls für diese Woche noch nichts aktiviert wurde.
+     Keine Aufgaben für diese Woche geplant
     */
     if (activeTaskIds.length === 0) {
 
-        const empty = document.createElement("p");
-        empty.className = "calendar-no-tasks";
-        empty.textContent = "Für diese Woche sind keine Aufgaben geplant.";
+        const empty =
+            document.createElement("p");
+
+        empty.className =
+            "calendar-no-tasks";
+
+        empty.textContent =
+            "Für diese Woche sind keine Aufgaben geplant.";
 
         tasksElement.appendChild(empty);
 
@@ -132,204 +172,397 @@ function renderCurrentWeek() {
 
 
     /*
-     Aktive Aufgaben anzeigen.
+     Liste erstellen
     */
-    const list = document.createElement("ul");
-    list.className = "calendar-task-list";
+    const list =
+        document.createElement("ul");
 
+    list.className =
+        "calendar-task-list";
+
+
+    /*
+     Alle möglichen Aufgaben durchgehen.
+    */
     WEEK_TASKS.forEach(task => {
 
+        /*
+         Aufgabe gehört nicht zu dieser KW?
+         Dann überspringen.
+        */
         if (!activeTaskIds.includes(task.id)) {
             return;
         }
 
-        const li = document.createElement("li");
 
-        li.textContent = `✓ ${task.name}`;
+        const li =
+            document.createElement("li");
+
+
+        /*
+         Prüfen, ob die Aufgabe bereits
+         erledigt wurde.
+        */
+        const isDone =
+            doneTaskIds.includes(task.id);
+
+
+        /*
+         Checkbox-Symbol + Aufgabenname
+        */
+        li.textContent =
+            `${isDone ? "☑" : "☐"} ${task.name}`;
+
+
+        /*
+         Erledigte Aufgabe optisch markieren.
+        */
+        li.classList.toggle(
+            "done",
+            isDone
+        );
+
+
+        /*
+         Aufgabe antippen:
+         erledigt / nicht erledigt
+        */
+        li.addEventListener("click", () => {
+
+            if (doneTaskIds.includes(task.id)) {
+
+                /*
+                 Aufgabe wieder auf offen setzen.
+                */
+                doneTaskIds =
+                    doneTaskIds.filter(
+                        id => id !== task.id
+                    );
+
+            } else {
+
+                /*
+                 Aufgabe als erledigt markieren.
+                */
+                doneTaskIds.push(task.id);
+            }
+
+
+            /*
+             Zustand speichern.
+            */
+            saveDoneTasks(
+                year,
+                week,
+                doneTaskIds
+            );
+
+
+            /*
+             Kalender neu anzeigen.
+            */
+            renderCurrentWeek();
+        });
+
 
         list.appendChild(li);
     });
+
 
     tasksElement.appendChild(list);
 }
 
 
 /*
- Erstellt die komplette Bearbeitungstabelle.
+ Erstellt die komplette Bearbeitungstabelle
+ mit allen Kalenderwochen.
 */
 function renderWeekEditor() {
 
-    const editView = document.querySelector(
-        "[data-view='calendar-edit']"
-    );
+    const editView =
+        document.querySelector(
+            "[data-view='calendar-edit']"
+        );
 
-    if (!editView) return;
+
+    if (!editView) {
+        return;
+    }
 
 
     /*
      Falls bereits eine Tabelle vorhanden ist,
-     entfernen wir sie vor dem Neurendern.
+     entfernen wir sie zuerst.
     */
-    const oldEditor = document.getElementById("week-plan-editor");
+    const oldEditor =
+        document.getElementById(
+            "week-plan-editor"
+        );
+
 
     if (oldEditor) {
         oldEditor.remove();
     }
 
 
+    // Aktuelles Jahr bestimmen
     const today = new Date();
-    const year = getISOWeekYear(today);
 
-    const plan = loadYearPlan(year);
+    const year =
+        getISOWeekYear(today);
 
-    // Anzahl der ISO-Wochen dieses Jahres
-    const numberOfWeeks = getISOWeeksInYear(year);
+
+    // Jahresplan laden
+    const plan =
+        loadYearPlan(year);
 
 
     /*
-     Hauptcontainer
+     Anzahl der Kalenderwochen bestimmen.
+     Je nach Jahr 52 oder 53.
     */
-    const editor = document.createElement("div");
-    editor.id = "week-plan-editor";
+    const numberOfWeeks =
+        getISOWeeksInYear(year);
+
+
+    /* ==================================================
+       EDITOR-CONTAINER
+       ================================================== */
+
+    const editor =
+        document.createElement("div");
+
+    editor.id =
+        "week-plan-editor";
 
 
     /*
      Jahresanzeige
     */
-    const yearTitle = document.createElement("p");
-    yearTitle.className = "week-plan-year";
-    yearTitle.textContent = `Wochenplan ${year}`;
+    const yearTitle =
+        document.createElement("p");
+
+    yearTitle.className =
+        "week-plan-year";
+
+    yearTitle.textContent =
+        `Wochenplan ${year}`;
 
     editor.appendChild(yearTitle);
 
 
     /*
-     Scrollbarer Bereich für die Tabelle
+     Scrollbarer Tabellenbereich
     */
-    const scrollContainer = document.createElement("div");
-    scrollContainer.className = "week-plan-scroll";
+    const scrollContainer =
+        document.createElement("div");
+
+    scrollContainer.className =
+        "week-plan-scroll";
 
 
     /*
-     Tabelle erstellen
+     Tabelle
     */
-    const table = document.createElement("table");
-    table.className = "week-plan-table";
+    const table =
+        document.createElement("table");
+
+    table.className =
+        "week-plan-table";
 
 
-    /* ==========================
-       Tabellenkopf
-       ========================== */
+    /* ==================================================
+       TABELLENKOPF
+       ================================================== */
 
-    const thead = document.createElement("thead");
-    const headerRow = document.createElement("tr");
+    const thead =
+        document.createElement("thead");
 
-    const kwHeader = document.createElement("th");
+    const headerRow =
+        document.createElement("tr");
+
+
+    /*
+     Erste Spalte = Kalenderwoche
+    */
+    const kwHeader =
+        document.createElement("th");
+
     kwHeader.textContent = "KW";
 
     headerRow.appendChild(kwHeader);
 
 
+    /*
+     Danach eine Spalte pro Aufgabe
+    */
     WEEK_TASKS.forEach(task => {
 
-        const th = document.createElement("th");
+        const th =
+            document.createElement("th");
 
-        th.textContent = task.shortName;
-        th.title = task.name;
+        th.textContent =
+            task.shortName;
+
+        th.title =
+            task.name;
 
         headerRow.appendChild(th);
     });
 
 
     thead.appendChild(headerRow);
+
     table.appendChild(thead);
 
 
-    /* ==========================
-       KW-Zeilen
-       ========================== */
+    /* ==================================================
+       KALENDERWOCHEN
+       ================================================== */
 
-    const tbody = document.createElement("tbody");
+    const tbody =
+        document.createElement("tbody");
 
 
-    for (let week = 1; week <= numberOfWeeks; week++) {
+    /*
+     KW 1 bis KW 52 bzw. 53 erzeugen.
+    */
+    for (
+        let week = 1;
+        week <= numberOfWeeks;
+        week++
+    ) {
 
-        const row = document.createElement("tr");
+        const row =
+            document.createElement("tr");
 
 
         /*
          KW-Nummer
         */
-        const weekCell = document.createElement("th");
-        weekCell.textContent = week;
+        const weekCell =
+            document.createElement("th");
+
+        weekCell.textContent =
+            week;
 
         row.appendChild(weekCell);
 
 
         /*
-         Eine Zelle pro Aufgabe
+         Eine Zelle pro Aufgabe.
         */
         WEEK_TASKS.forEach(task => {
 
-            const cell = document.createElement("td");
-
-            const activeTasks = plan[week] || [];
-
-            const isActive = activeTasks.includes(task.id);
+            const cell =
+                document.createElement("td");
 
 
             /*
-             Button innerhalb der Zelle.
+             Aktive Aufgaben dieser KW.
             */
-            const button = document.createElement("button");
+            const activeTasks =
+                plan[week] || [];
 
-            button.type = "button";
-            button.className = "week-task-toggle";
 
+            /*
+             Ist diese Aufgabe aktiviert?
+            */
+            const isActive =
+                activeTasks.includes(task.id);
+
+
+            /*
+             Button für die Zelle.
+            */
+            const button =
+                document.createElement("button");
+
+            button.type =
+                "button";
+
+            button.className =
+                "week-task-toggle";
+
+
+            /*
+             Aktuellen Zustand anzeigen.
+            */
             if (isActive) {
-                button.classList.add("active");
+
+                button.classList.add(
+                    "active"
+                );
+
                 button.textContent = "✓";
+
             } else {
+
                 button.textContent = "";
             }
 
 
             /*
-             Zelle anklicken → Aufgabe aktiv/inaktiv.
+             Klick auf die Zelle:
+             Aufgabe aktivieren/deaktivieren.
             */
-            button.addEventListener("click", () => {
+            button.addEventListener(
+                "click",
+                () => {
 
-                toggleWeekTask(
-                    year,
-                    week,
-                    task.id
-                );
-
-                /*
-                 Nur den Button optisch aktualisieren.
-                 Die komplette Tabelle muss nicht
-                 neu aufgebaut werden.
-                */
-                const updatedPlan = loadYearPlan(year);
-
-                const updatedTasks =
-                    updatedPlan[week] || [];
-
-                const nowActive =
-                    updatedTasks.includes(task.id);
+                    toggleWeekTask(
+                        year,
+                        week,
+                        task.id
+                    );
 
 
-                button.classList.toggle(
-                    "active",
-                    nowActive
-                );
+                    /*
+                     Aktualisierten Plan laden.
+                    */
+                    const updatedPlan =
+                        loadYearPlan(year);
 
-                button.textContent =
-                    nowActive ? "✓" : "";
-            });
+
+                    const updatedTasks =
+                        updatedPlan[week] || [];
+
+
+                    const nowActive =
+                        updatedTasks.includes(
+                            task.id
+                        );
+
+
+                    /*
+                     Button aktualisieren.
+                    */
+                    button.classList.toggle(
+                        "active",
+                        nowActive
+                    );
+
+
+                    button.textContent =
+                        nowActive
+                            ? "✓"
+                            : "";
+
+
+                    /*
+                     Fokus entfernen.
+
+                     Besonders auf iPhone/Safari
+                     verhindert das einen optisch
+                     hängenbleibenden Button-Zustand.
+                    */
+                    button.blur();
+                }
+            );
 
 
             cell.appendChild(button);
+
             row.appendChild(cell);
         });
 
@@ -341,6 +574,7 @@ function renderWeekEditor() {
     table.appendChild(tbody);
 
     scrollContainer.appendChild(table);
+
     editor.appendChild(scrollContainer);
 
     editView.appendChild(editor);
@@ -351,28 +585,43 @@ function renderWeekEditor() {
  Aktiviert oder deaktiviert eine Aufgabe
  für eine bestimmte Kalenderwoche.
 */
-function toggleWeekTask(year, week, taskId) {
+function toggleWeekTask(
+    year,
+    week,
+    taskId
+) {
 
-    const plan = loadYearPlan(year);
+    const plan =
+        loadYearPlan(year);
 
-    // Falls KW noch nicht existiert → leeres Array
-    const tasks = plan[week] || [];
+
+    /*
+     Aufgaben dieser KW holen.
+
+     Falls noch nichts gespeichert wurde,
+     starten wir mit einem leeren Array.
+    */
+    const tasks =
+        plan[week] || [];
 
 
     /*
      Aufgabe bereits aktiv?
-     → entfernen
     */
     if (tasks.includes(taskId)) {
 
-        plan[week] = tasks.filter(
-            id => id !== taskId
-        );
+        /*
+         Dann entfernen.
+        */
+        plan[week] =
+            tasks.filter(
+                id => id !== taskId
+            );
 
     } else {
 
         /*
-         Sonst Aufgabe hinzufügen
+         Sonst hinzufügen.
         */
         plan[week] = [
             ...tasks,
@@ -381,21 +630,29 @@ function toggleWeekTask(year, week, taskId) {
     }
 
 
-    saveYearPlan(year, plan);
+    saveYearPlan(
+        year,
+        plan
+    );
 }
 
 
 /*
- Lädt den Wochenplan eines bestimmten Jahres.
+ Lädt den Wochenplan eines Jahres.
 
- Beispiel-Key:
+ Beispiel:
+
  calendar-week-plan-2026
 */
 function loadYearPlan(year) {
 
-    const key = `calendar-week-plan-${year}`;
+    const key =
+        `calendar-week-plan-${year}`;
 
-    const raw = localStorage.getItem(key);
+
+    const raw =
+        localStorage.getItem(key);
+
 
     if (!raw) {
         return {};
@@ -403,7 +660,9 @@ function loadYearPlan(year) {
 
 
     try {
+
         return JSON.parse(raw);
+
     } catch (error) {
 
         console.error(
@@ -419,9 +678,14 @@ function loadYearPlan(year) {
 /*
  Speichert den Wochenplan eines Jahres.
 */
-function saveYearPlan(year, plan) {
+function saveYearPlan(
+    year,
+    plan
+) {
 
-    const key = `calendar-week-plan-${year}`;
+    const key =
+        `calendar-week-plan-${year}`;
+
 
     localStorage.setItem(
         key,
@@ -431,75 +695,177 @@ function saveYearPlan(year, plan) {
 
 
 /*
+ Lädt die erledigten Aufgaben
+ einer bestimmten Kalenderwoche.
+
+ Beispiel:
+
+ calendar-done-2026-41
+*/
+function loadDoneTasks(
+    year,
+    week
+) {
+
+    const key =
+        `calendar-done-${year}-${week}`;
+
+
+    const raw =
+        localStorage.getItem(key);
+
+
+    if (!raw) {
+        return [];
+    }
+
+
+    try {
+
+        return JSON.parse(raw);
+
+    } catch (error) {
+
+        console.error(
+            "❌ Erledigte Kalender-Aufgaben konnten nicht geladen werden",
+            error
+        );
+
+        return [];
+    }
+}
+
+
+/*
+ Speichert die erledigten Aufgaben
+ einer Kalenderwoche.
+*/
+function saveDoneTasks(
+    year,
+    week,
+    tasks
+) {
+
+    const key =
+        `calendar-done-${year}-${week}`;
+
+
+    localStorage.setItem(
+        key,
+        JSON.stringify(tasks)
+    );
+}
+
+
+/*
  Berechnet die ISO-Kalenderwoche.
+
+ ISO:
+ - Woche beginnt Montag
+ - KW 1 enthält den ersten Donnerstag
+   des Jahres
 */
 function getISOWeek(date) {
 
-    const tempDate = new Date(
-        Date.UTC(
-            date.getFullYear(),
-            date.getMonth(),
-            date.getDate()
-        )
-    );
+    const tempDate =
+        new Date(
+            Date.UTC(
+                date.getFullYear(),
+                date.getMonth(),
+                date.getDate()
+            )
+        );
+
 
     const dayNumber =
         tempDate.getUTCDay() || 7;
 
+
+    /*
+     Auf Donnerstag derselben
+     ISO-Woche springen.
+    */
     tempDate.setUTCDate(
-        tempDate.getUTCDate() + 4 - dayNumber
+        tempDate.getUTCDate()
+        + 4
+        - dayNumber
     );
 
-    const yearStart = new Date(
-        Date.UTC(
-            tempDate.getUTCFullYear(),
-            0,
-            1
-        )
-    );
+
+    const yearStart =
+        new Date(
+            Date.UTC(
+                tempDate.getUTCFullYear(),
+                0,
+                1
+            )
+        );
+
 
     return Math.ceil(
-        (((tempDate - yearStart) / 86400000) + 1) / 7
+        (
+            (
+                (tempDate - yearStart)
+                / 86400000
+            )
+            + 1
+        )
+        / 7
     );
 }
 
 
 /*
  Bestimmt das ISO-Jahr.
+
+ Das ist besonders rund um
+ Silvester wichtig.
 */
 function getISOWeekYear(date) {
 
-    const tempDate = new Date(
-        Date.UTC(
-            date.getFullYear(),
-            date.getMonth(),
-            date.getDate()
-        )
-    );
+    const tempDate =
+        new Date(
+            Date.UTC(
+                date.getFullYear(),
+                date.getMonth(),
+                date.getDate()
+            )
+        );
+
 
     const dayNumber =
         tempDate.getUTCDay() || 7;
 
+
     tempDate.setUTCDate(
-        tempDate.getUTCDate() + 4 - dayNumber
+        tempDate.getUTCDate()
+        + 4
+        - dayNumber
     );
+
 
     return tempDate.getUTCFullYear();
 }
 
 
 /*
- Ermittelt, ob ein Jahr 52 oder 53 ISO-Wochen hat.
+ Ermittelt, ob das Jahr
+ 52 oder 53 ISO-Kalenderwochen hat.
+
+ Der 28. Dezember liegt immer
+ in der letzten ISO-Woche eines Jahres.
 */
 function getISOWeeksInYear(year) {
 
-    // Der 28. Dezember liegt immer
-    // in der letzten ISO-Woche des Jahres.
-    const december28 = new Date(
-        year,
-        11,
-        28
-    );
+    const december28 =
+        new Date(
+            year,
+            11,
+            28
+        );
 
-    return getISOWeek(december28);
+
+    return getISOWeek(
+        december28
+    );
 }
