@@ -42,11 +42,8 @@ if (versionEl) {
 initPacklistEditor();
 initPacklistRun();
 initWatertest();
-alert("Vor initPush");
-
 initPush();
 
-alert("Nach initPush");
     // ✅ Zentrale Zurück-Buttons verbinden
     document.querySelectorAll("[data-back]").forEach((button) => {
         button.addEventListener("click", () => {
