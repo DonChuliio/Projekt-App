@@ -10,7 +10,7 @@ import { initPacklists } from "./packlists/packlists.js";
 import { initPacklistEditor } from "./packlists/packlist-editor.js";
 import { initPacklistRun } from "./packlists/packlist-run.js";
 import { initWatertest } from "./watertest/watertest.js";
-//import { initPush } from "./push/push.js";
+import { initPush } from "./push/push.js";
 /*
  Einstiegspunkt der App.
  Wird ausgeführt, sobald das DOM vollständig geladen ist.
@@ -42,7 +42,7 @@ if (versionEl) {
 initPacklistEditor();
 initPacklistRun();
 initWatertest();
-//initPush();
+initPush();
     // ✅ Zentrale Zurück-Buttons verbinden
     document.querySelectorAll("[data-back]").forEach((button) => {
         button.addEventListener("click", () => {
