@@ -10,80 +10,70 @@ let serviceWorkerRegistration = null;
 
 export async function initPush() {
 
-    /*
-     Prüfen, ob Service Worker unterstützt werden.
-    */
+    const status =
+        document.getElementById("push-status");
+
+    if (status) {
+        status.textContent =
+            "Push-Modul wurde gestartet.";
+    }
+
+
     if (!("serviceWorker" in navigator)) {
 
-        console.error(
-            "Service Worker werden nicht unterstützt."
-        );
-
-        updatePushStatus(
-            "Benachrichtigungen werden auf diesem Gerät nicht unterstützt."
-        );
+        if (status) {
+            status.textContent =
+                "Service Worker nicht unterstützt.";
+        }
 
         return;
     }
 
 
-    /*
-     Prüfen, ob Benachrichtigungen unterstützt werden.
-    */
     if (!("Notification" in window)) {
 
-        console.error(
-            "Benachrichtigungen werden nicht unterstützt."
-        );
-
-        updatePushStatus(
-            "Benachrichtigungen werden auf diesem Gerät nicht unterstützt."
-        );
+        if (status) {
+            status.textContent =
+                "Benachrichtigungen nicht unterstützt.";
+        }
 
         return;
+    }
+
+
+    if (status) {
+        status.textContent =
+            "Service Worker wird registriert...";
     }
 
 
     try {
 
-        /*
-         Service Worker registrieren.
-        */
         serviceWorkerRegistration =
             await navigator.serviceWorker.register(
                 "service-worker.js"
             );
 
 
-        console.log(
-            "Service Worker registriert:",
-            serviceWorkerRegistration
-        );
+        if (status) {
+            status.textContent =
+                "Service Worker registriert.";
+        }
 
 
-        /*
-         Buttons verbinden.
-        */
         initPushButtons();
 
-
-        /*
-         Aktuellen Berechtigungsstatus anzeigen.
-        */
         updatePermissionStatus();
 
 
     } catch (error) {
 
-        console.error(
-            "Service Worker konnte nicht registriert werden:",
-            error
-        );
+        if (status) {
+            status.textContent =
+                "Fehler beim Service Worker.";
+        }
 
-
-        updatePushStatus(
-            "Service Worker konnte nicht gestartet werden."
-        );
+        console.error(error);
     }
 }
 
