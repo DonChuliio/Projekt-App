@@ -7,72 +7,125 @@ let serviceWorkerRegistration = null;
 /* =========================================================
    PUSH INITIALISIEREN
    ========================================================= */
+
 export async function initPush() {
 
-    const status =
-        document.getElementById("push-status");
+    /*
+     TEST:
+     Damit prüfen wir, ob wirklich diese aktuelle
+     push.js ausgeführt wird.
+    */
+    alert("initPush aus push.js gestartet");
 
+
+    /*
+     Status-Element aus der App holen.
+    */
+    const status =
+        document.getElementById(
+            "push-status"
+        );
+
+
+    /*
+     Wenn dieses Element gefunden wurde,
+     ändern wir sofort den Text.
+
+     Dadurch sehen wir direkt,
+     ob initPush() wirklich läuft.
+    */
     if (status) {
+
         status.textContent =
             "Push-Modul wurde gestartet.";
     }
 
 
+    /*
+     Prüfen, ob Service Worker
+     unterstützt werden.
+    */
     if (!("serviceWorker" in navigator)) {
 
-        if (status) {
-            status.textContent =
-                "Service Worker nicht unterstützt.";
-        }
+        console.error(
+            "Service Worker werden nicht unterstützt."
+        );
+
+        updatePushStatus(
+            "Service Worker werden nicht unterstützt."
+        );
 
         return;
     }
 
 
+    /*
+     Prüfen, ob Benachrichtigungen
+     unterstützt werden.
+    */
     if (!("Notification" in window)) {
 
-        if (status) {
-            status.textContent =
-                "Benachrichtigungen nicht unterstützt.";
-        }
+        console.error(
+            "Benachrichtigungen werden nicht unterstützt."
+        );
+
+        updatePushStatus(
+            "Benachrichtigungen werden nicht unterstützt."
+        );
 
         return;
     }
 
 
-    if (status) {
-        status.textContent =
-            "Service Worker wird registriert...";
-    }
+    /*
+     Anzeigen, dass wir jetzt versuchen,
+     den Service Worker zu registrieren.
+    */
+    updatePushStatus(
+        "Service Worker wird registriert..."
+    );
 
 
     try {
 
+        /*
+         Service Worker registrieren.
+        */
         serviceWorkerRegistration =
             await navigator.serviceWorker.register(
                 "service-worker.js"
             );
 
 
-        if (status) {
-            status.textContent =
-                "Service Worker registriert.";
-        }
+        console.log(
+            "Service Worker registriert:",
+            serviceWorkerRegistration
+        );
 
 
+        /*
+         Buttons verbinden.
+        */
         initPushButtons();
 
+
+        /*
+         Aktuellen Berechtigungsstatus anzeigen.
+        */
         updatePermissionStatus();
 
 
     } catch (error) {
 
-        if (status) {
-            status.textContent =
-                "Fehler beim Service Worker.";
-        }
+        console.error(
+            "Service Worker konnte nicht registriert werden:",
+            error
+        );
 
-        console.error(error);
+
+        updatePushStatus(
+            "Fehler beim Service Worker."
+        );
     }
 }
 
@@ -96,6 +149,7 @@ function initPushButtons() {
 
 
     /*
+     Button:
      Benachrichtigungen aktivieren.
     */
     if (enableButton) {
@@ -108,6 +162,7 @@ function initPushButtons() {
 
 
     /*
+     Button:
      Test-Benachrichtigung senden.
     */
     if (testButton) {
@@ -126,19 +181,31 @@ function initPushButtons() {
 
 async function requestPermission() {
 
-    alert("Push-Button funktioniert");
+    /*
+     TEST:
+     Wenn dieser Alert später erscheint,
+     wissen wir sicher, dass auch der
+     Button korrekt verbunden ist.
+    */
+    alert(
+        "Push-Button funktioniert"
+    );
+
 
     try {
 
         const permission =
             await Notification.requestPermission();
 
+
         console.log(
             "Benachrichtigungs-Berechtigung:",
             permission
         );
 
+
         updatePermissionStatus();
+
 
     } catch (error) {
 
@@ -146,6 +213,7 @@ async function requestPermission() {
             "Berechtigung konnte nicht angefordert werden:",
             error
         );
+
 
         updatePushStatus(
             "Berechtigung konnte nicht angefordert werden."
@@ -161,7 +229,8 @@ async function requestPermission() {
 async function showTestNotification() {
 
     /*
-     Ohne Berechtigung keine Nachricht.
+     Ohne Berechtigung kann keine
+     Benachrichtigung angezeigt werden.
     */
     if (
         Notification.permission !==
@@ -179,8 +248,8 @@ async function showTestNotification() {
     try {
 
         /*
-         Sicherstellen, dass der Service Worker
-         wirklich bereit ist.
+         Sicherstellen, dass der
+         Service Worker bereit ist.
         */
         const registration =
             serviceWorkerRegistration ||
@@ -188,7 +257,7 @@ async function showTestNotification() {
 
 
         /*
-         Lokale Test-Benachrichtigung anzeigen.
+         Test-Benachrichtigung anzeigen.
         */
         await registration.showNotification(
             "Projekt App",
@@ -220,16 +289,20 @@ async function showTestNotification() {
 
 
 /* =========================================================
-   STATUS
+   BERECHTIGUNGSSTATUS
    ========================================================= */
 
 function updatePermissionStatus() {
 
     if (!("Notification" in window)) {
+
         return;
     }
 
 
+    /*
+     Berechtigung wurde erteilt.
+    */
     if (
         Notification.permission ===
         "granted"
@@ -243,6 +316,9 @@ function updatePermissionStatus() {
     }
 
 
+    /*
+     Berechtigung wurde abgelehnt.
+    */
     if (
         Notification.permission ===
         "denied"
@@ -256,6 +332,9 @@ function updatePermissionStatus() {
     }
 
 
+    /*
+     Noch keine Entscheidung.
+    */
     updatePushStatus(
         "Benachrichtigungen sind noch nicht aktiviert."
     );
@@ -275,6 +354,7 @@ function updatePushStatus(text) {
 
 
     if (status) {
+
         status.textContent = text;
     }
 }
