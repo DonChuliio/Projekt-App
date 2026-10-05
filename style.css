@@ -527,3 +527,59 @@ html, body {
     text-decoration: line-through;
     opacity: 0.55;
 }
+/* ======================================================
+   WASSERTEST
+   ====================================================== */
+
+.watertest-section {
+    margin-bottom: 24px;
+}
+
+.watertest-section h3 {
+    margin-bottom: 10px;
+}
+
+
+/*
+ Auswahlwerte nebeneinander.
+ Auf kleinen Displays springen sie
+ automatisch in die nächste Zeile.
+*/
+.watertest-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+
+/*
+ Noch nicht ausgewählter Wert
+*/
+.watertest-value {
+    min-width: 54px;
+
+    background: var(--surface);
+    color: var(--text);
+
+    border: 1px solid var(--border);
+}
+
+
+/*
+ Ausgewählter Wert
+*/
+.watertest-value.selected {
+    background: var(--petrol);
+    color: #000;
+    border-color: var(--petrol);
+}
+
+
+/*
+ Speicherbutton
+*/
+.watertest-save {
+    width: 100%;
+    margin-top: 8px;
+    margin-bottom: 30px;
+}
