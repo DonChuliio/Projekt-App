@@ -133,20 +133,87 @@ export function initWatertest() {
     /*
      Neuen Test beginnen.
     */
-    addButton.addEventListener("click", () => {
+addButton.addEventListener("click", () => {
 
-        // Alte Eingabe leeren
+    /*
+     Aktuelle Kalenderwoche bestimmen.
+    */
+    const today =
+        new Date();
+
+    const week =
+        getISOWeek(today);
+
+    const year =
+        getISOWeekYear(today);
+
+
+    /*
+     Gespeicherte Wassertests laden.
+    */
+    const history =
+        loadHistory();
+
+
+    /*
+     Prüfen, ob für die aktuelle KW
+     bereits ein Wassertest existiert.
+    */
+    const existingTest =
+        history.find(test =>
+            test.week === week &&
+            test.year === year
+        );
+
+
+    /*
+     EXISTIERT BEREITS EIN TEST:
+
+     Dann übernehmen wir seine Werte
+     in die Eingabemaske.
+
+     Dadurch sind die bisherigen Werte
+     direkt ausgewählt und können
+     verändert werden.
+    */
+    if (existingTest) {
+
+        currentValues = {
+            ...existingTest.values
+        };
+
+    } else {
+
+        /*
+         NOCH KEIN TEST:
+
+         Dann beginnen wir mit einer
+         komplett leeren Eingabe.
+        */
         currentValues = {};
+    }
 
-        // Aktuelle KW anzeigen
-        renderCurrentWeekTitle();
 
-        // Eingabemaske erstellen
-        renderWatertestForm();
+    /*
+     Aktuelle KW anzeigen.
+    */
+    renderCurrentWeekTitle();
 
-        // Eingabe öffnen
-        showView("watertest-entry");
-    });
+
+    /*
+     Eingabemaske erstellen.
+
+     Falls ein Test existiert, werden
+     seine Werte automatisch angezeigt.
+    */
+    renderWatertestForm();
+
+
+    /*
+     Eingabeseite öffnen.
+    */
+    showView("watertest-entry");
+});
 
 
     /*
