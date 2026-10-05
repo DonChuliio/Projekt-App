@@ -22,10 +22,6 @@ export function initTodo() {
 
     /*
      Beim Start einmal synchronisieren.
-
-     Dadurch wird Supabase auch aktualisiert,
-     wenn sich seit dem letzten Öffnen z. B.
-     die Kalenderwoche geändert hat.
     */
     syncNotificationState();
 }
@@ -94,45 +90,80 @@ function initList(type) {
         "click",
         () => {
 
-            const text =
-                input.value.trim();
+            addTodo();
+        }
+    );
 
 
-            if (text === "") {
-                return;
-            }
+    /*
+     Zusätzlich kann mit Enter
+     eine Aufgabe hinzugefügt werden.
+    */
+    input.addEventListener(
+        "keydown",
+        event => {
 
+            if (event.key === "Enter") {
 
-            todos.push(text);
+                event.preventDefault();
 
-
-            save(
-                storageKey,
-                todos
-            );
-
-
-            input.value = "";
-
-
-            renderList(
-                list,
-                todos,
-                storageKey,
-                type
-            );
-
-
-            /*
-             Nur A-To-Dos sind für unsere
-             Push-Benachrichtigung relevant.
-            */
-            if (type === "a") {
-
-                syncNotificationState();
+                addTodo();
             }
         }
     );
+
+
+    /* =====================================================
+       HINZUFÜGEN
+       ===================================================== */
+
+    function addTodo() {
+
+        const text =
+            input.value.trim();
+
+
+        if (text === "") {
+            return;
+        }
+
+
+        todos.push(text);
+
+
+        save(
+            storageKey,
+            todos
+        );
+
+
+        input.value = "";
+
+
+        renderList(
+            list,
+            todos,
+            storageKey,
+            type
+        );
+
+
+        /*
+         Nur A-To-Dos sind für
+         Push relevant.
+        */
+        if (type === "a") {
+
+            syncNotificationState();
+        }
+
+
+        /*
+         Eingabefeld direkt wieder
+         aktivieren.
+        */
+        input.focus();
+    }
 }
 
 
@@ -154,14 +185,38 @@ function renderList(
         (text, index) => {
 
             const li =
-                document.createElement("li");
+                document.createElement(
+                    "li"
+                );
 
 
-            li.textContent = text;
+            /*
+             Text bekommt ein eigenes Element.
+
+             Dadurch können Aufgabe und X
+             sauber nebeneinander stehen.
+            */
+            const textElement =
+                document.createElement(
+                    "span"
+                );
+
+
+            textElement.textContent =
+                text;
+
+
+            textElement.className =
+                "todo-text";
+
+
+            li.appendChild(
+                textElement
+            );
 
 
             /* =============================================
-               LÖSCHEN-BUTTON
+               LÖSCHEN
                ============================================= */
 
             const deleteButton =
@@ -170,15 +225,22 @@ function renderList(
                 );
 
 
-            /*
-             Kein Emoji/Symbol mehr.
-            */
+            deleteButton.type =
+                "button";
+
+
             deleteButton.textContent =
-                "Löschen";
+                "×";
 
 
-            deleteButton.style.marginLeft =
-                "10px";
+            deleteButton.className =
+                "todo-delete";
+
+
+            deleteButton.setAttribute(
+                "aria-label",
+                "Aufgabe löschen"
+            );
 
 
             deleteButton.addEventListener(
@@ -209,8 +271,8 @@ function renderList(
 
 
                     /*
-                     Bei einer Änderung der
-                     A-Liste Supabase aktualisieren.
+                     Bei Änderungen an A
+                     Supabase aktualisieren.
                     */
                     if (type === "a") {
 
