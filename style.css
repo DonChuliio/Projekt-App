@@ -602,3 +602,89 @@ html, body {
     border-color: #c62828;
     color: #fff;
 }
+/* ======================================================
+   WASSERTEST – ÜBERSICHT
+   ====================================================== */
+
+#watertest-add {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.watertest-empty {
+    color: var(--text-muted);
+}
+
+
+/*
+ Tabelle kann auf dem Handy horizontal scrollen.
+*/
+.watertest-overview-scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+
+/*
+ Übersichtstabelle
+*/
+.watertest-overview-table {
+    width: 100%;
+    min-width: 520px;
+
+    border-collapse: separate;
+    border-spacing: 4px;
+}
+
+
+.watertest-overview-table th,
+.watertest-overview-table td {
+    text-align: center;
+    padding: 8px 5px;
+}
+
+
+.watertest-overview-table th {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+
+/*
+ Farbiger Statuspunkt
+*/
+.watertest-status-dot {
+    display: block;
+
+    width: 18px;
+    height: 18px;
+
+    margin: 0 auto 4px;
+
+    border-radius: 50%;
+}
+
+
+.watertest-status-dot.status-green {
+    background: #2e7d32;
+}
+
+.watertest-status-dot.status-orange {
+    background: #ef6c00;
+}
+
+.watertest-status-dot.status-red {
+    background: #c62828;
+}
+
+
+/*
+ Tatsächlicher Messwert unter dem Punkt
+*/
+.watertest-overview-value {
+    display: block;
+
+    font-size: 11px;
+    color: var(--text-muted);
+}
