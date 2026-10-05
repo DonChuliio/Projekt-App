@@ -7,6 +7,7 @@ export function initDashboard() {
     const calendarTile = document.querySelector("[data-tile='calendar']");
     const todoTile     = document.querySelector("[data-tile='todo']");
     const packlistsTile = document.querySelector("[data-tile='packlists']");
+    const watertestTile =   document.querySelector("[data-tile='watertest']");
     const backupBtn = document.getElementById("open-backup");
 
     console.log("Dashboard Tiles gefunden:", {
@@ -30,6 +31,10 @@ if (!notesTile || !calendarTile || !todoTile || !packlistsTile) {
         console.log("🟦 Kalender-Kachel geklickt");
         showView("calendar");
     });
+    watertestTile.addEventListener("click", () => {
+    console.log("🟦 Wassertest-Kachel geklickt");
+    showView("watertest");
+});
 /* 🆕 Packlisten */
 packlistsTile.addEventListener("click", () => {
     console.log("🟦 Packlisten-Kachel geklickt");
