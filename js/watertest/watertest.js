@@ -8,6 +8,7 @@ import { showView } from "../router.js";
  WASSERWERTE
  =========================================================
 */
+
 const WATER_VALUES = [
 
     {
@@ -103,6 +104,7 @@ let currentValues = {};
  INITIALISIERUNG
  =========================================================
 */
+
 export function initWatertest() {
 
     const addButton =
@@ -164,6 +166,7 @@ export function initWatertest() {
  EINGABEMASKE
  =========================================================
 */
+
 function renderWatertestForm() {
 
     const container =
@@ -178,6 +181,9 @@ function renderWatertestForm() {
     container.innerHTML = "";
 
 
+    /*
+     Normale Wasserwerte
+    */
     WATER_VALUES.forEach(parameter => {
 
         const section =
@@ -259,6 +265,77 @@ function renderWatertestForm() {
     });
 
 
+    /* ==================================================
+       TEMPERATUR – MANUELLE EINGABE
+       ================================================== */
+
+    const temperatureSection =
+        document.createElement("section");
+
+    temperatureSection.className =
+        "watertest-section";
+
+
+    const temperatureTitle =
+        document.createElement("h3");
+
+    temperatureTitle.textContent =
+        "Temperatur (°C)";
+
+    temperatureSection.appendChild(
+        temperatureTitle
+    );
+
+
+    /*
+     Textfeld statt number verwenden.
+
+     Dadurch können wir auf dem iPhone
+     sowohl 24,5 als auch 24.5 akzeptieren.
+    */
+    const temperatureInput =
+        document.createElement("input");
+
+    temperatureInput.type =
+        "text";
+
+    temperatureInput.inputMode =
+        "decimal";
+
+    temperatureInput.placeholder =
+        "z. B. 24,5";
+
+    temperatureInput.className =
+        "watertest-temperature";
+
+
+    /*
+     Falls bereits etwas eingegeben wurde,
+     bleibt es beim erneuten Rendern erhalten.
+    */
+    temperatureInput.value =
+        currentValues.temperature ?? "";
+
+
+    temperatureInput.addEventListener(
+        "input",
+        () => {
+
+            currentValues.temperature =
+                temperatureInput.value;
+        }
+    );
+
+
+    temperatureSection.appendChild(
+        temperatureInput
+    );
+
+    container.appendChild(
+        temperatureSection
+    );
+
+
     /*
      Speichern
     */
@@ -290,10 +367,11 @@ function renderWatertestForm() {
  TEST SPEICHERN
  =========================================================
 */
+
 function saveWatertest() {
 
     /*
-     Sind alle sechs Werte ausgewählt?
+     Sind alle sechs Wasserwerte ausgewählt?
     */
     const allSelected =
         WATER_VALUES.every(
@@ -312,6 +390,41 @@ function saveWatertest() {
 
         return;
     }
+
+
+    /*
+     Temperatur prüfen.
+
+     Komma und Punkt werden beide akzeptiert.
+    */
+    const temperature =
+        parseFloat(
+            String(
+                currentValues.temperature ?? ""
+            ).replace(",", ".")
+        );
+
+
+    if (!Number.isFinite(temperature)) {
+
+        alert(
+            "Bitte eine gültige Temperatur eingeben."
+        );
+
+        return;
+    }
+
+
+    /*
+     Temperatur immer mit genau
+     einer Nachkommastelle speichern.
+
+     Beispiel:
+     24,5 -> "24.5"
+     24   -> "24.0"
+    */
+    currentValues.temperature =
+        temperature.toFixed(1);
 
 
     const today =
@@ -406,6 +519,7 @@ function saveWatertest() {
  ÜBERSICHT
  =========================================================
 */
+
 function renderOverview() {
 
     const container =
@@ -631,6 +745,125 @@ function renderOverview() {
     });
 
 
+    /* ==================================================
+       TEMPERATUR-ZEILE
+       ================================================== */
+
+    const temperatureRow =
+        document.createElement("tr");
+
+
+    const temperatureName =
+        document.createElement("th");
+
+    temperatureName.textContent =
+        "Temp.";
+
+    temperatureRow.appendChild(
+        temperatureName
+    );
+
+
+    /*
+     Für jede gespeicherte KW
+     die Temperatur anzeigen.
+    */
+    sortedHistory.forEach(test => {
+
+        const cell =
+            document.createElement("td");
+
+
+        const rawTemperature =
+            test.values?.temperature;
+
+
+        /*
+         Alte Tests wurden noch ohne
+         Temperatur gespeichert.
+
+         In diesem Fall zeigen wir
+         einfach einen Strich.
+        */
+        if (
+            rawTemperature === undefined ||
+            rawTemperature === null ||
+            rawTemperature === ""
+        ) {
+
+            const valueText =
+                document.createElement("span");
+
+            valueText.className =
+                "watertest-overview-value";
+
+            valueText.textContent =
+                "–";
+
+            cell.appendChild(valueText);
+
+            temperatureRow.appendChild(cell);
+
+            return;
+        }
+
+
+        const temperature =
+            Number(
+                String(rawTemperature)
+                    .replace(",", ".")
+            );
+
+
+        const status =
+            getTemperatureStatus(
+                temperature
+            );
+
+
+        /*
+         Farbiger Statuspunkt.
+        */
+        const dot =
+            document.createElement("span");
+
+        dot.className =
+            `watertest-status-dot status-${status}`;
+
+
+        /*
+         Temperatur anzeigen.
+
+         Punkt wird für die Anzeige
+         wieder zum deutschen Komma.
+        */
+        const valueText =
+            document.createElement("span");
+
+        valueText.className =
+            "watertest-overview-value";
+
+        valueText.textContent =
+            `${temperature
+                .toFixed(1)
+                .replace(".", ",")}°`;
+
+
+        cell.appendChild(dot);
+
+        cell.appendChild(
+            valueText
+        );
+
+        temperatureRow.appendChild(cell);
+    });
+
+
+    tbody.appendChild(
+        temperatureRow
+    );
+
+
     table.appendChild(tbody);
 
     scroll.appendChild(table);
@@ -641,16 +874,65 @@ function renderOverview() {
 
 /*
  =========================================================
- STATUS EINES WERTES BESTIMMEN
+ TEMPERATUR-STATUS BESTIMMEN
  =========================================================
 */
+
+function getTemperatureStatus(
+    temperature
+) {
+
+    /*
+     GRÜN:
+     22,0 bis unter 26,0 °C
+    */
+    if (
+        temperature >= 22 &&
+        temperature < 26
+    ) {
+        return "green";
+    }
+
+
+    /*
+     ORANGE:
+
+     20,0 bis unter 22,0 °C
+
+     ODER
+
+     26,0 bis unter 28,0 °C
+    */
+    if (
+        (
+            temperature >= 20 &&
+            temperature < 22
+        ) ||
+        (
+            temperature >= 26 &&
+            temperature < 28
+        )
+    ) {
+        return "orange";
+    }
+
+
+    /*
+     Alles andere ist ROT:
+
+     unter 20,0 °C
+     oder ab 28,0 °C
+    */
+    return "red";
+}
 
 
 /*
  =========================================================
- STATUS EINES WERTES BESTIMMEN
+ STATUS EINES WASSERWERTES BESTIMMEN
  =========================================================
 */
+
 function getStatus(
     parameter,
     value
@@ -674,6 +956,7 @@ function getStatus(
  VERLAUF LADEN
  =========================================================
 */
+
 function loadHistory() {
 
     const raw =
@@ -713,6 +996,7 @@ function loadHistory() {
  AKTUELLE KW IN DER EINGABE
  =========================================================
 */
+
 function renderCurrentWeekTitle() {
 
     const element =
@@ -746,6 +1030,7 @@ function renderCurrentWeekTitle() {
  ISO-KALENDERWOCHE
  =========================================================
 */
+
 function getISOWeek(date) {
 
     const tempDate =
@@ -797,6 +1082,7 @@ function getISOWeek(date) {
  ISO-JAHR
  =========================================================
 */
+
 function getISOWeekYear(date) {
 
     const tempDate =
