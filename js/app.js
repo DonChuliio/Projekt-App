@@ -2,7 +2,7 @@
 
 import { initDashboard } from "./dashboard.js";
 import { initNotes } from "./notes/notes.js";
-//import { initCalendar } from "./calendar/calendar.js";
+import { initCalendar } from "./calendar/calendar.js";
 import { showView, goToDashboard } from "./router.js";
 import { initTodo } from "./todo/todo.js";
 import { initBackup } from "./backup/backup.js";
@@ -37,7 +37,7 @@ if (versionEl) {
     initTodo();
     initBackup();
     initNotes();
-    //initCalendar();
+    initCalendar();
  initPacklists();
 initPacklistEditor();
 initPacklistRun();
