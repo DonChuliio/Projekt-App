@@ -447,7 +447,10 @@ function renderOverview() {
 
 
     /*
-     Neueste KW zuerst.
+     Neueste Kalenderwoche zuerst.
+
+     Dadurch steht die aktuellste KW
+     direkt links in der Tabelle.
     */
     const sortedHistory =
         [...history].sort((a, b) => {
@@ -461,9 +464,7 @@ function renderOverview() {
 
 
     /*
-     Horizontal scrollbar,
-     falls die Tabelle auf dem Handy
-     breiter als der Bildschirm ist.
+     Scrollbarer Bereich für das Handy.
     */
     const scroll =
         document.createElement("div");
@@ -472,6 +473,9 @@ function renderOverview() {
         "watertest-overview-scroll";
 
 
+    /*
+     Tabelle erstellen.
+    */
     const table =
         document.createElement("table");
 
@@ -479,31 +483,47 @@ function renderOverview() {
         "watertest-overview-table";
 
 
-    /*
-     Tabellenkopf
-    */
+    /* ==================================================
+       TABELLENKOPF
+
+       Erste Spalte = Wasserwert
+       Danach kommen die Kalenderwochen
+       ================================================== */
+
     const thead =
         document.createElement("thead");
+
 
     const headerRow =
         document.createElement("tr");
 
 
-    const kwHeader =
+    /*
+     Linke obere Ecke bleibt leer.
+    */
+    const emptyHeader =
         document.createElement("th");
 
-    kwHeader.textContent = "KW";
+    emptyHeader.textContent = "";
 
-    headerRow.appendChild(kwHeader);
+    headerRow.appendChild(
+        emptyHeader
+    );
 
 
-    WATER_VALUES.forEach(parameter => {
+    /*
+     Jede gespeicherte KW bekommt
+     eine eigene Spalte.
+    */
+    sortedHistory.forEach(test => {
 
         const th =
             document.createElement("th");
 
+
         th.textContent =
-            parameter.name;
+            `KW ${test.week}`;
+
 
         headerRow.appendChild(th);
     });
@@ -514,35 +534,44 @@ function renderOverview() {
     table.appendChild(thead);
 
 
-    /*
-     Tabelleninhalt
-    */
+    /* ==================================================
+       TABELLENINHALT
+
+       Jeder Wasserwert bekommt
+       eine eigene Zeile.
+       ================================================== */
+
     const tbody =
         document.createElement("tbody");
 
 
-    sortedHistory.forEach(test => {
+    WATER_VALUES.forEach(parameter => {
 
         const row =
             document.createElement("tr");
 
 
         /*
-         KW
+         Name des Wasserwertes links.
         */
-        const weekCell =
+        const parameterCell =
             document.createElement("th");
 
-        weekCell.textContent =
-            `${test.week}`;
 
-        row.appendChild(weekCell);
+        parameterCell.textContent =
+            parameter.name;
+
+
+        row.appendChild(
+            parameterCell
+        );
 
 
         /*
-         Sechs Wasserwerte
+         Für jede KW den gespeicherten
+         Messwert anzeigen.
         */
-        WATER_VALUES.forEach(parameter => {
+        sortedHistory.forEach(test => {
 
             const cell =
                 document.createElement("td");
@@ -562,25 +591,26 @@ function renderOverview() {
 
 
             /*
-             Farbiger Punkt.
+             Farbiger Statuspunkt.
             */
             const dot =
                 document.createElement("span");
+
 
             dot.className =
                 `watertest-status-dot status-${status}`;
 
 
             /*
-             Messwert als kleiner Text darunter.
-             Damit wissen wir nicht nur die Farbe,
-             sondern auch den tatsächlichen Wert.
+             Tatsächlicher Messwert.
             */
             const valueText =
                 document.createElement("span");
 
+
             valueText.className =
                 "watertest-overview-value";
+
 
             valueText.textContent =
                 value;
@@ -588,7 +618,10 @@ function renderOverview() {
 
             cell.appendChild(dot);
 
-            cell.appendChild(valueText);
+            cell.appendChild(
+                valueText
+            );
+
 
             row.appendChild(cell);
         });
@@ -604,6 +637,13 @@ function renderOverview() {
 
     container.appendChild(scroll);
 }
+
+
+/*
+ =========================================================
+ STATUS EINES WERTES BESTIMMEN
+ =========================================================
+*/
 
 
 /*
