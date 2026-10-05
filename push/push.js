@@ -137,20 +137,19 @@ function initPushButtons() {
 
 async function requestPermission() {
 
+    alert("Push-Button funktioniert");
+
     try {
 
         const permission =
             await Notification.requestPermission();
-
 
         console.log(
             "Benachrichtigungs-Berechtigung:",
             permission
         );
 
-
         updatePermissionStatus();
-
 
     } catch (error) {
 
@@ -158,7 +157,6 @@ async function requestPermission() {
             "Berechtigung konnte nicht angefordert werden:",
             error
         );
-
 
         updatePushStatus(
             "Berechtigung konnte nicht angefordert werden."
