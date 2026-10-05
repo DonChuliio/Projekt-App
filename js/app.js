@@ -2,9 +2,9 @@
 
 import { initDashboard } from "./dashboard.js";
 import { initNotes } from "./notes/notes.js";
-//import { initCalendar } from "./calendar/calendar.js";
+import { initCalendar } from "./calendar/calendar.js";
 import { showView, goToDashboard } from "./router.js";
-//import { initTodo } from "./todo/todo.js";
+import { initTodo } from "./todo/todo.js";
 import { initBackup } from "./backup/backup.js";
 import { initPacklists } from "./packlists/packlists.js";
 import { initPacklistEditor } from "./packlists/packlist-editor.js";
@@ -34,10 +34,10 @@ if (versionEl) {
 
     // ✅ Feature-Module initialisieren
     initDashboard();
-    //initTodo();
+    initTodo();
     initBackup();
     initNotes();
-    //initCalendar();
+    initCalendar();
  initPacklists();
 initPacklistEditor();
 initPacklistRun();
