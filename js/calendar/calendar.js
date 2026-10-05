@@ -29,6 +29,11 @@ const WEEK_TASKS = [
         id: "aquarium-large",
         name: "Aquarium großer Wasserwechsel",
         shortName: "Aqua groß"
+    },
+    {
+        id: "water-test",
+        name: "Wassertest",
+        shortName: "Wassertest"
     }
 ];
 
