@@ -1,240 +1,530 @@
+<!DOCTYPE html>
+
+<html lang="de">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <!-- ==================================================
+         PWA / WEB APP
+         ================================================== -->
+
+    <link
+        rel="manifest"
+        href="manifest.json"
+    >
+
+    <meta
+        name="theme-color"
+        content="#121212"
+    >
+
+
+    <!-- ==================================================
+         CSS
+         ================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="style.css?v=5"
+    >
+
+
+    <title>Projekt App</title>
+
+</head>
+
+
 <body>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 
 <!-- ======================================================
-     DASHBOARD (Startseite)
+     APP
      ====================================================== -->
+
 <div id="app">
 
-    <!-- DASHBOARD -->
+
+    <!-- ==================================================
+         DASHBOARD
+         ================================================== -->
+
     <div data-view="dashboard">
 
         <div class="dashboard-header">
+
             <div class="dashboard-title">
-                <h1>📱 Dashboard</h1>
-                <span id="app-version" class="app-version">v?</span>
+
+                <h1>Dashboard</h1>
+
+                <span
+                    id="app-version"
+                    class="app-version"
+                >
+                    v?
+                </span>
+
             </div>
 
-            <button id="open-backup" class="backup-btn">Backup</button>
+
+            <button
+                id="open-backup"
+                class="backup-btn"
+            >
+                Backup
+            </button>
+
         </div>
+
 
         <div class="tiles">
-            <div class="tile" data-tile="notes">Notizen</div>
-            <div class="tile" data-tile="todo">To-Do</div>
-            <div class="tile" data-tile="calendar">Kalender</div>
-             <div class="tile" data-tile="packlists">Packlisten</div>
-          <div class="tile" data-tile="watertest">Wassertest</div>
+
+            <div
+                class="tile"
+                data-tile="notes"
+            >
+                Notizen
+            </div>
+
+            <div
+                class="tile"
+                data-tile="todo"
+            >
+                To-Do
+            </div>
+
+            <div
+                class="tile"
+                data-tile="calendar"
+            >
+                Kalender
+            </div>
+
+            <div
+                class="tile"
+                data-tile="packlists"
+            >
+                Packlisten
+            </div>
+
+            <div
+                class="tile"
+                data-tile="watertest"
+            >
+                Wassertest
+            </div>
+
         </div>
 
     </div>
 
-    
-
-    <!-- andere Views (notes, todo, calendar, backup) kommen hier drunter -->
 
 
+    <!-- ==================================================
+         NOTIZEN
+         ================================================== -->
 
-<!-- ======================================================
-     NOTIZEN
-     ====================================================== -->
-<div data-view="notes" class="hidden">
-    <button class="back-button" data-back>Zurück</button>
-    <h2>📝 Notizen</h2>
-    <textarea id="note" placeholder="Schreibe hier deine Notiz..."></textarea>
-    <button id="saveBtn">Speichern</button>
-</div>
-
-<!-- ======================================================
-     KALENDER
-     ====================================================== -->
-<!-- ======================================================
-     KALENDER / WOCHENPLAN
-     ====================================================== -->
-<div data-view="calendar" class="hidden">
-
-    <button class="back-button" data-back>Zurück</button>
-
-    <div class="calendar-header">
-        <h2>📅 Kalender</h2>
-
-        <button id="calendar-edit">
-            Bearbeiten
-        </button>
-    </div>
-
-    <!-- Hier zeigen wir später automatisch die aktuelle KW an -->
-    <h3 id="calendar-current-week">
-        KW --
-    </h3>
-
-    <!-- Hier erscheinen die Aufgaben der aktuellen KW -->
-    <div id="calendar-week-tasks"></div>
-
-</div>
-<!-- ======================================================
-     KALENDER / WOCHENPLAN BEARBEITEN
-     ====================================================== -->
-<div data-view="calendar-edit" class="hidden">
-
-    <button id="calendar-edit-back" class="back-button">
-        Zurück
-    </button>
-
-    <h2>✏️ Wochenplan bearbeiten</h2>
-
-    <p>
-        Hier kommt gleich die Übersicht aller Kalenderwochen hin.
-    </p>
-
-</div>
-<!-- ======================================================
-     TO-DO
-     ====================================================== -->
-<div data-view="todo" class="hidden">
-
-    <button class="back-button" data-back>Zurück</button>
-    <h2>✅ To-Do</h2>
-
-    <section>
-        <h3>A-Aufgaben</h3>
-        <input id="todo-a-input" placeholder="Neue A-Aufgabe" />
-        <button id="todo-a-add">Hinzufügen</button>
-        <ul id="todo-a-list"></ul>
-    </section>
-
-    <section>
-        <h3>B-Aufgaben</h3>
-        <input id="todo-b-input" placeholder="Neue B-Aufgabe" />
-        <button id="todo-b-add">Hinzufügen</button>
-        <ul id="todo-b-list"></ul>
-    </section>
-
-    <section>
-        <h3>C-Aufgaben</h3>
-        <input id="todo-c-input" placeholder="Neue C-Aufgabe" />
-        <button id="todo-c-add">Hinzufügen</button>
-        <ul id="todo-c-list"></ul>
-    </section>
-
-</div>
-<!-- ======================================================
-     PACKLISTEN
-     ====================================================== -->
-<div data-view="packlists" class="hidden">
-    <button class="back-button" data-back>Zurück</button>
-
-    <h2>📦 Packlisten</h2>
-
-    <button id="create-packlist">➕ Neue Packliste</button>
-
-    <ul id="packlists-list"></ul>
-</div>
-<!-- ======================================================
-     PACKLISTE - PACKEN (Fortsetzen/Neu)
-     ====================================================== -->
-
-<div data-view="packlist-edit" class="hidden">
-    <button class="back-button" data-back>Zurück</button>
-    <h2 id="packlist-edit-title"></h2>
-    <div id="packlist-edit-content"></div>
-</div>
-<div data-view="packlist-run" class="hidden">
-    <button class="back-button" data-back>Zurück</button>
-    <h2 id="packlist-run-title"></h2>
-    <div id="packlist-run-content"></div>
-</div>
-
-<!-- ======================================================
-     PACKLISTE - BEARBEITEN
-     ====================================================== -->
-
-<!-- ======================================================
-     WASSERTEST
-     ====================================================== -->
-<!-- ======================================================
-     WASSERTEST – ÜBERSICHT
-     ====================================================== -->
-<div data-view="watertest" class="hidden">
-
-    <button class="back-button" data-back>
-        Zurück
-    </button>
-
-    <h2>💧 Wassertest</h2>
-
-    <button id="watertest-add">
-        Wassertest aktuelle KW
-    </button>
-
-    <div id="watertest-overview"></div>
-
-</div>
-
-
-<!-- ======================================================
-     WASSERTEST – EINGABE
-     ====================================================== -->
-<div data-view="watertest-entry" class="hidden">
-
-    <button
-        id="watertest-entry-back"
-        class="back-button"
+    <div
+        data-view="notes"
+        class="hidden"
     >
-        Zurück
-    </button>
 
-    <h2>💧 Wassertest</h2>
+        <button
+            class="back-button"
+            data-back
+        >
+            Zurück
+        </button>
 
-    <h3 id="watertest-current-week">
-        KW --
-    </h3>
 
-    <div id="watertest-form"></div>
+        <h2>Notizen</h2>
 
-</div>
 
-<!-- ======================================================
-     BACKUP / SYNC
-     ====================================================== -->
-<div data-view="backup" class="hidden">
+        <textarea
+            id="note"
+            placeholder="Schreibe hier deine Notiz..."
+        ></textarea>
 
-    <button class="back-button" data-back>Zurück</button>
 
-    <h2>🔄 Synchronisation & Backup</h2>
+        <button id="saveBtn">
+            Speichern
+        </button>
 
-    <p id="backup-status">Letztes Backup: nie</p>
-
-    <div class="backup-actions">
-        <button id="backup-export">Backup exportieren</button>
-        <button id="backup-import">Backup importieren</button>
     </div>
 
+
+
+    <!-- ==================================================
+         KALENDER / WOCHENPLAN
+         ================================================== -->
+
+    <div
+        data-view="calendar"
+        class="hidden"
+    >
+
+        <button
+            class="back-button"
+            data-back
+        >
+            Zurück
+        </button>
+
+
+        <div class="calendar-header">
+
+            <h2>Kalender</h2>
+
+
+            <button id="calendar-edit">
+                Bearbeiten
+            </button>
+
+        </div>
+
+
+        <h3 id="calendar-current-week">
+            KW --
+        </h3>
+
+
+        <div id="calendar-week-tasks"></div>
+
+    </div>
+
+
+
+    <!-- ==================================================
+         KALENDER / WOCHENPLAN BEARBEITEN
+         ================================================== -->
+
+    <div
+        data-view="calendar-edit"
+        class="hidden"
+    >
+
+        <button
+            id="calendar-edit-back"
+            class="back-button"
+        >
+            Zurück
+        </button>
+
+
+        <h2>
+            Wochenplan bearbeiten
+        </h2>
+
+
+        <p>
+            Hier kommt gleich die Übersicht aller Kalenderwochen hin.
+        </p>
+
+    </div>
+
+
+
+    <!-- ==================================================
+         TO-DO
+         ================================================== -->
+
+    <div
+        data-view="todo"
+        class="hidden"
+    >
+
+        <button
+            class="back-button"
+            data-back
+        >
+            Zurück
+        </button>
+
+
+        <h2>To-Do</h2>
+
+
+        <!-- A-Aufgaben -->
+
+        <section>
+
+            <h3>A-Aufgaben</h3>
+
+
+            <input
+                id="todo-a-input"
+                placeholder="Neue A-Aufgabe"
+            >
+
+
+            <button id="todo-a-add">
+                Hinzufügen
+            </button>
+
+
+            <ul id="todo-a-list"></ul>
+
+        </section>
+
+
+        <!-- B-Aufgaben -->
+
+        <section>
+
+            <h3>B-Aufgaben</h3>
+
+
+            <input
+                id="todo-b-input"
+                placeholder="Neue B-Aufgabe"
+            >
+
+
+            <button id="todo-b-add">
+                Hinzufügen
+            </button>
+
+
+            <ul id="todo-b-list"></ul>
+
+        </section>
+
+
+        <!-- C-Aufgaben -->
+
+        <section>
+
+            <h3>C-Aufgaben</h3>
+
+
+            <input
+                id="todo-c-input"
+                placeholder="Neue C-Aufgabe"
+            >
+
+
+            <button id="todo-c-add">
+                Hinzufügen
+            </button>
+
+
+            <ul id="todo-c-list"></ul>
+
+        </section>
+
+    </div>
+
+
+
+    <!-- ==================================================
+         PACKLISTEN
+         ================================================== -->
+
+    <div
+        data-view="packlists"
+        class="hidden"
+    >
+
+        <button
+            class="back-button"
+            data-back
+        >
+            Zurück
+        </button>
+
+
+        <h2>Packlisten</h2>
+
+
+        <button id="create-packlist">
+            Neue Packliste
+        </button>
+
+
+        <ul id="packlists-list"></ul>
+
+    </div>
+
+
+
+    <!-- ==================================================
+         PACKLISTE BEARBEITEN
+         ================================================== -->
+
+    <div
+        data-view="packlist-edit"
+        class="hidden"
+    >
+
+        <button
+            class="back-button"
+            data-back
+        >
+            Zurück
+        </button>
+
+
+        <h2 id="packlist-edit-title"></h2>
+
+
+        <div id="packlist-edit-content"></div>
+
+    </div>
+
+
+
+    <!-- ==================================================
+         PACKLISTE PACKEN
+         ================================================== -->
+
+    <div
+        data-view="packlist-run"
+        class="hidden"
+    >
+
+        <button
+            class="back-button"
+            data-back
+        >
+            Zurück
+        </button>
+
+
+        <h2 id="packlist-run-title"></h2>
+
+
+        <div id="packlist-run-content"></div>
+
+    </div>
+
+
+
+    <!-- ==================================================
+         WASSERTEST ÜBERSICHT
+         ================================================== -->
+
+    <div
+        data-view="watertest"
+        class="hidden"
+    >
+
+        <button
+            class="back-button"
+            data-back
+        >
+            Zurück
+        </button>
+
+
+        <h2>Wassertest</h2>
+
+
+        <button id="watertest-add">
+            Wassertest aktuelle KW
+        </button>
+
+
+        <div id="watertest-overview"></div>
+
+    </div>
+
+
+
+    <!-- ==================================================
+         WASSERTEST EINGABE
+         ================================================== -->
+
+    <div
+        data-view="watertest-entry"
+        class="hidden"
+    >
+
+        <button
+            id="watertest-entry-back"
+            class="back-button"
+        >
+            Zurück
+        </button>
+
+
+        <h2>Wassertest</h2>
+
+
+        <h3 id="watertest-current-week">
+            KW --
+        </h3>
+
+
+        <div id="watertest-form"></div>
+
+    </div>
+
+
+
+    <!-- ==================================================
+         BACKUP / SYNCHRONISATION
+         ================================================== -->
+
+    <div
+        data-view="backup"
+        class="hidden"
+    >
+
+        <button
+            class="back-button"
+            data-back
+        >
+            Zurück
+        </button>
+
+
+        <h2>
+            Synchronisation & Backup
+        </h2>
+
+
+        <p id="backup-status">
+            Letztes Backup: nie
+        </p>
+
+
+        <div class="backup-actions">
+
+            <button id="backup-export">
+                Backup exportieren
+            </button>
+
+
+            <button id="backup-import">
+                Backup importieren
+            </button>
+
+        </div>
+
+    </div>
+
+
 </div>
 
-<script type="module" id="app-script" src="js/app.js?v=0.54"></script>
-<link rel="stylesheet" href="style.css?v=4">
+
+
+<!-- ======================================================
+     JAVASCRIPT
+     ====================================================== -->
+
+<script
+    type="module"
+    id="app-script"
+    src="js/app.js?v=0.55"
+></script>
+
 
 </body>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+</html>
