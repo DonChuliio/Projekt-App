@@ -1,98 +1,131 @@
-
-
 // js/watertest/watertest.js
 
 
 /*
- Alle auswählbaren Werte des JBL-Teststreifens.
+ =========================================================
+ WASSERTEST – KONFIGURATION
+ =========================================================
+
+ Hier stehen alle Messwerte des JBL-Teststreifens.
 
  value:
- Der Wert, den wir intern speichern.
+ Der Messwert, der gespeichert und angezeigt wird.
 
- label:
- Der Text, der auf dem Button angezeigt wird.
+ status:
+ green  = guter Bereich
+ orange = Warnbereich
+ red    = kritischer Bereich
 */
 const WATER_VALUES = [
 
+    /* ==================================================
+       NO3
+       ================================================== */
     {
         id: "no3",
         name: "NO₃",
         unit: "mg/l",
+
         values: [
-            "0",
-            "10",
-            "25",
-            "50",
-            "100",
-            "250",
-            "500"
+            { value: "0",   status: "green" },
+            { value: "10",  status: "green" },
+            { value: "25",  status: "green" },
+            { value: "50",  status: "orange" },
+            { value: "100", status: "red" },
+            { value: "250", status: "red" },
+            { value: "500", status: "red" }
         ]
     },
 
+
+    /* ==================================================
+       NO2
+       ================================================== */
     {
         id: "no2",
         name: "NO₂",
         unit: "mg/l",
+
         values: [
-            "0",
-            "0,5",
-            "2",
-            "5",
-            "10"
+            { value: "0",   status: "green" },
+            { value: "0,5", status: "green" },
+            { value: "2",   status: "green" },
+            { value: "5",   status: "orange" },
+            { value: "10",  status: "red" }
         ]
     },
 
+
+    /* ==================================================
+       GH
+       ================================================== */
     {
         id: "gh",
         name: "GH",
         unit: "°dH",
+
         values: [
-            "<3",
-            "<4",
-            "<7",
-            "<14",
-            "<21"
+            { value: "<3",  status: "red" },
+            { value: "<4",  status: "green" },
+            { value: "<7",  status: "green" },
+            { value: "<14", status: "green" },
+            { value: "<21", status: "orange" }
         ]
     },
 
+
+    /* ==================================================
+       KH
+       ================================================== */
     {
         id: "kh",
         name: "KH",
         unit: "°dH",
+
         values: [
-            "0",
-            "3",
-            "6",
-            "10",
-            "15",
-            "20"
+            { value: "0",  status: "red" },
+            { value: "3",  status: "orange" },
+            { value: "6",  status: "green" },
+            { value: "10", status: "green" },
+            { value: "15", status: "green" },
+            { value: "20", status: "orange" }
         ]
     },
 
+
+    /* ==================================================
+       pH
+       ================================================== */
     {
         id: "ph",
         name: "pH",
         unit: "",
+
         values: [
-            "6.4",
-            "6.8",
-            "7.2",
-            "7.6",
-            "8.0",
-            "8.4",
-            "9.0"
+            { value: "6.4", status: "orange" },
+            { value: "6.8", status: "green" },
+            { value: "7.2", status: "green" },
+            { value: "7.6", status: "green" },
+            { value: "8.0", status: "orange" },
+            { value: "8.4", status: "orange" },
+            { value: "9.0", status: "red" }
         ]
     },
 
+
+    /* ==================================================
+       Chlor / Cl2
+       ================================================== */
     {
         id: "cl2",
         name: "Cl₂",
         unit: "mg/l",
+
         values: [
-            "0",
-            "0.8",
-            "1.5",
-            "3.0"
+            { value: "0",   status: "green" },
+            { value: "0.8", status: "red" },
+            { value: "1.5", status: "red" },
+            { value: "3.0", status: "red" }
         ]
     }
 
@@ -100,16 +133,31 @@ const WATER_VALUES = [
 
 
 /*
- Temporäre Auswahl.
+ =========================================================
+ AKTUELLE EINGABE
+ =========================================================
 
- Hier landen die Werte, die der Benutzer
- während der Eingabe auswählt.
+ Hier speichern wir vorübergehend die Werte,
+ die gerade in der Eingabemaske ausgewählt wurden.
+
+ Beispiel:
+
+ {
+     no3: "25",
+     no2: "0",
+     gh: "<7",
+     kh: "6",
+     ph: "7.2",
+     cl2: "0"
+ }
 */
 let currentValues = {};
 
 
 /*
- Wassertest initialisieren.
+ =========================================================
+ INITIALISIERUNG
+ =========================================================
 */
 export function initWatertest() {
 
@@ -132,7 +180,9 @@ export function initWatertest() {
 
 
 /*
- Baut die komplette Eingabemaske auf.
+ =========================================================
+ EINGABEMASKE AUFBAUEN
+ =========================================================
 */
 function renderWatertestForm() {
 
@@ -145,16 +195,23 @@ function renderWatertestForm() {
     }
 
 
-    // Vorherigen Inhalt entfernen
+    /*
+     Alten Inhalt entfernen.
+
+     Danach bauen wir die komplette Maske
+     mit dem aktuellen Auswahlzustand neu auf.
+    */
     container.innerHTML = "";
 
 
     /*
-     Für jeden Wasserwert
-     einen eigenen Bereich erstellen.
+     Jeden Wasserparameter durchgehen.
     */
     WATER_VALUES.forEach(parameter => {
 
+        /*
+         Bereich für einen Wasserwert erstellen.
+        */
         const section =
             document.createElement("section");
 
@@ -163,9 +220,10 @@ function renderWatertestForm() {
 
 
         /*
-         Überschrift, z.B.:
+         Überschrift erstellen.
 
-         NO₃ mg/l
+         Beispiel:
+         NO₃ (mg/l)
         */
         const title =
             document.createElement("h3");
@@ -191,73 +249,100 @@ function renderWatertestForm() {
 
 
         /*
-         Einzelne Werte erzeugen.
+         Alle möglichen Werte dieses
+         Parameters durchgehen.
         */
-        parameter.values.forEach(value => {
+        parameter.values.forEach(option => {
 
+            /*
+             Button erstellen.
+            */
             const button =
                 document.createElement("button");
 
 
-            button.type = "button";
+            button.type =
+                "button";
+
 
             button.className =
                 "watertest-value";
 
 
+            /*
+             Messwert auf dem Button anzeigen.
+            */
             button.textContent =
-                value;
+                option.value;
 
 
             /*
-             Prüfen, ob dieser Wert
-             momentan ausgewählt ist.
+             Prüfen, ob dieser Wert gerade
+             ausgewählt ist.
             */
-            if (
+            const isSelected =
                 currentValues[parameter.id]
-                === value
-            ) {
+                === option.value;
+
+
+            /*
+             Wenn ausgewählt:
+
+             - selected hinzufügen
+             - passende Feedbackfarbe hinzufügen
+            */
+            if (isSelected) {
 
                 button.classList.add(
-                    "selected"
+                    "selected",
+                    `status-${option.status}`
                 );
             }
 
 
             /*
-             Wert auswählen.
+             Klick auf einen Wert.
             */
             button.addEventListener(
                 "click",
                 () => {
 
+                    /*
+                     Ausgewählten Wert speichern.
+                    */
                     currentValues[
                         parameter.id
-                    ] = value;
+                    ] = option.value;
 
 
                     /*
-                     Maske neu zeichnen,
-                     damit die Auswahl sichtbar wird.
+                     Eingabemaske neu zeichnen.
+
+                     Dadurch wird nur der aktuell
+                     ausgewählte Wert eingefärbt.
                     */
                     renderWatertestForm();
+
                 }
             );
 
 
             buttons.appendChild(button);
+
         });
 
 
         section.appendChild(buttons);
 
         container.appendChild(section);
+
     });
 
 
-    /*
-     Speicherbutton
-    */
+    /* ==================================================
+       SPEICHERN-BUTTON
+       ================================================== */
+
     const saveButton =
         document.createElement("button");
 
@@ -274,6 +359,9 @@ function renderWatertestForm() {
         "Wassertest speichern";
 
 
+    /*
+     Beim Klick wird der komplette Test gespeichert.
+    */
     saveButton.addEventListener(
         "click",
         saveWatertest
@@ -285,16 +373,15 @@ function renderWatertestForm() {
 
 
 /*
- Speichert den aktuellen Wassertest.
-
- Wir speichern direkt Datum und Uhrzeit mit.
- Das brauchen wir später für die Historie.
+ =========================================================
+ WASSERTEST SPEICHERN
+ =========================================================
 */
 function saveWatertest() {
 
     /*
-     Prüfen, ob wirklich für alle
-     sechs Werte etwas gewählt wurde.
+     Prüfen, ob für alle sechs Parameter
+     ein Wert ausgewählt wurde.
     */
     const allSelected =
         WATER_VALUES.every(
@@ -305,6 +392,10 @@ function saveWatertest() {
         );
 
 
+    /*
+     Falls noch etwas fehlt:
+     nicht speichern.
+    */
     if (!allSelected) {
 
         alert(
@@ -316,7 +407,7 @@ function saveWatertest() {
 
 
     /*
-     Bereits gespeicherte Tests laden.
+     Bereits vorhandene Wassertests laden.
     */
     const raw =
         localStorage.getItem(
@@ -327,6 +418,10 @@ function saveWatertest() {
     let history = [];
 
 
+    /*
+     Falls bereits Daten vorhanden sind,
+     versuchen wir sie einzulesen.
+    */
     if (raw) {
 
         try {
@@ -347,13 +442,21 @@ function saveWatertest() {
 
 
     /*
-     Neuen Test erstellen.
+     Neuen Wassertest erstellen.
+
+     Wir speichern:
+
+     - eindeutige ID
+     - Datum und Uhrzeit
+     - die sechs Messwerte
     */
     const test = {
 
-        id: Date.now().toString(),
+        id:
+            Date.now().toString(),
 
-        date: new Date().toISOString(),
+        date:
+            new Date().toISOString(),
 
         values: {
             ...currentValues
@@ -363,13 +466,13 @@ function saveWatertest() {
 
 
     /*
-     Test zum Verlauf hinzufügen.
+     Neuen Test zum Verlauf hinzufügen.
     */
     history.push(test);
 
 
     /*
-     Verlauf speichern.
+     Kompletten Verlauf wieder speichern.
     */
     localStorage.setItem(
         "watertest-history",
@@ -378,17 +481,20 @@ function saveWatertest() {
 
 
     /*
-     Eingabe zurücksetzen.
+     Aktuelle Eingabe zurücksetzen.
     */
     currentValues = {};
 
 
     /*
-     Maske neu zeichnen.
+     Eingabemaske zurücksetzen.
     */
     renderWatertestForm();
 
 
+    /*
+     Kurze Bestätigung.
+    */
     alert(
         "Wassertest gespeichert."
     );
