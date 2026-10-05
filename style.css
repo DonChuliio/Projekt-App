@@ -583,3 +583,29 @@ html, body {
     margin-top: 8px;
     margin-bottom: 30px;
 }
+
+
+/* ======================================================
+   WASSERTEST – FEEDBACKFARBEN
+   ====================================================== */
+
+/* Grün */
+.watertest-value.selected.status-green {
+    background: #2e7d32;
+    border-color: #2e7d32;
+    color: #fff;
+}
+
+/* Orange */
+.watertest-value.selected.status-orange {
+    background: #ef6c00;
+    border-color: #ef6c00;
+    color: #fff;
+}
+
+/* Rot */
+.watertest-value.selected.status-red {
+    background: #c62828;
+    border-color: #c62828;
+    color: #fff;
+}
