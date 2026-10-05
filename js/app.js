@@ -9,95 +9,47 @@ import { initBackup } from "./backup/backup.js";
 import { initPacklists } from "./packlists/packlists.js";
 import { initPacklistEditor } from "./packlists/packlist-editor.js";
 import { initPacklistRun } from "./packlists/packlist-run.js";
-
-// Wassertest-Modul
 import { initWatertest } from "./watertest/watertest.js";
-
 
 /*
  Einstiegspunkt der App.
  Wird ausgeführt, sobald das DOM vollständig geladen ist.
 */
 document.addEventListener("DOMContentLoaded", () => {
-
     console.log("✅ app.js geladen");
 
+// Versionsnummer direkt aus der URL von app.js lesen.
+// Beispiel: js/app.js?v=0.36 → Version 0.36
 
-    /* ==================================================
-       VERSION
-       ================================================== */
+const appScript = document.getElementById("app-script");
+const scriptUrl = new URL(appScript.src);
 
-    // Versionsnummer direkt aus der URL von app.js lesen.
-    // Beispiel:
-    // js/app.js?v=0.38
-    // → Version 0.38
+const APP_VERSION = scriptUrl.searchParams.get("v");
 
-    const appScript =
-        document.getElementById("app-script");
+const versionEl = document.getElementById("app-version");
 
-    const scriptUrl =
-        new URL(appScript.src);
+if (versionEl) {
+    versionEl.textContent = `v${APP_VERSION}`;
+}
 
-    const APP_VERSION =
-        scriptUrl.searchParams.get("v");
-
-    const versionEl =
-        document.getElementById("app-version");
-
-    if (versionEl) {
-        versionEl.textContent =
-            `v${APP_VERSION}`;
-    }
-
-
-    /* ==================================================
-       FEATURE-MODULE INITIALISIEREN
-       ================================================== */
-
+    // ✅ Feature-Module initialisieren
     initDashboard();
-
     initTodo();
-
     initBackup();
-
     initNotes();
-
     initCalendar();
+ initPacklists();
+initPacklistEditor();
+initPacklistRun();
+initWatertest();
 
-    initPacklists();
-
-    initPacklistEditor();
-
-    initPacklistRun();
-
-    // Wassertest initialisieren
-    initWatertest();
-
-
-    /* ==================================================
-       ZENTRALE ZURÜCK-BUTTONS
-       ================================================== */
-
-    document
-        .querySelectorAll("[data-back]")
-        .forEach((button) => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    goToDashboard();
-
-                }
-            );
-
+    // ✅ Zentrale Zurück-Buttons verbinden
+    document.querySelectorAll("[data-back]").forEach((button) => {
+        button.addEventListener("click", () => {
+            goToDashboard();
         });
+    });
 
-
-    /* ==================================================
-       STARTANSICHT
-       ================================================== */
-
+    // ✅ Startansicht
     showView("dashboard");
-
 });
