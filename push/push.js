@@ -7,7 +7,6 @@ let serviceWorkerRegistration = null;
 /* =========================================================
    PUSH INITIALISIEREN
    ========================================================= */
-
 export async function initPush() {
 
     const status =
