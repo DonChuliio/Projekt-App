@@ -1,7 +1,9 @@
 // js/calendar/calendar.js
 
 import { showView } from "../router.js";
-
+import {
+    syncNotificationState
+} from "../push/notification-state.js";
 
 /*
  Feste Aufgaben unseres Wochenplans.
@@ -256,17 +258,27 @@ function renderCurrentWeek() {
             /*
              Zustand speichern.
             */
-            saveDoneTasks(
-                year,
-                week,
-                doneTaskIds
-            );
+saveDoneTasks(
+    year,
+    week,
+    doneTaskIds
+);
 
 
-            /*
-             Kalender neu anzeigen.
-            */
-            renderCurrentWeek();
+/*
+ Push-Status in Supabase aktualisieren.
+
+ Dadurch ändert sich open_week sofort,
+ wenn eine Aufgabe erledigt oder wieder
+ auf offen gesetzt wird.
+*/
+syncNotificationState();
+
+
+/*
+ Kalender neu anzeigen.
+*/
+renderCurrentWeek();
         });
 
 
@@ -639,6 +651,14 @@ function toggleWeekTask(
         year,
         plan
     );
+ /*
+ Falls der Wochenplan der aktuellen KW
+ verändert wurde, Push-Status aktualisieren.
+
+ Die Funktion berechnet selbst,
+ welche KW aktuell ist.
+*/
+syncNotificationState();
 }
 
 
