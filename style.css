@@ -394,3 +394,105 @@ html, body {
     margin-top: 0;
 }
 
+/* ======================================================
+   KALENDER / KW-WOCHENPLAN
+   ====================================================== */
+
+.calendar-no-tasks {
+    color: var(--text-muted);
+}
+
+/* Liste der Aufgaben der aktuellen Woche */
+.calendar-task-list {
+    margin-top: 16px;
+}
+
+.calendar-task-list li {
+    justify-content: flex-start;
+}
+
+
+/* Jahresanzeige im Editor */
+.week-plan-year {
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+
+/*
+ Die Tabelle darf auf kleinen Displays horizontal scrollen.
+*/
+.week-plan-scroll {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 16px;
+}
+
+
+/* KW-Tabelle */
+.week-plan-table {
+    border-collapse: separate;
+    border-spacing: 4px;
+    min-width: 560px;
+    width: 100%;
+}
+
+
+/* Tabellenzellen */
+.week-plan-table th,
+.week-plan-table td {
+    text-align: center;
+    padding: 4px;
+}
+
+
+/* Überschriften */
+.week-plan-table th {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+
+/*
+ Erste Spalte mit der KW etwas kompakter.
+*/
+.week-plan-table th:first-child {
+    min-width: 42px;
+}
+
+
+/*
+ Anklickbarer Button in jeder Tabellenzelle.
+*/
+.week-task-toggle {
+    width: 42px;
+    height: 42px;
+
+    padding: 0;
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+
+    color: #000;
+
+    font-size: 20px;
+    font-weight: bold;
+}
+
+
+/*
+ Aktivierte Aufgabe.
+*/
+.week-task-toggle.active {
+    background: var(--petrol);
+    border-color: var(--petrol);
+}
+
+
+/*
+ Auf dem Handy soll horizontales Scrollen
+ möglichst angenehm funktionieren.
+*/
+.week-plan-scroll {
+    -webkit-overflow-scrolling: touch;
+}
