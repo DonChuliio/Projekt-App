@@ -151,6 +151,9 @@
 <!-- ======================================================
      WASSERTEST
      ====================================================== -->
+<!-- ======================================================
+     WASSERTEST – ÜBERSICHT
+     ====================================================== -->
 <div data-view="watertest" class="hidden">
 
     <button class="back-button" data-back>
@@ -158,6 +161,33 @@
     </button>
 
     <h2>💧 Wassertest</h2>
+
+    <button id="watertest-add">
+        ➕ Wassertest hinzufügen
+    </button>
+
+    <div id="watertest-overview"></div>
+
+</div>
+
+
+<!-- ======================================================
+     WASSERTEST – EINGABE
+     ====================================================== -->
+<div data-view="watertest-entry" class="hidden">
+
+    <button
+        id="watertest-entry-back"
+        class="back-button"
+    >
+        Zurück
+    </button>
+
+    <h2>💧 Wassertest</h2>
+
+    <h3 id="watertest-current-week">
+        KW --
+    </h3>
 
     <div id="watertest-form"></div>
 
@@ -181,7 +211,7 @@
 
 </div>
 
-<script type="module" id="app-script" src="js/app.js?v=0.48"></script>
+<script type="module" id="app-script" src="js/app.js?v=0.49"></script>
 <link rel="stylesheet" href="style.css?v=4">
 
 </body>
