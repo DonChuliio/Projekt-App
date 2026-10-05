@@ -15,7 +15,7 @@ export async function initPush() {
      Damit prüfen wir, ob wirklich diese aktuelle
      push.js ausgeführt wird.
     */
-    alert("initPush aus push.js gestartet");
+
 
 
     /*
@@ -187,9 +187,6 @@ async function requestPermission() {
      wissen wir sicher, dass auch der
      Button korrekt verbunden ist.
     */
-    alert(
-        "Push-Button funktioniert"
-    );
 
 
     try {
