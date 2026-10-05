@@ -705,3 +705,70 @@ html, body {
     font-size: 11px;
     color: var(--text-muted);
 }
+/* ========================================
+   Packlisten Dialog
+   ======================================== */
+
+.packlist-dialog-overlay {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(0, 0, 0, 0.7);
+
+    z-index: 1000;
+}
+
+
+.packlist-dialog {
+    width: 100%;
+    max-width: 360px;
+
+    padding: 20px;
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+}
+
+
+.packlist-dialog h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+
+    text-align: center;
+}
+
+
+.packlist-dialog p {
+    margin-top: 0;
+    margin-bottom: 20px;
+
+    text-align: center;
+    color: var(--text-muted);
+}
+
+
+.packlist-dialog button {
+    width: 100%;
+
+    margin-bottom: 10px;
+    padding: 14px;
+
+    font-size: 16px;
+}
+
+
+.packlist-dialog-cancel {
+    margin-top: 8px;
+
+    background: transparent;
+    color: var(--text-muted);
+
+    border: 1px solid var(--border);
+}
