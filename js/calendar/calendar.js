@@ -2,9 +2,6 @@
 
 import { showView } from "../router.js";
 import {
-    syncNotificationState
-} from "../push/notification-state.js?v=0.94";
-import {
     getISOWeek,
     getISOWeekYear,
     getISOWeeksInYear
@@ -101,7 +98,6 @@ async function renderCurrentWeek() {
             try {
                 await setCalendarTaskDone(row.id, !row.done);
                 await renderCurrentWeek();
-                await syncNotificationState();
             } catch (error) {
                 console.error("Kalender-Aufgabe konnte nicht geändert werden:", error);
                 li.style.pointerEvents = "";
@@ -200,14 +196,6 @@ async function renderWeekEditor() {
                     }
 
                     updateButton();
-
-                    const today = new Date();
-                    if (
-                        year === getISOWeekYear(today) &&
-                        week === getISOWeek(today)
-                    ) {
-                        await syncNotificationState();
-                    }
                 } catch (error) {
                     console.error("Wochenplan konnte nicht geändert werden:", error);
                 } finally {
