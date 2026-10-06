@@ -4,7 +4,11 @@ import {
     loadTodos,
     addTodo,
     deleteTodo
-} from "../data/todo-data.js?v=0.92";
+} from "../data/todo-data.js?v=0.93";
+
+import {
+    syncNotificationState
+} from "../push/notification-state.js?v=0.93";
 
 
 /* =========================================================
@@ -158,6 +162,14 @@ async function initList(type) {
 
             await reloadTodos();
 
+            /*
+             Nur A-Aufgaben beeinflussen
+             die tägliche Push-Benachrichtigung.
+            */
+            if (type === "a") {
+                await syncNotificationState();
+            }
+
             input.focus();
 
         } catch (error) {
@@ -247,6 +259,14 @@ function renderList(
                         );
 
                         await reloadTodos();
+
+                        /*
+                         Nach dem Löschen einer A-Aufgabe
+                         den Push-Status aktualisieren.
+                        */
+                        if (todo.priority === "a") {
+                            await syncNotificationState();
+                        }
 
                     } catch (error) {
 
