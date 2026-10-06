@@ -850,8 +850,8 @@ html, body {
 
 .dashboard-title {
     display: flex;
-    align-items: center;
-    gap: 10px;
+    align-items: baseline;
+    gap: 12px;
 }
 
 .dashboard-title h1 {
@@ -859,8 +859,7 @@ html, body {
 }
 
 .dashboard-title .app-version {
-    display: flex;
-    align-items: center;
+    margin: 0;
 }
 
 .dashboard-title .backup-btn {
