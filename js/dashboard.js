@@ -56,6 +56,9 @@ export function initDashboard() {
     );
 
 
+    const pocketMoneyButton = document.getElementById("open-pocket-money");
+    if (pocketMoneyButton) pocketMoneyButton.addEventListener("click", () => showView("pocket-money"));
+
     /* =====================================================
        EINSTELLUNGEN
        ===================================================== */

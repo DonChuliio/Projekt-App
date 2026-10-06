@@ -17,7 +17,7 @@
 
     <link
         rel="manifest"
-        href="manifest.json?v=1.22"
+        href="manifest.json?v=1.23"
     >
 
     <meta
@@ -32,13 +32,13 @@
 
     <link
         rel="stylesheet"
-        href="style.css?v=1.22"
+        href="style.css?v=1.23"
     >
 
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=1.22"
+        src="js/app.js?v=1.23"
     ></script>
 
     <title>Dock</title>
@@ -110,6 +110,7 @@
         >
             v?
         </span>
+        <button id="open-pocket-money" class="quick-money-button" aria-label="Taschengeld" title="Taschengeld">€</button>
 
         <button
             id="open-settings"
@@ -338,7 +339,7 @@
     <div data-view="pocket-money" class="hidden">
         <button class="back-button" data-view-back="expenses">Zurück</button>
         <h2>Taschengeld</h2>
-        <p class="calendar-no-tasks">Das Taschengeld folgt im nächsten Schritt.</p>
+        <div id="pocket-money-content"></div>
     </div>
 
     <div data-view="house-calculator" class="hidden">

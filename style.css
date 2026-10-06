@@ -1395,3 +1395,6 @@ html, body {
     color: var(--danger);
     border: 1px solid var(--border);
 }
+
+/* v1.23 – Taschengeld */
+.quick-money-button{margin-left:auto;width:52px;height:52px;padding:0;display:inline-flex;align-items:center;justify-content:center;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--text-muted);font-size:22px;font-weight:600}.dashboard-title .quick-money-button + .settings-button{margin-left:0}.pocket-month-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.pocket-month-nav button{width:44px;height:44px;padding:0}.pocket-summary{padding:18px;background:var(--surface);border:1px solid var(--border);border-radius:14px}.pocket-summary span,.pocket-summary small{display:block;color:var(--text-muted)}.pocket-summary strong{display:block;margin:4px 0;font-size:30px;color:var(--petrol)}.pocket-progress{height:8px;margin-top:14px;background:var(--border);border-radius:999px;overflow:hidden}.pocket-progress i{display:block;height:100%;background:var(--petrol)}.pocket-add{width:100%;margin:16px 0}.pocket-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}.pocket-row span{display:block;margin-top:4px;color:var(--text-muted);font-size:14px}

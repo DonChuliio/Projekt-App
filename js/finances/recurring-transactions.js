@@ -2,7 +2,7 @@ import {
     loadRecurringTransactions,
     addRecurringTransaction,
     deleteRecurringTransaction
-} from "../data/recurring-transactions-data.js?v=1.22";
+} from "../data/recurring-transactions-data.js?v=1.23";
 
 const GROUPS = [
     { frequency: "monthly", title: "Monatlich" },
@@ -15,7 +15,7 @@ const euro = value => new Intl.NumberFormat("de-DE", {
     currency: "EUR"
 }).format(Number(value));
 
-const dateText = value => new Intl.DateTimeFormat("de-DE").format(new Date(`${value}T12:00:00`));
+const dateText = (value, frequency) => { const date = new Date(`${value}T12:00:00`); if (frequency === "monthly") return `${String(date.getDate()).padStart(2, "0")}.`; return new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "long" }).format(date); };
 
 export function initRecurringTransactions() {
     const root = document.getElementById("recurring-transactions-content");
@@ -58,7 +58,7 @@ export function initRecurringTransactions() {
                     const name = document.createElement("strong");
                     name.textContent = entry.name;
                     const details = document.createElement("span");
-                    details.textContent = `${entry.transaction_type === "income" ? "Einnahme" : "Ausgabe"} · ${euro(entry.amount)} · ${dateText(entry.start_date)}`;
+                    details.textContent = `${entry.transaction_type === "income" ? "Einnahme" : "Ausgabe"} · ${euro(entry.amount)} · ${dateText(entry.start_date, entry.frequency)}`;
                     info.append(name, details);
                     const remove = document.createElement("button");
                     remove.type = "button";
