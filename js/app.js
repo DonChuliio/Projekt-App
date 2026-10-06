@@ -11,6 +11,7 @@ import { initPacklistEditor } from "./packlists/packlist-editor.js";
 import { initPacklistRun } from "./packlists/packlist-run.js";
 import { initWatertest } from "./watertest/watertest.js";
 import { initPush } from "./push/push.js?v=0.68";
+import { initAuth } from "./auth/auth-view.js";
 /*
  Einstiegspunkt der App.
  Wird ausgeführt, sobald das DOM vollständig geladen ist.
@@ -32,7 +33,9 @@ if (versionEl) {
     versionEl.textContent = `v${APP_VERSION}`;
 }
 
-    // ✅ Feature-Module initialisieren
+    initAuth();
+
+    // Feature-Module initialisieren
     initDashboard();
     initTodo();
     initBackup();
