@@ -54,3 +54,25 @@ initPush();
     // ✅ Startansicht
     showView("dashboard");
 });
+/*
+ Neue Zurück-Navigation für
+ verschachtelte Ansichten.
+
+ Beispiel:
+ Aquaristik -> Hobby -> Dashboard
+*/
+document
+    .querySelectorAll("[data-view-back]")
+    .forEach((button) => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                const targetView =
+                    button.dataset.viewBack;
+
+                showView(targetView);
+            }
+        );
+    });
