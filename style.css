@@ -906,3 +906,38 @@ html, body {
 .week-plan-table tbody th:first-child {
     white-space: nowrap;
 }
+
+
+/* =========================================================
+   WASSERTEST – FESTE WASSERWERT-SPALTE
+   ========================================================= */
+
+/*
+ Die linke Spalte mit den Wasserwerten
+ bleibt beim horizontalen Scrollen sichtbar.
+*/
+.watertest-overview-table th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+
+    background: var(--surface);
+}
+
+
+/*
+ Die linke obere Ecke der Tabelle
+ liegt über den restlichen Zellen.
+*/
+.watertest-overview-table thead th:first-child {
+    z-index: 3;
+}
+
+
+/*
+ Namen wie NO₃, NO₂, GH usw.
+ sollen nicht umbrechen.
+*/
+.watertest-overview-table tbody th:first-child {
+    white-space: nowrap;
+}
