@@ -17,7 +17,7 @@
 
     <link
         rel="manifest"
-        href="manifest.json?v=1.21"
+        href="manifest.json?v=1.22"
     >
 
     <meta
@@ -32,13 +32,13 @@
 
     <link
         rel="stylesheet"
-        href="style.css?v=1.21"
+        href="style.css?v=1.22"
     >
 
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=1.21"
+        src="js/app.js?v=1.22"
     ></script>
 
     <title>Dock</title>
@@ -316,6 +316,29 @@
     <div data-view="expenses" class="hidden">
         <button class="back-button" data-view-back="finances">Zurück</button>
         <h2>Ausgaben</h2>
+        <div class="tiles">
+            <div class="tile" data-tile="recurring-transactions">Wiederkehrendes</div>
+            <div class="tile" data-tile="expenses-overview">Übersicht</div>
+            <div class="tile" data-tile="pocket-money">Taschengeld</div>
+        </div>
+    </div>
+
+    <div data-view="recurring-transactions" class="hidden">
+        <button class="back-button" data-view-back="expenses">Zurück</button>
+        <h2>Wiederkehrendes</h2>
+        <div id="recurring-transactions-content"></div>
+    </div>
+
+    <div data-view="expenses-overview" class="hidden">
+        <button class="back-button" data-view-back="expenses">Zurück</button>
+        <h2>Übersicht</h2>
+        <p class="calendar-no-tasks">Die Übersicht folgt im nächsten Schritt.</p>
+    </div>
+
+    <div data-view="pocket-money" class="hidden">
+        <button class="back-button" data-view-back="expenses">Zurück</button>
+        <h2>Taschengeld</h2>
+        <p class="calendar-no-tasks">Das Taschengeld folgt im nächsten Schritt.</p>
     </div>
 
     <div data-view="house-calculator" class="hidden">

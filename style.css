@@ -1310,3 +1310,88 @@ html, body {
     color: var(--danger);
     margin-top: 14px;
 }
+
+
+/* =========================================================
+   v1.22 – WIEDERKEHRENDE EINNAHMEN / AUSGABEN
+   ========================================================= */
+.recurring-section {
+    margin-bottom: 28px;
+}
+.recurring-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.recurring-header h3 {
+    margin: 0;
+}
+.recurring-header button {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    padding: 0;
+    font-size: 22px;
+}
+.recurring-form {
+    display: grid;
+    gap: 10px;
+    margin: 14px 0;
+    padding: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+.recurring-form input,
+.recurring-form select {
+    width: 100%;
+    margin: 0;
+}
+.recurring-form label {
+    color: var(--text-muted);
+}
+.recurring-form label input {
+    margin-top: 6px;
+}
+.recurring-form-actions {
+    display: flex;
+    gap: 8px;
+}
+.recurring-form-actions button {
+    flex: 1;
+}
+.recurring-cancel {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+}
+.recurring-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+}
+.recurring-row > div {
+    min-width: 0;
+}
+.recurring-row strong,
+.recurring-row span {
+    display: block;
+}
+.recurring-row span {
+    margin-top: 4px;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+.recurring-delete {
+    width: 38px;
+    min-width: 38px;
+    height: 38px;
+    padding: 0;
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid var(--border);
+}
