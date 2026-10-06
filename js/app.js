@@ -1,21 +1,22 @@
 // js/app.js
 
 import { initDashboard } from "./dashboard.js";
-import { initNotes } from "./notes/notes.js?v=1.23";
-import { initCalendar } from "./calendar/calendar.js?v=1.23";
+import { initNotes } from "./notes/notes.js?v=1.24";
+import { initCalendar } from "./calendar/calendar.js?v=1.24";
 import { showView, goToDashboard } from "./router.js";
-import { initTodo } from "./todo/todo.js?v=1.23";
-import { initPacklists } from "./packlists/packlists.js?v=1.23";
-import { initPacklistEditor } from "./packlists/packlist-editor.js?v=1.23";
-import { initPacklistRun } from "./packlists/packlist-run.js?v=1.23";
-import { initWatertest } from "./watertest/watertest.js?v=1.23";
-import { initPush } from "./push/push.js?v=1.23";
+import { initTodo } from "./todo/todo.js?v=1.24";
+import { initPacklists } from "./packlists/packlists.js?v=1.24";
+import { initPacklistEditor } from "./packlists/packlist-editor.js?v=1.24";
+import { initPacklistRun } from "./packlists/packlist-run.js?v=1.24";
+import { initWatertest } from "./watertest/watertest.js?v=1.24";
+import { initPush } from "./push/push.js?v=1.24";
 import { initAuth } from "./auth/auth-view.js";
-import { initPlannerTexts } from "./planner-texts/planner-texts.js?v=1.23";
-import { initHouseCalculator } from "./finances/house-calculator.js?v=1.23";
-import { initSavingsCalculator } from "./finances/savings-calculator.js?v=1.23";
-import { initRecurringTransactions } from "./finances/recurring-transactions.js?v=1.23";
-import { initPocketMoney } from "./finances/pocket-money.js?v=1.23";
+import { initPlannerTexts } from "./planner-texts/planner-texts.js?v=1.24";
+import { initHouseCalculator } from "./finances/house-calculator.js?v=1.24";
+import { initSavingsCalculator } from "./finances/savings-calculator.js?v=1.24";
+import { initRecurringTransactions } from "./finances/recurring-transactions.js?v=1.24";
+import { initPocketMoney } from "./finances/pocket-money.js?v=1.24";
+import { initExpensesOverview } from "./finances/expenses-overview.js?v=1.24";
 /*
  Einstiegspunkt der App.
  Wird ausgeführt, sobald das DOM vollständig geladen ist.
@@ -24,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("✅ app.js geladen");
 
 // Versionsnummer direkt aus der URL von app.js lesen.
-// Beispiel: js/app.js?v=1.23 → Version 0.36
+// Beispiel: js/app.js?v=1.24 → Version 0.36
 
 const appScript = document.getElementById("app-script");
 const scriptUrl = new URL(appScript.src);
@@ -54,6 +55,7 @@ initHouseCalculator();
 initSavingsCalculator();
 initRecurringTransactions();
 initPocketMoney();
+initExpensesOverview();
 
     // ✅ Zentrale Zurück-Buttons verbinden
     document.querySelectorAll("[data-back]").forEach((button) => {
