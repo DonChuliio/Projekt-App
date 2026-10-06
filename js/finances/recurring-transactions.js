@@ -2,7 +2,7 @@ import {
     loadRecurringTransactions,
     addRecurringTransaction,
     deleteRecurringTransaction
-} from "../data/recurring-transactions-data.js?v=1.23";
+} from "../data/recurring-transactions-data.js?v=1.25";
 
 const GROUPS = [
     { frequency: "monthly", title: "Monatlich" },
@@ -97,7 +97,12 @@ export function initRecurringTransactions() {
                 <option value="expense">Ausgabe</option>
                 <option value="income">Einnahme</option>
             </select>
-            <label>Datum<input name="start_date" type="date" required></label>
+            <label>Tag<input name="day" type="number" min="1" max="31" step="1" inputmode="numeric" placeholder="01" required></label>
+            ${frequency === "monthly" ? "" : `<label>Monat<select name="month" required>
+                <option value="1">Januar</option><option value="2">Februar</option><option value="3">März</option><option value="4">April</option>
+                <option value="5">Mai</option><option value="6">Juni</option><option value="7">Juli</option><option value="8">August</option>
+                <option value="9">September</option><option value="10">Oktober</option><option value="11">November</option><option value="12">Dezember</option>
+            </select></label>`}
             <div class="recurring-form-actions">
                 <button type="submit">Speichern</button>
                 <button type="button" class="recurring-cancel">Abbrechen</button>
@@ -112,9 +117,12 @@ export function initRecurringTransactions() {
                 amount: Number(values.get("amount")),
                 transaction_type: values.get("transaction_type"),
                 frequency,
-                start_date: values.get("start_date")
+                start_date: (() => { const day = Number(values.get("day")); const month = frequency === "monthly" ? 1 : Number(values.get("month")); return `2000-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`; })()
             };
-            if (!entry.name || !Number.isFinite(entry.amount) || entry.amount <= 0 || !entry.start_date) return;
+            const day = Number(values.get("day"));
+            const month = frequency === "monthly" ? 1 : Number(values.get("month"));
+            const validDate = new Date(2000, month - 1, day);
+            if (!entry.name || !Number.isFinite(entry.amount) || entry.amount <= 0 || day < 1 || day > 31 || validDate.getMonth() !== month - 1 || validDate.getDate() !== day) return;
             const submit = form.querySelector('button[type="submit"]');
             submit.disabled = true;
             try {
