@@ -17,7 +17,7 @@
 
     <link
         rel="manifest"
-        href="manifest.json?v=1.15"
+        href="manifest.json?v=1.16"
     >
 
     <meta
@@ -32,13 +32,13 @@
 
     <link
         rel="stylesheet"
-        href="style.css?v=1.15"
+        href="style.css?v=1.16"
     >
 
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=1.15"
+        src="js/app.js?v=1.16"
     ></script>
 
     <title>Dock</title>
@@ -298,29 +298,49 @@
         <h2>Hausrechner</h2>
 
         <div class="loan-calculator">
-            <label for="loan-amount">Kreditsumme</label>
+            <label for="house-total">Gesamtsumme</label>
             <div class="loan-input-unit">
-                <input id="loan-amount" type="number" min="0" step="1000" inputmode="decimal" placeholder="300000">
+                <input id="house-total" type="number" min="0" step="1000" inputmode="decimal" placeholder="450000">
                 <span>€</span>
             </div>
+
+            <label for="house-equity">Eigenkapital</label>
+            <div class="loan-input-unit">
+                <input id="house-equity" type="number" min="0" step="1000" inputmode="decimal" placeholder="100000">
+                <span>€</span>
+            </div>
+
             <label for="loan-interest">Zinssatz pro Jahr</label>
             <div class="loan-input-unit">
-                <input id="loan-interest" type="number" min="0" step="0.01" inputmode="decimal" placeholder="3,5">
+                <input id="loan-interest" type="number" min="0" step="0.01" inputmode="decimal" placeholder="4,0">
                 <span>%</span>
             </div>
+
             <label for="loan-years">Laufzeit</label>
             <div class="loan-input-unit">
-                <input id="loan-years" type="number" min="1" step="1" inputmode="numeric" placeholder="30">
+                <input id="loan-years" type="number" min="1" step="1" inputmode="numeric" placeholder="25">
                 <span>Jahre</span>
             </div>
+
             <p id="loan-error" class="loan-error hidden"></p>
+
             <div id="loan-results" class="loan-results hidden">
-                <div class="loan-main-result"><span>Monatliche Rate</span><strong id="loan-payment">–</strong></div>
+                <div class="loan-result-row">
+                    <span>Kreditbetrag</span>
+                    <strong id="loan-amount-result">–</strong>
+                </div>
+
+                <div class="loan-main-result">
+                    <span>Monatliche Rate</span>
+                    <strong id="loan-payment">–</strong>
+                </div>
+
                 <h3>Erster Monatsabschlag</h3>
                 <div class="loan-result-row"><span>Zinsen</span><strong id="loan-first-interest">–</strong></div>
                 <div class="loan-result-row"><span>Tilgung</span><strong id="loan-first-principal">–</strong></div>
+
                 <h3>Gesamtlaufzeit</h3>
-                <div class="loan-result-row"><span>Gesamtzahlung</span><strong id="loan-total-payment">–</strong></div>
+                <div class="loan-result-row"><span>Gesamtzahlung Kredit</span><strong id="loan-total-payment">–</strong></div>
                 <div class="loan-result-row"><span>Zinsen gesamt</span><strong id="loan-total-interest">–</strong></div>
             </div>
         </div>
