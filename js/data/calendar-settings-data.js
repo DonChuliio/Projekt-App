@@ -16,7 +16,7 @@ async function createHeaders(prefer = null) {
 
 export async function loadCalendarSettings() {
     const response = await fetch(
-        `${TABLE_URL}?select=month_end_savings_reminder&limit=1`,
+        `${TABLE_URL}?select=month_end_savings_reminder,month_start_balance_reminder&limit=1`,
         { headers: await createHeaders() }
     );
     if (!response.ok) throw new Error(`Kalender-Einstellungen konnten nicht geladen werden (${response.status}): ${await response.text()}`);
@@ -37,4 +37,19 @@ export async function saveMonthEndSavingsReminder(enabled) {
         }
     );
     if (!response.ok) throw new Error(`Kalender-Einstellung konnte nicht gespeichert werden (${response.status}): ${await response.text()}`);
+}
+
+export async function saveMonthStartBalanceReminder(enabled) {
+    const response = await fetch(
+        `${TABLE_URL}?on_conflict=user_id`,
+        {
+            method: "POST",
+            headers: await createHeaders("resolution=merge-duplicates,return=minimal"),
+            body: JSON.stringify({
+                month_start_balance_reminder: enabled,
+                updated_at: new Date().toISOString()
+            })
+        }
+    );
+    if (!response.ok) throw new Error(`Monatsabgleich-Erinnerung konnte nicht gespeichert werden (${response.status}): ${await response.text()}`);
 }

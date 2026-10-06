@@ -12,7 +12,7 @@ import {
     deleteCalendarTask,
     setCalendarTaskDone
 } from "../data/calendar-data.js?v=0.94";
-import { loadCalendarSettings, saveMonthEndSavingsReminder } from "../data/calendar-settings-data.js?v=1.20";
+import { loadCalendarSettings, saveMonthEndSavingsReminder, saveMonthStartBalanceReminder } from "../data/calendar-settings-data.js?v=1.30";
 
 const WEEK_TASKS = [
     { id: "plants", name: "Pflanzen gießen", shortName: "Pflanzen" },
@@ -161,6 +161,34 @@ async function renderWeekEditor() {
             reminderCheckbox.checked = !reminderCheckbox.checked;
         } finally {
             reminderCheckbox.disabled = false;
+        }
+    });
+
+    const balanceReminderLabel = document.createElement("label");
+    balanceReminderLabel.className = "month-end-reminder";
+    const balanceReminderCheckbox = document.createElement("input");
+    balanceReminderCheckbox.type = "checkbox";
+    const balanceReminderText = document.createElement("span");
+    balanceReminderText.textContent = "Monatsabgleich ausführen – am 02. des Monats um 09:00 Uhr";
+    balanceReminderLabel.append(balanceReminderCheckbox, balanceReminderText);
+    editor.appendChild(balanceReminderLabel);
+
+    try {
+        const settings = await loadCalendarSettings();
+        balanceReminderCheckbox.checked = settings?.month_start_balance_reminder === true;
+    } catch (error) {
+        console.log("Monatsabgleich-Einstellung noch nicht geladen:", error.message);
+    }
+
+    balanceReminderCheckbox.addEventListener("change", async () => {
+        balanceReminderCheckbox.disabled = true;
+        try {
+            await saveMonthStartBalanceReminder(balanceReminderCheckbox.checked);
+        } catch (error) {
+            console.error("Monatsabgleich-Erinnerung konnte nicht gespeichert werden:", error);
+            balanceReminderCheckbox.checked = !balanceReminderCheckbox.checked;
+        } finally {
+            balanceReminderCheckbox.disabled = false;
         }
     });
 
