@@ -4,7 +4,11 @@ import { showView } from "../router.js";
 import {
     syncNotificationState
 } from "../push/notification-state.js";
-
+import {
+    getISOWeek,
+    getISOWeekYear,
+    getISOWeeksInYear
+} from "../utils/date.js";
 /*
  Feste Aufgaben unseres Wochenplans.
 
@@ -897,107 +901,5 @@ function saveDoneTasks(
  - KW 1 enthält den ersten Donnerstag
    des Jahres
 */
-function getISOWeek(date) {
-
-    const tempDate =
-        new Date(
-            Date.UTC(
-                date.getFullYear(),
-                date.getMonth(),
-                date.getDate()
-            )
-        );
-
-
-    const dayNumber =
-        tempDate.getUTCDay() || 7;
-
-
-    /*
-     Auf Donnerstag derselben
-     ISO-Woche springen.
-    */
-    tempDate.setUTCDate(
-        tempDate.getUTCDate()
-        + 4
-        - dayNumber
-    );
-
-
-    const yearStart =
-        new Date(
-            Date.UTC(
-                tempDate.getUTCFullYear(),
-                0,
-                1
-            )
-        );
-
-
-    return Math.ceil(
-        (
-            (
-                (tempDate - yearStart)
-                / 86400000
-            )
-            + 1
-        )
-        / 7
-    );
-}
-
-
-/*
- Bestimmt das ISO-Jahr.
-
- Das ist besonders rund um
- Silvester wichtig.
-*/
-function getISOWeekYear(date) {
-
-    const tempDate =
-        new Date(
-            Date.UTC(
-                date.getFullYear(),
-                date.getMonth(),
-                date.getDate()
-            )
-        );
-
-
-    const dayNumber =
-        tempDate.getUTCDay() || 7;
-
-
-    tempDate.setUTCDate(
-        tempDate.getUTCDate()
-        + 4
-        - dayNumber
-    );
-
-
-    return tempDate.getUTCFullYear();
-}
-
-
-/*
- Ermittelt, ob das Jahr
- 52 oder 53 ISO-Kalenderwochen hat.
-
- Der 28. Dezember liegt immer
- in der letzten ISO-Woche eines Jahres.
-*/
-function getISOWeeksInYear(year) {
-
-    const december28 =
-        new Date(
-            year,
-            11,
-            28
-        );
-
-
-    return getISOWeek(
-        december28
-    );
+;
 }
