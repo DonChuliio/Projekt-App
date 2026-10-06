@@ -17,7 +17,7 @@
 
     <link
         rel="manifest"
-        href="manifest.json?v=1.04"
+        href="manifest.json?v=1.05"
     >
 
     <meta
@@ -38,7 +38,7 @@
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=1.04"
+        src="js/app.js?v=1.05"
     ></script>
 
     <title>Dock</title>
@@ -221,10 +221,27 @@
                 Empfehlungen
             </div>
 
+            <div
+                class="tile"
+                data-tile="red-folder"
+            >
+                Roter Ordner
+            </div>
+
         </div>
 
     </div>
 
+
+
+    <!-- ==================================================
+         ROTER ORDNER
+         ================================================== -->
+
+    <div data-view="red-folder" class="hidden">
+        <button class="back-button" data-view-back="planner">Zurück</button>
+        <h2>Roter Ordner</h2>
+    </div>
 
     <!-- ==================================================
          HOBBY
