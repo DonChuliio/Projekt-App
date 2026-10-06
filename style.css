@@ -844,3 +844,25 @@ html, body {
     flex-shrink: 0;
     width: auto;
 }
+/* =========================================================
+   DASHBOARD KOPFZEILE
+   ========================================================= */
+
+.dashboard-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dashboard-title h1 {
+    margin: 0;
+}
+
+.dashboard-title .app-version {
+    display: flex;
+    align-items: center;
+}
+
+.dashboard-title .backup-btn {
+    margin: 0;
+}
