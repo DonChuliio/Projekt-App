@@ -59,75 +59,180 @@
          DASHBOARD
          ================================================== -->
 
-    <div data-view="dashboard">
+<!-- ==================================================
+     DASHBOARD
+     ================================================== -->
 
-        <div class="dashboard-header">
+<div data-view="dashboard">
 
-            <div class="dashboard-title">
+    <div class="dashboard-header">
 
-                <h1>Dashboard</h1>
+        <div class="dashboard-title">
 
-                <span
-                    id="app-version"
-                    class="app-version"
-                >
-                    v?
-                </span>
+            <h1>Dashboard</h1>
 
-            </div>
-
-
-            <button
-                id="open-backup"
-                class="backup-btn"
+            <span
+                id="app-version"
+                class="app-version"
             >
-                Backup
-            </button>
+                v?
+            </span>
 
         </div>
 
 
-        <div class="tiles">
+        <button
+            id="open-backup"
+            class="backup-btn"
+        >
+            Backup
+        </button>
 
-            <div
-                class="tile"
-                data-tile="notes"
-            >
-                Notizen
-            </div>
+    </div>
 
-            <div
-                class="tile"
-                data-tile="todo"
-            >
-                To-Do
-            </div>
 
-            <div
-                class="tile"
-                data-tile="calendar"
-            >
-                Kalender
-            </div>
+    <div class="tiles">
 
-            <div
-                class="tile"
-                data-tile="packlists"
-            >
-                Packlisten
-            </div>
+        <div
+            class="tile"
+            data-tile="planner"
+        >
+            Planer
+        </div>
 
-            <div
-                class="tile"
-                data-tile="watertest"
-            >
-                Wassertest
-            </div>
+        <div
+            class="tile"
+            data-tile="packlists"
+        >
+            Packlisten
+        </div>
 
+        <div
+            class="tile"
+            data-tile="hobby"
+        >
+            Hobby
         </div>
 
     </div>
 
+</div>
+
+
+<!-- ==================================================
+     PLANER
+     ================================================== -->
+
+<div
+    data-view="planner"
+    class="hidden"
+>
+
+    <button
+        class="back-button"
+        data-view-back="dashboard"
+    >
+        Zurück
+    </button>
+
+
+    <h2>Planer</h2>
+
+
+    <div class="tiles">
+
+        <div
+            class="tile"
+            data-tile="notes"
+        >
+            Notizen
+        </div>
+
+        <div
+            class="tile"
+            data-tile="todo"
+        >
+            To-Do
+        </div>
+
+        <div
+            class="tile"
+            data-tile="calendar"
+        >
+            Kalender
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==================================================
+     HOBBY
+     ================================================== -->
+
+<div
+    data-view="hobby"
+    class="hidden"
+>
+
+    <button
+        class="back-button"
+        data-view-back="dashboard"
+    >
+        Zurück
+    </button>
+
+
+    <h2>Hobby</h2>
+
+
+    <div class="tiles">
+
+        <div
+            class="tile"
+            data-tile="aquarium"
+        >
+            Aquaristik
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==================================================
+     AQUARISTIK
+     ================================================== -->
+
+<div
+    data-view="aquarium"
+    class="hidden"
+>
+
+    <button
+        class="back-button"
+        data-view-back="hobby"
+    >
+        Zurück
+    </button>
+
+
+    <h2>Aquaristik</h2>
+
+
+    <div class="tiles">
+
+        <div
+            class="tile"
+            data-tile="watertest"
+        >
+            Wassertest
+        </div>
+
+    </div>
+
+</div>
 
     <!-- ==================================================
          NOTIZEN
