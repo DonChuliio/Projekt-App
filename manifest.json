@@ -1,8 +1,8 @@
 {
     "id": "/Projekt-App/",
-    "name": "Projekt App",
-    "short_name": "Projekt App",
-    "description": "Meine persönliche Projekt App",
+    "name": "Dock",
+    "short_name": "Dock",
+    "description": "Meine persönliche Dock App",
     "start_url": "/Projekt-App/",
     "scope": "/Projekt-App/",
     "display": "standalone",
