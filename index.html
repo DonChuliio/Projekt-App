@@ -34,11 +34,12 @@
         rel="stylesheet"
         href="style.css?v=5"
     >
-<script
-    type="module"
-    id="app-script"
-    src="js/app.js?v=0.80"
-></script>
+
+    <script
+        type="module"
+        id="app-script"
+        src="js/app.js?v=0.81"
+    ></script>
 
     <title>Projekt App</title>
 
@@ -59,180 +60,177 @@
          DASHBOARD
          ================================================== -->
 
-<!-- ==================================================
-     DASHBOARD
-     ================================================== -->
+    <div data-view="dashboard">
 
-<div data-view="dashboard">
+        <div class="dashboard-header">
 
-    <div class="dashboard-header">
+            <div class="dashboard-title">
 
-        <div class="dashboard-title">
+                <h1>Dashboard</h1>
 
-            <h1>Dashboard</h1>
+                <span
+                    id="app-version"
+                    class="app-version"
+                >
+                    v?
+                </span>
 
-            <span
-                id="app-version"
-                class="app-version"
+            </div>
+
+
+            <button
+                id="open-backup"
+                class="backup-btn"
             >
-                v?
-            </span>
+                Backup
+            </button>
 
         </div>
 
+
+        <div class="tiles">
+
+            <div
+                class="tile"
+                data-tile="planner"
+            >
+                Planer
+            </div>
+
+            <div
+                class="tile"
+                data-tile="packlists"
+            >
+                Packlisten
+            </div>
+
+            <div
+                class="tile"
+                data-tile="hobby"
+            >
+                Hobby
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==================================================
+         PLANER
+         ================================================== -->
+
+    <div
+        data-view="planner"
+        class="hidden"
+    >
 
         <button
-            id="open-backup"
-            class="backup-btn"
+            class="back-button"
+            data-view-back="dashboard"
         >
-            Backup
+            Zurück
         </button>
 
+
+        <h2>Planer</h2>
+
+
+        <div class="tiles">
+
+            <div
+                class="tile"
+                data-tile="notes"
+            >
+                Notizen
+            </div>
+
+            <div
+                class="tile"
+                data-tile="todo"
+            >
+                To-Do
+            </div>
+
+            <div
+                class="tile"
+                data-tile="calendar"
+            >
+                Kalender
+            </div>
+
+        </div>
+
     </div>
 
 
-    <div class="tiles">
+    <!-- ==================================================
+         HOBBY
+         ================================================== -->
 
-        <div
-            class="tile"
-            data-tile="planner"
-        >
-            Planer
-        </div>
-
-        <div
-            class="tile"
-            data-tile="packlists"
-        >
-            Packlisten
-        </div>
-
-        <div
-            class="tile"
-            data-tile="hobby"
-        >
-            Hobby
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- ==================================================
-     PLANER
-     ================================================== -->
-
-<div
-    data-view="planner"
-    class="hidden"
->
-
-    <button
-        class="back-button"
-        data-view-back="dashboard"
+    <div
+        data-view="hobby"
+        class="hidden"
     >
-        Zurück
-    </button>
 
-
-    <h2>Planer</h2>
-
-
-    <div class="tiles">
-
-        <div
-            class="tile"
-            data-tile="notes"
+        <button
+            class="back-button"
+            data-view-back="dashboard"
         >
-            Notizen
-        </div>
+            Zurück
+        </button>
 
-        <div
-            class="tile"
-            data-tile="todo"
-        >
-            To-Do
-        </div>
 
-        <div
-            class="tile"
-            data-tile="calendar"
-        >
-            Kalender
+        <h2>Hobby</h2>
+
+
+        <div class="tiles">
+
+            <div
+                class="tile"
+                data-tile="aquarium"
+            >
+                Aquaristik
+            </div>
+
         </div>
 
     </div>
 
-</div>
 
+    <!-- ==================================================
+         AQUARISTIK
+         ================================================== -->
 
-<!-- ==================================================
-     HOBBY
-     ================================================== -->
-
-<div
-    data-view="hobby"
-    class="hidden"
->
-
-    <button
-        class="back-button"
-        data-view-back="dashboard"
+    <div
+        data-view="aquarium"
+        class="hidden"
     >
-        Zurück
-    </button>
 
-
-    <h2>Hobby</h2>
-
-
-    <div class="tiles">
-
-        <div
-            class="tile"
-            data-tile="aquarium"
+        <button
+            class="back-button"
+            data-view-back="hobby"
         >
-            Aquaristik
+            Zurück
+        </button>
+
+
+        <h2>Aquaristik</h2>
+
+
+        <div class="tiles">
+
+            <div
+                class="tile"
+                data-tile="watertest"
+            >
+                Wassertest
+            </div>
+
         </div>
 
     </div>
 
-</div>
-
-
-<!-- ==================================================
-     AQUARISTIK
-     ================================================== -->
-
-<div
-    data-view="aquarium"
-    class="hidden"
->
-
-    <button
-        class="back-button"
-        data-view-back="hobby"
-    >
-        Zurück
-    </button>
-
-
-    <h2>Aquaristik</h2>
-
-
-    <div class="tiles">
-
-        <div
-            class="tile"
-            data-tile="watertest"
-        >
-            Wassertest
-        </div>
-
-    </div>
-
-</div>
 
     <!-- ==================================================
          NOTIZEN
@@ -245,7 +243,7 @@
 
         <button
             class="back-button"
-            data-back
+            data-view-back="planner"
         >
             Zurück
         </button>
@@ -267,7 +265,6 @@
     </div>
 
 
-
     <!-- ==================================================
          KALENDER / WOCHENPLAN
          ================================================== -->
@@ -279,7 +276,7 @@
 
         <button
             class="back-button"
-            data-back
+            data-view-back="planner"
         >
             Zurück
         </button>
@@ -305,7 +302,6 @@
         <div id="calendar-week-tasks"></div>
 
     </div>
-
 
 
     <!-- ==================================================
@@ -337,109 +333,104 @@
     </div>
 
 
-
     <!-- ==================================================
          TO-DO
          ================================================== -->
 
-<!-- ==================================================
-     TO-DO
-     ================================================== -->
-
-<div
-    data-view="todo"
-    class="hidden"
->
-
-    <button
-        class="back-button"
-        data-back
+    <div
+        data-view="todo"
+        class="hidden"
     >
-        Zurück
-    </button>
+
+        <button
+            class="back-button"
+            data-view-back="planner"
+        >
+            Zurück
+        </button>
 
 
-    <h2>To-Do</h2>
+        <h2>To-Do</h2>
 
 
-    <!-- A-Aufgaben -->
+        <!-- A-Aufgaben -->
 
-    <section class="todo-section">
+        <section class="todo-section">
 
-        <h3>A-Aufgaben</h3>
-
-
-        <div class="todo-input-row">
-
-            <input
-                id="todo-a-input"
-                placeholder="Neue A-Aufgabe"
-            >
-
-            <button id="todo-a-add">
-                Hinzufügen
-            </button>
-
-        </div>
+            <h3>A-Aufgaben</h3>
 
 
-        <ul id="todo-a-list"></ul>
+            <div class="todo-input-row">
 
-    </section>
+                <input
+                    id="todo-a-input"
+                    placeholder="Neue A-Aufgabe"
+                >
 
+                <button id="todo-a-add">
+                    Hinzufügen
+                </button>
 
-    <!-- B-Aufgaben -->
-
-    <section class="todo-section">
-
-        <h3>B-Aufgaben</h3>
-
-
-        <div class="todo-input-row">
-
-            <input
-                id="todo-b-input"
-                placeholder="Neue B-Aufgabe"
-            >
-
-            <button id="todo-b-add">
-                Hinzufügen
-            </button>
-
-        </div>
+            </div>
 
 
-        <ul id="todo-b-list"></ul>
+            <ul id="todo-a-list"></ul>
 
-    </section>
-
-
-    <!-- C-Aufgaben -->
-
-    <section class="todo-section">
-
-        <h3>C-Aufgaben</h3>
+        </section>
 
 
-        <div class="todo-input-row">
+        <!-- B-Aufgaben -->
 
-            <input
-                id="todo-c-input"
-                placeholder="Neue C-Aufgabe"
-            >
+        <section class="todo-section">
 
-            <button id="todo-c-add">
-                Hinzufügen
-            </button>
-
-        </div>
+            <h3>B-Aufgaben</h3>
 
 
-        <ul id="todo-c-list"></ul>
+            <div class="todo-input-row">
 
-    </section>
+                <input
+                    id="todo-b-input"
+                    placeholder="Neue B-Aufgabe"
+                >
 
-</div>
+                <button id="todo-b-add">
+                    Hinzufügen
+                </button>
+
+            </div>
+
+
+            <ul id="todo-b-list"></ul>
+
+        </section>
+
+
+        <!-- C-Aufgaben -->
+
+        <section class="todo-section">
+
+            <h3>C-Aufgaben</h3>
+
+
+            <div class="todo-input-row">
+
+                <input
+                    id="todo-c-input"
+                    placeholder="Neue C-Aufgabe"
+                >
+
+                <button id="todo-c-add">
+                    Hinzufügen
+                </button>
+
+            </div>
+
+
+            <ul id="todo-c-list"></ul>
+
+        </section>
+
+    </div>
 
 
     <!-- ==================================================
@@ -472,7 +463,6 @@
     </div>
 
 
-
     <!-- ==================================================
          PACKLISTE BEARBEITEN
          ================================================== -->
@@ -496,7 +486,6 @@
         <div id="packlist-edit-content"></div>
 
     </div>
-
 
 
     <!-- ==================================================
@@ -524,7 +513,6 @@
     </div>
 
 
-
     <!-- ==================================================
          WASSERTEST ÜBERSICHT
          ================================================== -->
@@ -536,7 +524,7 @@
 
         <button
             class="back-button"
-            data-back
+            data-view-back="aquarium"
         >
             Zurück
         </button>
@@ -553,7 +541,6 @@
         <div id="watertest-overview"></div>
 
     </div>
-
 
 
     <!-- ==================================================
@@ -584,7 +571,6 @@
         <div id="watertest-form"></div>
 
     </div>
-
 
 
     <!-- ==================================================
@@ -631,14 +617,6 @@
 
 
 </div>
-
-
-
-<!-- ======================================================
-     JAVASCRIPT
-     ====================================================== -->
-
-
 
 
 </body>
