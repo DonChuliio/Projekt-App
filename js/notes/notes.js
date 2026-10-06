@@ -1,28 +1,49 @@
-// Importiert Speicherfunktionen
-import { save, load } from "../storage.js";
+// js/notes/notes.js
 
-/*
- Initialisiert die Notizen-Funktion.
- Wird beim App-Start aufgerufen.
-*/
+import {
+    loadNote,
+    saveNote
+} from "../data/notes-data.js?v=0.96";
+
 export function initNotes() {
-
-    // Textfeld für die Notiz holen
     const textarea = document.getElementById("note");
+    const notesTile = document.querySelector('[data-tile="notes"]');
 
-    // Speicher-Button holen
-    const saveButton = document.getElementById("saveBtn");
+    if (!textarea) return;
 
-    // Gespeicherte Notiz laden und anzeigen
-    textarea.value = load("main-note", "");
+    let saveTimer = null;
+    let loading = false;
 
-    // Klick-Event für den Speichern-Button
-    saveButton.addEventListener("click", () => {
+    async function refreshNote() {
+        if (loading) return;
+        loading = true;
 
-        // Inhalt des Textfeldes speichern
-        save("main-note", textarea.value);
+        try {
+            const note = await loadNote();
+            textarea.value = note?.content || "";
+        } catch (error) {
+            // Beim App-Start kann noch keine Anmeldung vorhanden sein.
+            console.log("Notiz noch nicht geladen:", error.message);
+        } finally {
+            loading = false;
+        }
+    }
 
-        // Kurzes Feedback für den Nutzer
-        alert("Notiz gespeichert");
+    // Beim Öffnen erneut laden, damit Änderungen von einem anderen Gerät erscheinen.
+    notesTile?.addEventListener("click", refreshNote);
+
+    textarea.addEventListener("input", () => {
+        clearTimeout(saveTimer);
+
+        // Erst speichern, wenn kurz nicht mehr getippt wurde.
+        saveTimer = setTimeout(async () => {
+            try {
+                await saveNote(textarea.value);
+            } catch (error) {
+                console.error("Notiz konnte nicht automatisch gespeichert werden:", error);
+            }
+        }, 700);
     });
+
+    refreshNote();
 }
