@@ -5,6 +5,7 @@ import {
     getISOWeek,
     getISOWeekYear
 } from "../utils/date.js";
+import { loadWaterTests, loadWaterTest, saveWaterTest } from "../data/watertest-data.js?v=0.97";
 
 /*
  =========================================================
@@ -125,9 +126,7 @@ export function initWatertest() {
 
     if (!addButton || !backButton) {
 
-        console.error(
-            "❌ Wassertest-Navigation nicht gefunden"
-        );
+        console.error("Wassertest-Navigation nicht gefunden");
 
         return;
     }
@@ -136,7 +135,9 @@ export function initWatertest() {
     /*
      Übersicht beim Start vorbereiten.
     */
-    renderOverview();
+    await renderOverview();
+
+    document.querySelector('[data-tile="watertest"]')?.addEventListener("click", renderOverview);
 
 
     /*
@@ -150,7 +151,7 @@ export function initWatertest() {
      Wenn noch keiner existiert:
      -> leere Eingabe öffnen
     */
-    addButton.addEventListener("click", () => {
+    addButton.addEventListener("click", async () => {
 
         const today =
             new Date();
@@ -162,24 +163,12 @@ export function initWatertest() {
             getISOWeekYear(today);
 
 
-        const history =
-            loadHistory();
-
-
-        /*
-         Test der aktuellen KW suchen.
-
-         Number() sorgt dafür, dass es auch
-         funktioniert, falls ältere Daten
-         Woche/Jahr als Text gespeichert haben.
-        */
-        const existingTest =
-            history.find(test =>
-
-                Number(test.week) === week &&
-
-                Number(test.year) === year
-            );
+        let existingTest = null;
+        try {
+            existingTest = await loadWaterTest(year, week);
+        } catch (error) {
+            console.error("Wassertest konnte nicht geladen werden:", error);
+        }
 
 
         /*
@@ -216,10 +205,7 @@ export function initWatertest() {
             };
 
 
-            console.log(
-                "💧 Bestehender Wassertest geladen:",
-                currentValues
-            );
+            console.log("Bestehender Wassertest geladen.");
 
         } else {
 
@@ -230,9 +216,7 @@ export function initWatertest() {
             currentValues = {};
 
 
-            console.log(
-                "💧 Noch kein Wassertest für diese KW"
-            );
+            console.log("Noch kein Wassertest für diese KW.");
         }
 
 
@@ -261,7 +245,7 @@ export function initWatertest() {
     /*
      Von Eingabe zurück zur Übersicht.
     */
-    backButton.addEventListener("click", () => {
+    backButton.addEventListener("click", async () => {
 
         renderOverview();
 
@@ -534,7 +518,7 @@ function renderWatertestForm() {
  =========================================================
 */
 
-function saveWatertest() {
+async function saveWatertest() {
 
     /*
      Prüfen, ob alle sechs Wasserwerte
@@ -609,64 +593,13 @@ function saveWatertest() {
         getISOWeekYear(today);
 
 
-    let history =
-        loadHistory();
-
-
-    /*
-     =====================================================
-     ALTEN TEST DIESER KW ENTFERNEN
-     =====================================================
-
-     Dadurch bearbeiten wir einen bestehenden
-     Test, statt einen zweiten anzulegen.
-    */
-    history =
-        history.filter(test =>
-            !(
-                Number(test.week) === week &&
-                Number(test.year) === year
-            )
-        );
-
-
-    /*
-     =====================================================
-     NEUEN / BEARBEITETEN TEST ERSTELLEN
-     =====================================================
-    */
-
-    const test = {
-
-        id:
-            Date.now().toString(),
-
-        date:
-            new Date().toISOString(),
-
-        year:
-            year,
-
-        week:
-            week,
-
-        values: {
-            ...currentValues
-        }
-
-    };
-
-
-    history.push(test);
-
-
-    /*
-     Verlauf speichern.
-    */
-    localStorage.setItem(
-        "watertest-history",
-        JSON.stringify(history)
-    );
+    try {
+        await saveWaterTest(year, week, { ...currentValues });
+    } catch (error) {
+        console.error("Wassertest konnte nicht gespeichert werden:", error);
+        alert("Wassertest konnte nicht gespeichert werden.");
+        return;
+    }
 
 
     /*
@@ -694,7 +627,7 @@ function saveWatertest() {
  =========================================================
 */
 
-function renderOverview() {
+async function renderOverview() {
 
     const container =
         document.getElementById(
@@ -710,8 +643,12 @@ function renderOverview() {
     container.innerHTML = "";
 
 
-    const history =
-        loadHistory();
+    let history = [];
+    try {
+        history = await loadWaterTests();
+    } catch (error) {
+        console.log("Wassertests noch nicht geladen:", error.message);
+    }
 
 
     /*
@@ -1204,48 +1141,6 @@ function getStatus(
     return option
         ? option.status
         : "unknown";
-}
-
-
-/*
- =========================================================
- VERLAUF LADEN
- =========================================================
-*/
-
-function loadHistory() {
-
-    const raw =
-        localStorage.getItem(
-            "watertest-history"
-        );
-
-
-    if (!raw) {
-        return [];
-    }
-
-
-    try {
-
-        const history =
-            JSON.parse(raw);
-
-
-        return Array.isArray(history)
-            ? history
-            : [];
-
-    } catch (error) {
-
-        console.error(
-            "❌ Wassertest-Verlauf konnte nicht geladen werden",
-            error
-        );
-
-
-        return [];
-    }
 }
 
 
