@@ -1,41 +1,17 @@
-import { loadRecurringTransactions } from "../data/recurring-transactions-data.js?v=1.26";
-import { loadPocketMoneyExpenses } from "../data/pocket-money-data.js?v=1.26";
-const BUDGET=500;
-const euro=v=>new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"}).format(v);
+import { loadRecurringTransactions } from "../data/recurring-transactions-data.js?v=1.27";
+import { loadPocketMoneyExpenses } from "../data/pocket-money-data.js?v=1.27";
+import { loadMonthlyAdjustment,saveMonthlyAdjustment } from "../data/monthly-expense-adjustments-data.js?v=1.27";
+const euro=v=>new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"}).format(Number(v)||0);
+const isoMonth=(y,m)=>`${y}-${String(m+1).padStart(2,"0")}-01`;
 const daysInMonth=(y,m)=>new Date(y,m+1,0).getDate();
-function occurrence(entry,y,m){
- const start=new Date(`${entry.start_date}T12:00:00`),sm=start.getMonth(),day=Math.min(start.getDate(),daysInMonth(y,m));
- if(entry.frequency==="monthly") return new Date(y,m,day);
- if(entry.frequency==="yearly"&&m===sm) return new Date(y,m,day);
- if(entry.frequency==="quarterly"&&((m-sm+12)%3===0)) return new Date(y,m,day);
- return null;
-}
-export function initExpensesOverview(){
- const root=document.getElementById("expenses-overview-content");if(!root)return;
- let recurring=[],pocket=[],cursor=new Date();cursor.setDate(1);
- async function load(){try{[recurring,pocket]=await Promise.all([loadRecurringTransactions(),loadPocketMoneyExpenses()]);render();}catch(e){console.error("Ausgabenübersicht konnte nicht geladen werden:",e);root.innerHTML='<p class="loan-error">Übersicht konnte nicht geladen werden.</p>';}}
- function render(){
-  const y=cursor.getFullYear(),m=cursor.getMonth(),today=new Date(),isCurrent=y===today.getFullYear()&&m===today.getMonth();
-  const items=recurring.map(e=>({entry:e,date:occurrence(e,y,m)})).filter(x=>x.date).sort((a,b)=>a.date-b.date);
-  const income=items.filter(x=>x.entry.transaction_type==="income").reduce((s,x)=>s+Number(x.entry.amount),0);
-  const fixed=items.filter(x=>x.entry.transaction_type==="expense").reduce((s,x)=>s+Number(x.entry.amount),0);
-  const free=income-fixed;
-  const spent=pocket.filter(e=>{const d=new Date(`${e.expense_date}T12:00:00`);return d.getFullYear()===y&&d.getMonth()===m;}).reduce((s,e)=>s+Number(e.amount),0);
-  const left=BUDGET-spent;
-  const future=isCurrent?items.filter(x=>x.date>=new Date(today.getFullYear(),today.getMonth(),today.getDate())):items;
-  const past=isCurrent?items.filter(x=>x.date<new Date(today.getFullYear(),today.getMonth(),today.getDate())).reverse():[];
-  root.innerHTML=`<div class="overview-month-nav"><button id="ov-prev">&lt;</button><strong>${new Intl.DateTimeFormat("de-DE",{month:"long",year:"numeric"}).format(cursor)}</strong><button id="ov-next">&gt;</button></div>
-  <div class="overview-card"><div><span>Fixe Einnahmen</span><strong>${euro(income)}</strong></div><div><span>Fixe Ausgaben</span><strong>− ${euro(fixed)}</strong></div><div class="overview-free"><span>Frei verfügbar</span><strong>${euro(free)}</strong></div></div>
-  <div class="overview-card"><div><span>Taschengeld ausgegeben</span><strong>− ${euro(spent)}</strong></div><div class="overview-free"><span>Noch verfügbar</span><strong>${euro(left)}</strong></div><div class="overview-budget"><i style="width:${Math.min(100,Math.max(0,spent/BUDGET*100))}%"></i></div><small>${euro(spent)} von ${euro(BUDGET)}</small></div>
-  <div id="ov-bookings"></div>`;
-  root.querySelector("#ov-prev").onclick=()=>{cursor.setMonth(cursor.getMonth()-1);render();};root.querySelector("#ov-next").onclick=()=>{cursor.setMonth(cursor.getMonth()+1);render();};
-  const list=root.querySelector("#ov-bookings");
-  if(isCurrent){appendGroup(list,"Als Nächstes",future.slice(0,1),true);appendGroup(list,"Noch kommt",future.slice(1),true);appendGroup(list,"Bereits gewesen",past,false);}
-  else appendGroup(list,"Buchungen",items,false);
- }
- function appendGroup(parent,title,items,future){if(!items.length)return;const h=document.createElement("h3");h.className="overview-list-title";h.textContent=title;parent.append(h);items.forEach(x=>{const row=document.createElement("div");row.className=`overview-booking${future?" overview-future":""}`;const d=String(x.date.getDate()).padStart(2,"0")+".";const amount=Number(x.entry.amount),sign=x.entry.transaction_type==="income"?"+":"−";row.innerHTML=`<span class="overview-date">${d}</span><strong></strong><span class="overview-amount">${sign} ${euro(amount)}</span>`;row.querySelector("strong").textContent=x.entry.name;parent.append(row);});}
- document.addEventListener("dock:recurring-changed", load);
- const overviewTile=document.querySelector('[data-tile="expenses-overview"]');
- if(overviewTile) overviewTile.addEventListener("click", load);
- load();
-}
+function occurrence(e,y,m){const s=new Date(`${e.start_date}T12:00:00`),sm=s.getMonth(),d=Math.min(s.getDate(),daysInMonth(y,m));if(e.frequency==="monthly")return new Date(y,m,d);if(e.frequency==="yearly"&&m===sm)return new Date(y,m,d);if(e.frequency==="quarterly"&&((m-sm+12)%3===0))return new Date(y,m,d);return null;}
+export function initExpensesOverview(){const root=document.getElementById("expenses-overview-content");if(!root)return;let recurring=[],pocket=[],adjust={salary_adjustment:0,to_savings:0,from_savings:0},cursor=new Date();cursor.setDate(1);
+ async function load(){try{const y=cursor.getFullYear(),m=cursor.getMonth();[recurring,pocket]=await Promise.all([loadRecurringTransactions(),loadPocketMoneyExpenses()]);adjust=await loadMonthlyAdjustment(isoMonth(y,m))||{salary_adjustment:0,to_savings:0,from_savings:0};render();}catch(e){console.error("Ausgabenübersicht:",e);root.innerHTML='<p class="loan-error">Übersicht konnte nicht geladen werden.</p>';}}
+ function render(){const y=cursor.getFullYear(),m=cursor.getMonth(),today=new Date(),current=y===today.getFullYear()&&m===today.getMonth(),cut=new Date(today.getFullYear(),today.getMonth(),today.getDate());const items=recurring.map(e=>({entry:e,date:occurrence(e,y,m)})).filter(x=>x.date).sort((a,b)=>a.date-b.date);const income=items.filter(x=>x.entry.transaction_type==="income").reduce((s,x)=>s+Number(x.entry.amount),0),fixed=items.filter(x=>x.entry.transaction_type==="expense").reduce((s,x)=>s+Number(x.entry.amount),0),salary=Number(adjust.salary_adjustment)||0,to=Number(adjust.to_savings)||0,from=Number(adjust.from_savings)||0,budget=income+salary-fixed-to+from,spent=pocket.filter(e=>{const d=new Date(`${e.expense_date}T12:00:00`);return d.getFullYear()===y&&d.getMonth()===m}).reduce((s,e)=>s+Number(e.amount),0),left=budget-spent,future=current?items.filter(x=>x.date>=cut):items,past=current?items.filter(x=>x.date<cut).reverse():[],remainingFixed=current?future.filter(x=>x.entry.transaction_type==="expense").reduce((s,x)=>s+Number(x.entry.amount),0):fixed,needed=remainingFixed+Math.max(0,left);
+ root.innerHTML=`<div class="overview-month-nav"><button id="ov-prev">&lt;</button><strong>${new Intl.DateTimeFormat("de-DE",{month:"long",year:"numeric"}).format(cursor)}</strong><button id="ov-next">&gt;</button></div>
+ <div class="overview-card"><div><span>Fixe Einnahmen</span><strong>${euro(income)}</strong></div><div><span>Fixe Ausgaben</span><strong>− ${euro(fixed)}</strong></div><div><span>Gehaltsanpassung</span><div class="overview-adjust-input"><input id="ov-salary" type="number" step="0.01" inputmode="decimal" value="${salary}"><span>€</span></div></div><div><span>Ans Sparkonto</span><div class="overview-adjust-input"><input id="ov-to" type="number" min="0" step="0.01" inputmode="decimal" value="${to}"><span>€</span></div></div><div><span>Vom Sparkonto</span><div class="overview-adjust-input"><input id="ov-from" type="number" min="0" step="0.01" inputmode="decimal" value="${from}"><span>€</span></div></div><button id="ov-save-adjust" class="overview-save">Anpassungen speichern</button><div class="overview-free"><span>Taschengeld</span><strong>${euro(budget)}</strong></div></div>
+ <div class="overview-card"><div><span>Taschengeld ausgegeben</span><strong>− ${euro(spent)}</strong></div><div class="overview-free"><span>Taschengeld übrig</span><strong>${euro(left)}</strong></div><div><span>Noch kommende Fixkosten</span><strong>${euro(remainingFixed)}</strong></div><div class="overview-free"><span>Noch benötigt auf dem Konto</span><strong>${euro(needed)}</strong></div><div class="overview-budget"><i style="width:${budget>0?Math.min(100,Math.max(0,spent/budget*100)):0}%"></i></div></div><div id="ov-bookings"></div>`;
+ root.querySelector("#ov-prev").onclick=()=>{cursor.setMonth(cursor.getMonth()-1);load()};root.querySelector("#ov-next").onclick=()=>{cursor.setMonth(cursor.getMonth()+1);load()};root.querySelector("#ov-save-adjust").onclick=async()=>{const btn=root.querySelector("#ov-save-adjust");btn.disabled=true;try{adjust=await saveMonthlyAdjustment(isoMonth(y,m),{salary_adjustment:Number(root.querySelector("#ov-salary").value)||0,to_savings:Number(root.querySelector("#ov-to").value)||0,from_savings:Number(root.querySelector("#ov-from").value)||0});document.dispatchEvent(new CustomEvent("dock:budget-changed"));render()}catch(e){console.error(e);btn.disabled=false;alert("Anpassungen konnten nicht gespeichert werden.")}};
+ const list=root.querySelector("#ov-bookings");if(current){group(list,"Als Nächstes",future.slice(0,1),true);group(list,"Noch kommt",future.slice(1),true);group(list,"Bereits gewesen",past,false)}else group(list,"Buchungen",items,false);}
+ function group(p,t,a,f){if(!a.length)return;const h=document.createElement("h3");h.className="overview-list-title";h.textContent=t;p.append(h);a.forEach(x=>{const r=document.createElement("div");r.className=`overview-booking${f?" overview-future":""}`;r.innerHTML=`<span class="overview-date">${String(x.date.getDate()).padStart(2,"0")}.</span><strong></strong><span class="overview-amount">${x.entry.transaction_type==="income"?"+":"−"} ${euro(x.entry.amount)}</span>`;r.querySelector("strong").textContent=x.entry.name;p.append(r)})}
+ document.addEventListener("dock:recurring-changed",load);document.addEventListener("dock:pocket-changed",load);const tile=document.querySelector('[data-tile="expenses-overview"]');if(tile)tile.addEventListener("click",load);load();}
