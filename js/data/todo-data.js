@@ -5,6 +5,10 @@ import {
     SUPABASE_KEY
 } from "../config/supabase.js";
 
+import {
+    getAccessToken
+} from "../auth/auth.js";
+
 
 /*
  =========================================================
@@ -167,8 +171,21 @@ export async function deleteTodo(id) {
 */
 function createHeaders() {
 
+    const accessToken =
+        getAccessToken();
+
+
+    if (!accessToken) {
+
+        throw new Error(
+            "Keine aktive Anmeldung vorhanden."
+        );
+    }
+
+
     return {
         "apikey": SUPABASE_KEY,
+        "Authorization": `Bearer ${accessToken}`,
         "Content-Type": "application/json"
     };
 }
