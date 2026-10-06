@@ -1,13 +1,15 @@
 // js/push/push.js
 
+// js/push/push.js
+
+import {
+    SUPABASE_URL,
+    SUPABASE_KEY
+} from "../config/supabase.js";
+
+
 const VAPID_PUBLIC_KEY =
     "BGK06tFp_McKbIERoqB3Vm-rYyF83BFnKSCqwICBswnZslLXpspVFZYdsWoVZJib4YoAGZ_eFwsODALJ7p_xU44";
-
-const SUPABASE_URL =
-    "https://osmmjfuzuxhwtfcttdxp.supabase.co";
-
-const SUPABASE_KEY =
-    "sb_publishable_Yymu98h5pEe8S1Rsxl8u6A_ZKisJcdy";
 
 let serviceWorkerRegistration = null;
 
