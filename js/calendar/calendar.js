@@ -892,14 +892,3 @@ function saveDoneTasks(
     );
 }
 
-
-/*
- Berechnet die ISO-Kalenderwoche.
-
- ISO:
- - Woche beginnt Montag
- - KW 1 enthält den ersten Donnerstag
-   des Jahres
-*/
-;
-}
