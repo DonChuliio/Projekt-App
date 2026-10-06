@@ -1,5 +1,5 @@
 import { showView } from "../router.js";
-import { loadPacklists, createPacklist, updatePacklist } from "../data/packlist-data.js?v=0.97";
+import { loadPacklists, createPacklist, updatePacklist, deletePacklist } from "../data/packlist-data.js?v=0.97";
 import { initPacklistEditor } from "./packlist-editor.js?v=0.97";
 import { initPacklistRun } from "./packlist-run.js?v=0.97";
 
@@ -20,8 +20,10 @@ function openDialog(packlist){
  fresh.onclick=async()=>{overlay.remove();await updatePacklist(packlist.id,{progress:[]});packlist.progress=[];selectPacklist(packlist,"continue");setTitle("packlist-run-title",packlist.name);showView("packlist-run");await initPacklistRun();};
  const edit=document.createElement("button"); edit.textContent="Liste bearbeiten";
  edit.onclick=async()=>{overlay.remove();selectPacklist(packlist,"edit");setTitle("packlist-edit-title",packlist.name);showView("packlist-edit");await initPacklistEditor();};
+ const remove=document.createElement("button"); remove.className="packlist-dialog-delete"; remove.textContent="Liste löschen";
+ remove.onclick=async()=>{if(!confirm("Packliste wirklich löschen?"))return;await deletePacklist(packlist.id);overlay.remove();await renderPacklists();};
  const cancel=document.createElement("button"); cancel.className="packlist-dialog-cancel";cancel.textContent="Abbrechen";cancel.onclick=()=>overlay.remove();
- dialog.append(title,text,cont,fresh,edit,cancel);overlay.appendChild(dialog);document.body.appendChild(overlay);
+ dialog.append(title,text,cont,fresh,edit,remove,cancel);overlay.appendChild(dialog);document.body.appendChild(overlay);
  overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
 }
 export async function renderPacklists(){
