@@ -56,6 +56,13 @@ export function initDashboard() {
     );
 
 
+    const quickNoteButton = document.getElementById("open-quick-note");
+    if (quickNoteButton) quickNoteButton.addEventListener("click", () => {
+        sessionStorage.setItem("dock-new-general-note", "1");
+        showView("general-note");
+        document.dispatchEvent(new CustomEvent("dock:new-general-note"));
+    });
+
     const pocketMoneyButton = document.getElementById("open-pocket-money");
     if (pocketMoneyButton) pocketMoneyButton.addEventListener("click", () => showView("pocket-money"));
 

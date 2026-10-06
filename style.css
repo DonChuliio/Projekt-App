@@ -1412,3 +1412,18 @@ html, body {
     border-color: var(--petrol);
     color: #fff;
 }
+
+
+/* =========================================================
+   v1.34 – ALLGEMEIN-NOTIZEN
+   ========================================================= */
+.quick-note-button{width:52px;height:52px;padding:0;display:inline-flex;align-items:center;justify-content:center;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--text-muted)}
+.quick-note-pencil{display:block;width:22px;height:6px;border:2px solid currentColor;border-radius:2px;transform:rotate(-45deg);position:relative}
+.quick-note-pencil::after{content:"";position:absolute;right:-7px;top:-2px;border-left:6px solid currentColor;border-top:3px solid transparent;border-bottom:3px solid transparent}
+.dashboard-title .quick-money-button{margin-left:auto}.dashboard-title .quick-note-button+.settings-button{margin-left:0}
+.general-notes-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}.general-notes-header h2{margin:0}.general-notes-header button{width:auto}
+.general-notes-empty{color:var(--text-muted)}
+.general-note-card{margin-bottom:10px;border:1px solid var(--border);border-radius:12px;background:var(--surface);overflow:hidden}
+.general-note-toggle{width:100%;display:flex;align-items:center;gap:10px;text-align:left;background:var(--surface);color:var(--text);border:0;border-radius:0;padding:14px}
+.general-note-toggle.open{background:var(--petrol);color:#fff}.general-note-arrow{width:18px;flex-shrink:0}.general-note-toggle strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.general-note-body{padding:12px}.general-note-text{width:100%;min-height:220px;margin:0;resize:vertical}
