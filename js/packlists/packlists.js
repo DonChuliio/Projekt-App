@@ -1,7 +1,7 @@
 import { showView } from "../router.js";
 import { loadPacklists, createPacklist, updatePacklist, deletePacklist } from "../data/packlist-data.js?v=0.97";
-import { initPacklistEditor } from "./packlist-editor.js?v=0.97";
-import { initPacklistRun } from "./packlist-run.js?v=0.97";
+import { initPacklistEditor } from "./packlist-editor.js?v=1.07";
+import { initPacklistRun } from "./packlist-run.js?v=1.07";
 
 function setTitle(id,name){const el=document.getElementById(id);if(el)el.textContent=name;}
 function selectPacklist(packlist, mode){
