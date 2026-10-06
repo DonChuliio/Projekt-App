@@ -5,13 +5,12 @@
    SUPABASE
    ========================================================= */
 
-const SUPABASE_URL =
-    "https://osmmjfuzuxhwtfcttdxp.supabase.co";
+// js/push/notification-state.js
 
-const SUPABASE_KEY =
-    "sb_publishable_Yymu98h5pEe8S1Rsxl8u6A_ZKisJcdy";
-
-
+import {
+    SUPABASE_URL,
+    SUPABASE_KEY
+} from "../config/supabase.js";
 /* =========================================================
    BENACHRICHTIGUNGS-STATUS SYNCHRONISIEREN
    ========================================================= */
