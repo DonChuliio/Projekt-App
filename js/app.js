@@ -4,7 +4,7 @@ import { initDashboard } from "./dashboard.js";
 import { initNotes } from "./notes/notes.js";
 import { initCalendar } from "./calendar/calendar.js";
 import { showView, goToDashboard } from "./router.js";
-import { initTodo } from "./todo/todo.js?v=0.92";
+import { initTodo } from "./todo/todo.js?v=0.93";
 import { initBackup } from "./backup/backup.js";
 import { initPacklists } from "./packlists/packlists.js";
 import { initPacklistEditor } from "./packlists/packlist-editor.js";
