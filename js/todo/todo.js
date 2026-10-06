@@ -4,7 +4,7 @@ import {
     loadTodos,
     addTodo,
     deleteTodo
-} from "../data/todo-data.js";
+} from "../data/todo-data.js?v=0.92";
 
 
 /* =========================================================
