@@ -65,6 +65,7 @@ export function initDashboard() {
 
     const pocketMoneyButton = document.getElementById("open-pocket-money");
     if (pocketMoneyButton) pocketMoneyButton.addEventListener("click", () => {
+        sessionStorage.setItem("dock-new-pocket-expense", "1");
         showView("pocket-money");
         document.dispatchEvent(new CustomEvent("dock:new-pocket-expense"));
     });
