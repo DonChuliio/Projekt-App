@@ -1,7 +1,6 @@
 // js/todo/todo.js
 
 import { loadTodos, addTodo, deleteTodo } from "../data/todo-data.js?v=0.99";
-import { syncNotificationState } from "../push/notification-state.js?v=0.99";
 
 export function initTodo() {
     initList("a");
@@ -42,10 +41,6 @@ async function initList(type) {
             await addTodo(text, type);
             input.value = "";
             await reloadTodos();
-
-            if (type === "a") {
-                await syncNotificationState();
-            }
 
             input.focus();
         } catch (error) {
@@ -92,10 +87,6 @@ function renderList(listElement, todos, reloadTodos) {
             try {
                 await deleteTodo(todo.id);
                 await reloadTodos();
-
-                if (todo.priority === "a") {
-                    await syncNotificationState();
-                }
             } catch (error) {
                 console.error("To-Do konnte nicht gelöscht werden:", error);
                 deleteButton.disabled = false;
