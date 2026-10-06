@@ -12,7 +12,7 @@ import {
     deleteCalendarTask,
     setCalendarTaskDone
 } from "../data/calendar-data.js?v=0.94";
-import { loadCalendarSettings, saveMonthEndSavingsReminder } from "../data/calendar-settings-data.js?v=1.19";
+import { loadCalendarSettings, saveMonthEndSavingsReminder } from "../data/calendar-settings-data.js?v=1.20";
 
 const WEEK_TASKS = [
     { id: "plants", name: "Pflanzen gießen", shortName: "Pflanzen" },
@@ -131,17 +131,17 @@ async function renderWeekEditor() {
     const editor = document.createElement("div");
     editor.id = "week-plan-editor";
 
-    const yearTitle = document.createElement("p");
-    yearTitle.className = "week-plan-year";
-    yearTitle.textContent = `Wochenplan ${year}`;
-    editor.appendChild(yearTitle);
+    const reminderTitle = document.createElement("p");
+    reminderTitle.className = "week-plan-year";
+    reminderTitle.textContent = "Monatliche Erinnerung";
+    editor.appendChild(reminderTitle);
 
     const reminderLabel = document.createElement("label");
     reminderLabel.className = "month-end-reminder";
     const reminderCheckbox = document.createElement("input");
     reminderCheckbox.type = "checkbox";
     const reminderText = document.createElement("span");
-    reminderText.textContent = "Monatsende – Sparkonto Überschuss überweisen (09:00 Uhr)";
+    reminderText.textContent = "Sparkonto Überschuss überweisen – am letzten Tag des Monats um 09:00 Uhr";
     reminderLabel.append(reminderCheckbox, reminderText);
     editor.appendChild(reminderLabel);
 
@@ -163,6 +163,11 @@ async function renderWeekEditor() {
             reminderCheckbox.disabled = false;
         }
     });
+
+    const yearTitle = document.createElement("p");
+    yearTitle.className = "week-plan-year";
+    yearTitle.textContent = `Wochenplan ${year}`;
+    editor.appendChild(yearTitle);
 
     const scrollContainer = document.createElement("div");
     scrollContainer.className = "week-plan-scroll";
