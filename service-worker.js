@@ -41,7 +41,7 @@ self.addEventListener("push", event => {
      keine Daten enthalten sollte.
     */
     let data = {
-        title: "Projekt App",
+        title: "Dock",
         body: "Neue Benachrichtigung"
     };
 
@@ -71,7 +71,7 @@ self.addEventListener("push", event => {
     event.waitUntil(
 
         self.registration.showNotification(
-            data.title || "Projekt App",
+            data.title || "Dock",
             {
                 body:
                     data.body ||
@@ -97,7 +97,7 @@ self.addEventListener(
 
 
         /*
-         Projekt App öffnen.
+         Dock öffnen.
         */
         event.waitUntil(
 
