@@ -4,7 +4,9 @@ import {
     loadTodos,
     addTodo,
     deleteTodo
-} from "../data/todo-data.js?v=0.93";
+} from "../data/todo-data.js?v=0.98";
+
+import { syncNotificationState } from "../push/notification-state.js?v=0.98";
 
             input.focus();
 
