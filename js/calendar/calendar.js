@@ -10,7 +10,7 @@ import {
     getISOWeeksInYear
 } from "../utils/date.js";
 /*
- Feste Aufgaben unseres Wochenplans.
+ Feste Aufgaben unseres Wochenplans
 
  Später können wir diese Liste dynamisch machen,
  sodass eigene Aufgaben hinzugefügt werden können.
