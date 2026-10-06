@@ -2,9 +2,9 @@
 
 import { initDashboard } from "./dashboard.js";
 import { initNotes } from "./notes/notes.js";
-import { initCalendar } from "./calendar/calendar.js?v=0.94";
+import { initCalendar } from "./calendar/calendar.js?v=0.95";
 import { showView, goToDashboard } from "./router.js";
-import { initTodo } from "./todo/todo.js?v=0.94";
+import { initTodo } from "./todo/todo.js?v=0.95";
 import { initBackup } from "./backup/backup.js";
 import { initPacklists } from "./packlists/packlists.js";
 import { initPacklistEditor } from "./packlists/packlist-editor.js";
@@ -54,7 +54,21 @@ initPush();
         });
     });
 
-    // ✅ Startansicht
+    // Home-Button neben jedem Zurück-Button ergänzen.
+    document.querySelectorAll(".back-button").forEach((backButton) => {
+        const homeButton = document.createElement("button");
+        homeButton.type = "button";
+        homeButton.className = "home-button";
+        homeButton.textContent = "Home";
+
+        homeButton.addEventListener("click", () => {
+            goToDashboard();
+        });
+
+        backButton.insertAdjacentElement("afterend", homeButton);
+    });
+
+    // Startansicht
     showView("dashboard");
 });
 /*
