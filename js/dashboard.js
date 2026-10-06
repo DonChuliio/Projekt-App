@@ -12,8 +12,8 @@ export function initDashboard() {
     /*
      Alle Kacheln der App suchen.
 
-     Der Wert von data-tile entspricht dabei
-     direkt der Ansicht, die geöffnet werden soll.
+     Der Wert von data-tile entspricht direkt
+     der Ansicht, die geöffnet werden soll.
 
      Beispiel:
 
@@ -57,23 +57,23 @@ export function initDashboard() {
 
 
     /* =====================================================
-       BACKUP
+       EINSTELLUNGEN
        ===================================================== */
 
-    const backupButton =
+    const settingsButton =
         document.getElementById(
-            "open-backup"
+            "open-settings"
         );
 
 
-    if (backupButton) {
+    if (settingsButton) {
 
-        backupButton.addEventListener(
+        settingsButton.addEventListener(
             "click",
             () => {
 
                 showView(
-                    "backup"
+                    "settings"
                 );
             }
         );
