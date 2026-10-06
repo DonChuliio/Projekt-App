@@ -1233,3 +1233,80 @@ html, body {
 .home-button {
     margin-left: 16px;
 }
+
+
+/* =========================================================
+   v1.14 – HAUSRECHNER
+   ========================================================= */
+
+.loan-calculator {
+    max-width: 520px;
+}
+
+.loan-calculator label {
+    display: block;
+    margin: 16px 0 6px;
+    color: var(--text-muted);
+}
+
+.loan-input-unit {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.loan-input-unit input {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+}
+
+.loan-input-unit span {
+    min-width: 48px;
+    color: var(--text-muted);
+}
+
+.loan-results {
+    margin-top: 24px;
+    padding: 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+}
+
+.loan-main-result {
+    margin-bottom: 22px;
+}
+
+.loan-main-result span {
+    display: block;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.loan-main-result strong {
+    font-size: 28px;
+    color: var(--petrol);
+}
+
+.loan-results h3 {
+    margin: 18px 0 8px;
+    font-size: 16px;
+}
+
+.loan-result-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.loan-result-row strong {
+    text-align: right;
+}
+
+.loan-error {
+    color: var(--danger);
+    margin-top: 14px;
+}
