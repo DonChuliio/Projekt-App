@@ -38,15 +38,51 @@
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=0.89"
+        src="js/app.js?v=0.90"
     ></script>
 
-    <title>Projekt App</title>
+    <title>Dock</title>
 
 </head>
 
 
 <body>
+
+
+<!-- ======================================================
+     LOGIN
+     ====================================================== -->
+
+<div id="login-view" class="hidden auth-view">
+    <div class="auth-card">
+        <h1>Dock</h1>
+        <p class="auth-subtitle">Anmelden</p>
+
+        <form id="login-form">
+            <input
+                id="login-email"
+                type="email"
+                autocomplete="email"
+                placeholder="E-Mail"
+                required
+            >
+
+            <input
+                id="login-password"
+                type="password"
+                autocomplete="current-password"
+                placeholder="Passwort"
+                required
+            >
+
+            <button type="submit">
+                Anmelden
+            </button>
+        </form>
+
+        <p id="login-status" class="auth-status"></p>
+    </div>
+</div>
 
 
 <!-- ======================================================
@@ -589,6 +625,13 @@
 
 
         <h2>Einstellungen</h2>
+
+        <section>
+            <h3>Konto</h3>
+            <button id="logout-button">
+                Abmelden
+            </button>
+        </section>
 
 
         <!-- ==============================================
