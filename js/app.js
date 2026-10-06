@@ -1,15 +1,15 @@
 // js/app.js
 
 import { initDashboard } from "./dashboard.js";
-import { initNotes } from "./notes/notes.js?v=0.96";
-import { initCalendar } from "./calendar/calendar.js?v=0.96";
+import { initNotes } from "./notes/notes.js?v=0.97";
+import { initCalendar } from "./calendar/calendar.js?v=0.97";
 import { showView, goToDashboard } from "./router.js";
-import { initTodo } from "./todo/todo.js?v=0.96";
+import { initTodo } from "./todo/todo.js?v=0.97";
 import { initBackup } from "./backup/backup.js";
-import { initPacklists } from "./packlists/packlists.js";
-import { initPacklistEditor } from "./packlists/packlist-editor.js";
-import { initPacklistRun } from "./packlists/packlist-run.js";
-import { initWatertest } from "./watertest/watertest.js";
+import { initPacklists } from "./packlists/packlists.js?v=0.97";
+import { initPacklistEditor } from "./packlists/packlist-editor.js?v=0.97";
+import { initPacklistRun } from "./packlists/packlist-run.js?v=0.97";
+import { initWatertest } from "./watertest/watertest.js?v=0.97";
 import { initPush } from "./push/push.js?v=0.68";
 import { initAuth } from "./auth/auth-view.js";
 /*
