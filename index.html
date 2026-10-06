@@ -17,7 +17,7 @@
 
     <link
         rel="manifest"
-        href="manifest.json?v=1.05"
+        href="manifest.json?v=1.06"
     >
 
     <meta
@@ -32,13 +32,13 @@
 
     <link
         rel="stylesheet"
-        href="style.css?v=7"
+        href="style.css?v=8"
     >
 
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=1.05"
+        src="js/app.js?v=1.06"
     ></script>
 
     <title>Dock</title>
@@ -113,9 +113,11 @@
 
         <button
             id="open-settings"
-            class="backup-btn"
+            class="settings-button"
+            aria-label="Einstellungen"
+            title="Einstellungen"
         >
-            Einstellungen
+            <span class="settings-gear" aria-hidden="true"></span>
         </button>
 
     </div>
@@ -123,6 +125,14 @@
 </div>
 
         <div class="tiles">
+
+            <div
+                class="tile"
+                data-tile="notes"
+            >
+                Notizen
+            </div>
+
 
             <div
                 class="tile"
@@ -143,13 +153,6 @@
                 data-tile="finances"
             >
                 Finanzen
-            </div>
-
-            <div
-                class="tile"
-                data-tile="notes"
-            >
-                Notizen
             </div>
 
             <div
@@ -556,7 +559,7 @@
                 >
 
                 <button id="todo-a-add">
-                    Hinzufügen
+                    +
                 </button>
 
             </div>
@@ -582,7 +585,7 @@
                 >
 
                 <button id="todo-b-add">
-                    Hinzufügen
+                    +
                 </button>
 
             </div>
@@ -608,7 +611,7 @@
                 >
 
                 <button id="todo-c-add">
-                    Hinzufügen
+                    +
                 </button>
 
             </div>
