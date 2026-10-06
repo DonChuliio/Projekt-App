@@ -115,7 +115,7 @@ let currentValues = {};
  =========================================================
 */
 
-export function initWatertest() {
+export async function initWatertest() {
 
     const addButton =
         document.getElementById("watertest-add");
