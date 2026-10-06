@@ -17,7 +17,7 @@
 
     <link
         rel="manifest"
-        href="manifest.json?v=1.20"
+        href="manifest.json?v=1.21"
     >
 
     <meta
@@ -32,13 +32,13 @@
 
     <link
         rel="stylesheet"
-        href="style.css?v=1.20"
+        href="style.css?v=1.21"
     >
 
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=1.20"
+        src="js/app.js?v=1.21"
     ></script>
 
     <title>Dock</title>
@@ -301,7 +301,8 @@
 
             <h3>Berechnung</h3>
             <label for="saving-return">Wertentwicklung pro Jahr</label><div class="loan-input-unit"><input id="saving-return" type="number" min="0" step="0.1" inputmode="decimal" placeholder="6"><span>%</span></div>
-            <label for="saving-years">Zeitraum</label><div class="loan-input-unit"><input id="saving-years" type="number" min="1" step="1" inputmode="numeric" placeholder="20"><span>Jahre</span></div>
+            <label for="saving-years">Zeitraum</label><div class="loan-input-unit"><input id="saving-years" type="number" min="0" step="1" inputmode="numeric" placeholder="20"><span>Jahre</span></div>
+            <div class="loan-input-unit"><input id="saving-months" type="number" min="0" max="11" step="1" inputmode="numeric" placeholder="0"><span>Monate</span></div>
             <p id="saving-error" class="loan-error hidden"></p>
             <div id="saving-results" class="loan-results hidden">
                 <div class="loan-result-row"><span>Trade Republic</span><strong id="saving-trade-result">–</strong></div>
