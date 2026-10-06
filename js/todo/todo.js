@@ -1,12 +1,10 @@
 // js/todo/todo.js
 
-// Speicherfunktionen
-import { save, load } from "../storage.js";
-
-// Synchronisierung für Push-Benachrichtigungen
 import {
-    syncNotificationState
-} from "../push/notification-state.js";
+    loadTodos,
+    addTodo,
+    deleteTodo
+} from "../data/todo-data.js";
 
 
 /* =========================================================
@@ -18,12 +16,6 @@ export function initTodo() {
     initList("a");
     initList("b");
     initList("c");
-
-
-    /*
-     Beim Start einmal synchronisieren.
-    */
-    syncNotificationState();
 }
 
 
@@ -31,7 +23,7 @@ export function initTodo() {
    EINZELNE LISTE INITIALISIEREN
    ========================================================= */
 
-function initList(type) {
+async function initList(type) {
 
     const input =
         document.getElementById(
@@ -63,42 +55,53 @@ function initList(type) {
     }
 
 
-    const storageKey =
-        `todo-${type}`;
-
-
-    let todos =
-        load(
-            storageKey,
-            []
-        );
-
-
-    renderList(
-        list,
-        todos,
-        storageKey,
-        type
-    );
-
-
-    /* =====================================================
-       TODO HINZUFÜGEN
-       ===================================================== */
-
-    addButton.addEventListener(
-        "click",
-        () => {
-
-            addTodo();
-        }
-    );
+    let todos = [];
 
 
     /*
-     Zusätzlich kann mit Enter
-     eine Aufgabe hinzugefügt werden.
+     Die Liste wird erst aus Supabase geladen,
+     sobald ein Benutzer angemeldet ist.
+
+     Beim ersten App-Start vor dem Login kann daher
+     noch keine Abfrage stattfinden.
     */
+    async function reloadTodos() {
+
+        try {
+
+            todos =
+                await loadTodos(type);
+
+            renderList(
+                list,
+                todos,
+                reloadTodos
+            );
+
+        } catch (error) {
+
+            /*
+             Vor dem Login ist dieser Zustand normal.
+             Nach erfolgreichem Login wird beim Öffnen
+             der To-Do-Ansicht erneut geladen.
+            */
+            console.log(
+                `To-Do ${type} noch nicht geladen:`,
+                error.message
+            );
+        }
+    }
+
+
+    await reloadTodos();
+
+
+    addButton.addEventListener(
+        "click",
+        addCurrentTodo
+    );
+
+
     input.addEventListener(
         "keydown",
         event => {
@@ -107,17 +110,30 @@ function initList(type) {
 
                 event.preventDefault();
 
-                addTodo();
+                addCurrentTodo();
             }
         }
     );
 
 
-    /* =====================================================
-       HINZUFÜGEN
-       ===================================================== */
+    /*
+     Sobald der Benutzer die To-Do-Ansicht öffnet,
+     holen wir den aktuellen Stand erneut aus Supabase.
 
-    function addTodo() {
+     Dadurch werden Änderungen von einem anderen Gerät
+     beim Öffnen der Ansicht sichtbar.
+    */
+    document
+        .querySelector(
+            '[data-tile="todo"]'
+        )
+        ?.addEventListener(
+            "click",
+            reloadTodos
+        );
+
+
+    async function addCurrentTodo() {
 
         const text =
             input.value.trim();
@@ -128,41 +144,33 @@ function initList(type) {
         }
 
 
-        todos.push(text);
+        addButton.disabled = true;
 
 
-        save(
-            storageKey,
-            todos
-        );
+        try {
 
+            await addTodo(
+                text,
+                type
+            );
 
-        input.value = "";
+            input.value = "";
 
+            await reloadTodos();
 
-        renderList(
-            list,
-            todos,
-            storageKey,
-            type
-        );
+            input.focus();
 
+        } catch (error) {
 
-        /*
-         Nur A-To-Dos sind für
-         Push relevant.
-        */
-        if (type === "a") {
+            console.error(
+                "To-Do konnte nicht hinzugefügt werden:",
+                error
+            );
 
-            syncNotificationState();
+        } finally {
+
+            addButton.disabled = false;
         }
-
-
-        /*
-         Eingabefeld direkt wieder
-         aktivieren.
-        */
-        input.focus();
     }
 }
 
@@ -174,15 +182,14 @@ function initList(type) {
 function renderList(
     listElement,
     todos,
-    storageKey,
-    type
+    reloadTodos
 ) {
 
     listElement.innerHTML = "";
 
 
     todos.forEach(
-        (text, index) => {
+        todo => {
 
             const li =
                 document.createElement(
@@ -190,52 +197,35 @@ function renderList(
                 );
 
 
-            /*
-             Text bekommt ein eigenes Element.
-
-             Dadurch können Aufgabe und X
-             sauber nebeneinander stehen.
-            */
             const textElement =
                 document.createElement(
                     "span"
                 );
 
-
             textElement.textContent =
-                text;
-
+                todo.text;
 
             textElement.className =
                 "todo-text";
-
 
             li.appendChild(
                 textElement
             );
 
 
-            /* =============================================
-               LÖSCHEN
-               ============================================= */
-
             const deleteButton =
                 document.createElement(
                     "button"
                 );
 
-
             deleteButton.type =
                 "button";
-
 
             deleteButton.textContent =
                 "×";
 
-
             deleteButton.className =
                 "todo-delete";
-
 
             deleteButton.setAttribute(
                 "aria-label",
@@ -245,38 +235,28 @@ function renderList(
 
             deleteButton.addEventListener(
                 "click",
-                () => {
+                async () => {
 
-                    /*
-                     Aufgabe lokal löschen.
-                    */
-                    todos.splice(
-                        index,
-                        1
-                    );
+                    deleteButton.disabled =
+                        true;
 
+                    try {
 
-                    save(
-                        storageKey,
-                        todos
-                    );
+                        await deleteTodo(
+                            todo.id
+                        );
 
+                        await reloadTodos();
 
-                    renderList(
-                        listElement,
-                        todos,
-                        storageKey,
-                        type
-                    );
+                    } catch (error) {
 
+                        console.error(
+                            "To-Do konnte nicht gelöscht werden:",
+                            error
+                        );
 
-                    /*
-                     Bei Änderungen an A
-                     Supabase aktualisieren.
-                    */
-                    if (type === "a") {
-
-                        syncNotificationState();
+                        deleteButton.disabled =
+                            false;
                     }
                 }
             );
@@ -285,7 +265,6 @@ function renderList(
             li.appendChild(
                 deleteButton
             );
-
 
             listElement.appendChild(
                 li
