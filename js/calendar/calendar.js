@@ -293,6 +293,11 @@ renderCurrentWeek();
 /*
  Erstellt die komplette Bearbeitungstabelle
  mit allen Kalenderwochen.
+
+ NEUE AUSRICHTUNG:
+
+ Y-Achse = Aufgaben
+ X-Achse = Kalenderwochen
 */
 function renderWeekEditor() {
 
@@ -323,23 +328,32 @@ function renderWeekEditor() {
 
 
     // Aktuelles Jahr bestimmen
-    const today = new Date();
+    const today =
+        new Date();
+
 
     const year =
-        getISOWeekYear(today);
+        getISOWeekYear(
+            today
+        );
 
 
     // Jahresplan laden
     const plan =
-        loadYearPlan(year);
+        loadYearPlan(
+            year
+        );
 
 
     /*
      Anzahl der Kalenderwochen bestimmen.
+
      Je nach Jahr 52 oder 53.
     */
     const numberOfWeeks =
-        getISOWeeksInYear(year);
+        getISOWeeksInYear(
+            year
+        );
 
 
     /* ==================================================
@@ -347,7 +361,10 @@ function renderWeekEditor() {
        ================================================== */
 
     const editor =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
+
 
     editor.id =
         "week-plan-editor";
@@ -357,32 +374,45 @@ function renderWeekEditor() {
      Jahresanzeige
     */
     const yearTitle =
-        document.createElement("p");
+        document.createElement(
+            "p"
+        );
+
 
     yearTitle.className =
         "week-plan-year";
 
+
     yearTitle.textContent =
         `Wochenplan ${year}`;
 
-    editor.appendChild(yearTitle);
+
+    editor.appendChild(
+        yearTitle
+    );
 
 
     /*
      Scrollbarer Tabellenbereich
     */
     const scrollContainer =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
+
 
     scrollContainer.className =
         "week-plan-scroll";
 
 
     /*
-     Tabelle
+     Tabelle erstellen
     */
     const table =
-        document.createElement("table");
+        document.createElement(
+            "table"
+        );
+
 
     table.className =
         "week-plan-table";
@@ -390,59 +420,46 @@ function renderWeekEditor() {
 
     /* ==================================================
        TABELLENKOPF
+
+       Erste Spalte:
+       Aufgabe
+
+       Danach:
+       KW 1, KW 2, KW 3 ...
        ================================================== */
 
     const thead =
-        document.createElement("thead");
+        document.createElement(
+            "thead"
+        );
+
 
     const headerRow =
-        document.createElement("tr");
+        document.createElement(
+            "tr"
+        );
 
 
     /*
-     Erste Spalte = Kalenderwoche
+     Linke obere Ecke
     */
-    const kwHeader =
-        document.createElement("th");
-
-    kwHeader.textContent = "KW";
-
-    headerRow.appendChild(kwHeader);
+    const taskHeader =
+        document.createElement(
+            "th"
+        );
 
 
-    /*
-     Danach eine Spalte pro Aufgabe
-    */
-    WEEK_TASKS.forEach(task => {
-
-        const th =
-            document.createElement("th");
-
-        th.textContent =
-            task.shortName;
-
-        th.title =
-            task.name;
-
-        headerRow.appendChild(th);
-    });
+    taskHeader.textContent =
+        "Aufgabe";
 
 
-    thead.appendChild(headerRow);
-
-    table.appendChild(thead);
-
-
-    /* ==================================================
-       KALENDERWOCHEN
-       ================================================== */
-
-    const tbody =
-        document.createElement("tbody");
+    headerRow.appendChild(
+        taskHeader
+    );
 
 
     /*
-     KW 1 bis KW 52 bzw. 53 erzeugen.
+     Eine Spalte pro Kalenderwoche.
     */
     for (
         let week = 1;
@@ -450,151 +467,241 @@ function renderWeekEditor() {
         week++
     ) {
 
-        const row =
-            document.createElement("tr");
+        const th =
+            document.createElement(
+                "th"
+            );
 
 
-        /*
-         KW-Nummer
-        */
-        const weekCell =
-            document.createElement("th");
-
-        weekCell.textContent =
-            week;
-
-        row.appendChild(weekCell);
+        th.textContent =
+            `KW ${week}`;
 
 
-        /*
-         Eine Zelle pro Aufgabe.
-        */
-        WEEK_TASKS.forEach(task => {
-
-            const cell =
-                document.createElement("td");
+        headerRow.appendChild(
+            th
+        );
+    }
 
 
-            /*
-             Aktive Aufgaben dieser KW.
-            */
-            const activeTasks =
-                plan[week] || [];
+    thead.appendChild(
+        headerRow
+    );
 
 
-            /*
-             Ist diese Aufgabe aktiviert?
-            */
-            const isActive =
-                activeTasks.includes(task.id);
+    table.appendChild(
+        thead
+    );
 
 
-            /*
-             Button für die Zelle.
-            */
-            const button =
-                document.createElement("button");
+    /* ==================================================
+       AUFGABEN-ZEILEN
+       ================================================== */
 
-            button.type =
-                "button";
-
-            button.className =
-                "week-task-toggle";
+    const tbody =
+        document.createElement(
+            "tbody"
+        );
 
 
-            /*
-             Aktuellen Zustand anzeigen.
-            */
-            if (isActive) {
+    /*
+     Jetzt ist jede Aufgabe eine eigene Zeile.
+    */
+    WEEK_TASKS.forEach(
+        task => {
 
-                button.classList.add(
-                    "active"
+            const row =
+                document.createElement(
+                    "tr"
                 );
 
-                button.textContent = "✓";
 
-            } else {
+            /*
+             Erste Spalte:
+             Name der Aufgabe.
+            */
+            const taskCell =
+                document.createElement(
+                    "th"
+                );
 
-                button.textContent = "";
-            }
+
+            taskCell.textContent =
+                task.shortName;
+
+
+            taskCell.title =
+                task.name;
+
+
+            row.appendChild(
+                taskCell
+            );
 
 
             /*
-             Klick auf die Zelle:
-             Aufgabe aktivieren/deaktivieren.
+             Danach eine Zelle für jede KW.
             */
-            button.addEventListener(
-                "click",
-                () => {
+            for (
+                let week = 1;
+                week <= numberOfWeeks;
+                week++
+            ) {
 
-                    toggleWeekTask(
-                        year,
-                        week,
+                const cell =
+                    document.createElement(
+                        "td"
+                    );
+
+
+                /*
+                 Aktive Aufgaben dieser KW.
+                */
+                const activeTasks =
+                    plan[week] || [];
+
+
+                /*
+                 Prüfen, ob diese Aufgabe
+                 in dieser KW aktiviert ist.
+                */
+                const isActive =
+                    activeTasks.includes(
                         task.id
                     );
 
 
-                    /*
-                     Aktualisierten Plan laden.
-                    */
-                    const updatedPlan =
-                        loadYearPlan(year);
+                /*
+                 Button für die Zelle.
+                */
+                const button =
+                    document.createElement(
+                        "button"
+                    );
 
 
-                    const updatedTasks =
-                        updatedPlan[week] || [];
+                button.type =
+                    "button";
 
 
-                    const nowActive =
-                        updatedTasks.includes(
-                            task.id
-                        );
+                button.className =
+                    "week-task-toggle";
 
 
-                    /*
-                     Button aktualisieren.
-                    */
-                    button.classList.toggle(
-                        "active",
-                        nowActive
+                /*
+                 Aktuellen Zustand anzeigen.
+                */
+                if (isActive) {
+
+                    button.classList.add(
+                        "active"
                     );
 
 
                     button.textContent =
-                        nowActive
-                            ? "✓"
-                            : "";
+                        "✓";
 
+                } else {
 
-                    /*
-                     Fokus entfernen.
-
-                     Besonders auf iPhone/Safari
-                     verhindert das einen optisch
-                     hängenbleibenden Button-Zustand.
-                    */
-                    button.blur();
+                    button.textContent =
+                        "";
                 }
+
+
+                /*
+                 Aufgabe für diese KW
+                 aktivieren / deaktivieren.
+                */
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        toggleWeekTask(
+                            year,
+                            week,
+                            task.id
+                        );
+
+
+                        /*
+                         Aktualisierten Plan laden.
+                        */
+                        const updatedPlan =
+                            loadYearPlan(
+                                year
+                            );
+
+
+                        const updatedTasks =
+                            updatedPlan[week] || [];
+
+
+                        const nowActive =
+                            updatedTasks.includes(
+                                task.id
+                            );
+
+
+                        /*
+                         Button aktualisieren.
+                        */
+                        button.classList.toggle(
+                            "active",
+                            nowActive
+                        );
+
+
+                        button.textContent =
+                            nowActive
+                                ? "✓"
+                                : "";
+
+
+                        /*
+                         Fokus entfernen.
+
+                         Wichtig für Safari / iPhone.
+                        */
+                        button.blur();
+                    }
+                );
+
+
+                cell.appendChild(
+                    button
+                );
+
+
+                row.appendChild(
+                    cell
+                );
+            }
+
+
+            tbody.appendChild(
+                row
             );
+        }
+    );
 
 
-            cell.appendChild(button);
-
-            row.appendChild(cell);
-        });
-
-
-        tbody.appendChild(row);
-    }
+    table.appendChild(
+        tbody
+    );
 
 
-    table.appendChild(tbody);
+    scrollContainer.appendChild(
+        table
+    );
 
-    scrollContainer.appendChild(table);
 
-    editor.appendChild(scrollContainer);
+    editor.appendChild(
+        scrollContainer
+    );
 
-    editView.appendChild(editor);
+
+    editView.appendChild(
+        editor
+    );
 }
 
 
