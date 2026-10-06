@@ -1,55 +1,81 @@
+// js/dashboard.js
+
 import { showView } from "./router.js";
+
+
+/* =========================================================
+   DASHBOARD / KACHEL-NAVIGATION
+   ========================================================= */
+
 export function initDashboard() {
 
-    console.log("✅ initDashboard läuft");
+    /*
+     Alle Kacheln der App suchen.
 
-    const notesTile    = document.querySelector("[data-tile='notes']");
-    const calendarTile = document.querySelector("[data-tile='calendar']");
-    const todoTile     = document.querySelector("[data-tile='todo']");
-    const packlistsTile = document.querySelector("[data-tile='packlists']");
-    const watertestTile =   document.querySelector("[data-tile='watertest']");
-    const backupBtn = document.getElementById("open-backup");
+     Der Wert von data-tile entspricht dabei
+     direkt der Ansicht, die geöffnet werden soll.
 
-    console.log("Dashboard Tiles gefunden:", {
-        notes: !!notesTile,
-        calendar: !!calendarTile,
-        todo: !!todoTile,
-        packlists: !!packlistsTile
-    });
+     Beispiel:
 
-if (!notesTile || !calendarTile || !todoTile || !packlistsTile) {
-    console.error("❌ Mindestens eine Dashboard-Kachel fehlt in DOM");
-    return;
-}
+     data-tile="planner"
+             ↓
+     data-view="planner"
+    */
+    const tiles =
+        document.querySelectorAll(
+            "[data-tile]"
+        );
 
-    notesTile.addEventListener("click", () => {
-        console.log("🟦 Notizen-Kachel geklickt");
-        showView("notes");
-    });
 
-    calendarTile.addEventListener("click", () => {
-        console.log("🟦 Kalender-Kachel geklickt");
-        showView("calendar");
-    });
-    watertestTile.addEventListener("click", () => {
-    console.log("🟦 Wassertest-Kachel geklickt");
-    showView("watertest");
-});
-/* 🆕 Packlisten */
-packlistsTile.addEventListener("click", () => {
-    console.log("🟦 Packlisten-Kachel geklickt");
-    showView("packlists");
-});
-    todoTile.addEventListener("click", () => {
-        console.log("🟦 To-Do-Kachel geklickt");
-        showView("todo");
-    });
-   
-    if (backupBtn) {
-    backupBtn.addEventListener("click", () => {
-        console.log("🟦 Backup geöffnet");
-        showView("backup");
-    });
-}
+    /*
+     Jede gefundene Kachel bekommt
+     automatisch ihre Navigation.
+    */
+    tiles.forEach(
+        tile => {
 
+            tile.addEventListener(
+                "click",
+                () => {
+
+                    const targetView =
+                        tile.dataset.tile;
+
+
+                    if (!targetView) {
+                        return;
+                    }
+
+
+                    showView(
+                        targetView
+                    );
+                }
+            );
+        }
+    );
+
+
+    /* =====================================================
+       BACKUP
+       ===================================================== */
+
+    const backupButton =
+        document.getElementById(
+            "open-backup"
+        );
+
+
+    if (backupButton) {
+
+        backupButton.addEventListener(
+            "click",
+            () => {
+
+                showView(
+                    "backup"
+                );
+            }
+        );
+    }
 }
