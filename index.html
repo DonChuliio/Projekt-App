@@ -17,7 +17,7 @@
 
     <link
         rel="manifest"
-        href="manifest.json?v=1.17"
+        href="manifest.json?v=1.18"
     >
 
     <meta
@@ -32,13 +32,13 @@
 
     <link
         rel="stylesheet"
-        href="style.css?v=1.17"
+        href="style.css?v=1.18"
     >
 
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=1.17"
+        src="js/app.js?v=1.18"
     ></script>
 
     <title>Dock</title>
@@ -286,6 +286,30 @@
     <div data-view="saving" class="hidden">
         <button class="back-button" data-view-back="finances">Zurück</button>
         <h2>Sparen</h2>
+        <div class="loan-calculator">
+            <h3>Trade Republic</h3>
+            <label for="saving-trade-start">Startkapital</label><div class="loan-input-unit"><input id="saving-trade-start" type="number" min="0" step="100" inputmode="decimal" placeholder="0"><span>€</span></div>
+            <label for="saving-trade-monthly">Monatliche Sparrate</label><div class="loan-input-unit"><input id="saving-trade-monthly" type="number" min="0" step="10" inputmode="decimal" placeholder="0"><span>€</span></div>
+
+            <h3>Taures</h3>
+            <label for="saving-taures-start">Startkapital</label><div class="loan-input-unit"><input id="saving-taures-start" type="number" min="0" step="100" inputmode="decimal" placeholder="0"><span>€</span></div>
+            <label for="saving-taures-monthly">Monatliche Sparrate</label><div class="loan-input-unit"><input id="saving-taures-monthly" type="number" min="0" step="10" inputmode="decimal" placeholder="0"><span>€</span></div>
+
+            <h3>Lissy</h3>
+            <label for="saving-lissy-start">Startkapital</label><div class="loan-input-unit"><input id="saving-lissy-start" type="number" min="0" step="100" inputmode="decimal" placeholder="0"><span>€</span></div>
+            <label for="saving-lissy-monthly">Monatliche Sparrate</label><div class="loan-input-unit"><input id="saving-lissy-monthly" type="number" min="0" step="10" inputmode="decimal" placeholder="0"><span>€</span></div>
+
+            <h3>Berechnung</h3>
+            <label for="saving-return">Wertentwicklung pro Jahr</label><div class="loan-input-unit"><input id="saving-return" type="number" min="0" step="0.1" inputmode="decimal" placeholder="6"><span>%</span></div>
+            <label for="saving-years">Zeitraum</label><div class="loan-input-unit"><input id="saving-years" type="number" min="1" step="1" inputmode="numeric" placeholder="20"><span>Jahre</span></div>
+            <p id="saving-error" class="loan-error hidden"></p>
+            <div id="saving-results" class="loan-results hidden">
+                <div class="loan-result-row"><span>Trade Republic</span><strong id="saving-trade-result">–</strong></div>
+                <div class="loan-result-row"><span>Taures</span><strong id="saving-taures-result">–</strong></div>
+                <div class="loan-result-row"><span>Lissy</span><strong id="saving-lissy-result">–</strong></div>
+                <div class="loan-main-result"><span>Gesamtkapital</span><strong id="saving-total-result">–</strong></div>
+            </div>
+        </div>
     </div>
 
     <div data-view="expenses" class="hidden">
