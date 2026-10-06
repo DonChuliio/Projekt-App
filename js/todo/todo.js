@@ -1,11 +1,10 @@
 // js/todo/todo.js
 
-import { loadTodos, addTodo, deleteTodo } from "../data/todo-data.js?v=0.99";
+import { loadTodos, addTodo, deleteTodo } from "../data/todo-data.js?v=1.35";
 
 export function initTodo() {
     initList("a");
     initList("b");
-    initList("c");
 }
 
 async function initList(type) {
