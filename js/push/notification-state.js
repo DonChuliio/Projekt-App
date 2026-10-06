@@ -16,6 +16,10 @@ import {
     getISOWeek,
     getISOWeekYear
 } from "../utils/date.js";
+
+import {
+    loadTodos
+} from "../data/todo-data.js?v=0.93";
 /* =========================================================
    BENACHRICHTIGUNGS-STATUS SYNCHRONISIEREN
    ========================================================= */
@@ -33,8 +37,16 @@ export async function syncNotificationState() {
 
     try {
 
+        /*
+         A-To-Dos liegen inzwischen in Supabase.
+         Deshalb wird die Anzahl nicht mehr aus
+         localStorage gelesen.
+        */
+        const aTodos =
+            await loadTodos("a");
+
         const openA =
-            getOpenATodoCount();
+            aTodos.length;
 
 
         const openWeek =
@@ -111,54 +123,6 @@ export async function syncNotificationState() {
             "Notification State konnte nicht synchronisiert werden:",
             error
         );
-    }
-}
-
-
-/* =========================================================
-   OFFENE A-TODOS
-   ========================================================= */
-
-function getOpenATodoCount() {
-
-    const raw =
-        localStorage.getItem(
-            "todo-a"
-        );
-
-
-    if (!raw) {
-        return 0;
-    }
-
-
-    try {
-
-        const todos =
-            JSON.parse(raw);
-
-
-        if (!Array.isArray(todos)) {
-            return 0;
-        }
-
-
-        /*
-         In deiner aktuellen To-Do-Struktur
-         entspricht jeder vorhandene Eintrag
-         einer offenen Aufgabe.
-        */
-        return todos.length;
-
-
-    } catch (error) {
-
-        console.error(
-            "A-To-Dos konnten nicht gelesen werden:",
-            error
-        );
-
-        return 0;
     }
 }
 
