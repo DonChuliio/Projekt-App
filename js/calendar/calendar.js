@@ -12,6 +12,7 @@ import {
     deleteCalendarTask,
     setCalendarTaskDone
 } from "../data/calendar-data.js?v=0.94";
+import { loadCalendarSettings, saveMonthEndSavingsReminder } from "../data/calendar-settings-data.js?v=1.19";
 
 const WEEK_TASKS = [
     { id: "plants", name: "Pflanzen gießen", shortName: "Pflanzen" },
@@ -134,6 +135,34 @@ async function renderWeekEditor() {
     yearTitle.className = "week-plan-year";
     yearTitle.textContent = `Wochenplan ${year}`;
     editor.appendChild(yearTitle);
+
+    const reminderLabel = document.createElement("label");
+    reminderLabel.className = "month-end-reminder";
+    const reminderCheckbox = document.createElement("input");
+    reminderCheckbox.type = "checkbox";
+    const reminderText = document.createElement("span");
+    reminderText.textContent = "Monatsende – Sparkonto Überschuss überweisen (09:00 Uhr)";
+    reminderLabel.append(reminderCheckbox, reminderText);
+    editor.appendChild(reminderLabel);
+
+    try {
+        const settings = await loadCalendarSettings();
+        reminderCheckbox.checked = settings?.month_end_savings_reminder === true;
+    } catch (error) {
+        console.log("Kalender-Einstellung noch nicht geladen:", error.message);
+    }
+
+    reminderCheckbox.addEventListener("change", async () => {
+        reminderCheckbox.disabled = true;
+        try {
+            await saveMonthEndSavingsReminder(reminderCheckbox.checked);
+        } catch (error) {
+            console.error("Monatsende-Erinnerung konnte nicht gespeichert werden:", error);
+            reminderCheckbox.checked = !reminderCheckbox.checked;
+        } finally {
+            reminderCheckbox.disabled = false;
+        }
+    });
 
     const scrollContainer = document.createElement("div");
     scrollContainer.className = "week-plan-scroll";
