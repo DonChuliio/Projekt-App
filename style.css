@@ -941,3 +941,51 @@ html, body {
 .watertest-overview-table tbody th:first-child {
     white-space: nowrap;
 }
+
+
+/* =========================================================
+   AUTH / LOGIN
+   ========================================================= */
+
+.auth-view {
+    min-height: calc(100vh - 32px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-view.hidden {
+    display: none;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 360px;
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+}
+
+.auth-card h1 {
+    margin-bottom: 4px;
+}
+
+.auth-subtitle,
+.auth-status {
+    color: var(--text-muted);
+}
+
+#login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#login-form input {
+    margin-top: 0;
+}
+
+#login-form button {
+    width: 100%;
+}
