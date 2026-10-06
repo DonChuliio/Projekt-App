@@ -873,3 +873,36 @@ html, body {
 .dashboard-title .backup-btn {
     margin: 0;
 }
+/* =========================================================
+   WOCHENPLAN – FESTE AUFGABENSPALTE
+   ========================================================= */
+
+/*
+ Die erste Spalte bleibt beim horizontalen
+ Scrollen links stehen.
+*/
+.week-plan-table th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+
+    background: var(--surface);
+}
+
+
+/*
+ Die linke obere Ecke ("Aufgabe") liegt
+ zusätzlich über dem Tabellenkopf.
+*/
+.week-plan-table thead th:first-child {
+    z-index: 3;
+}
+
+
+/*
+ Verhindert, dass der Aufgabenname
+ auf mehrere Zeilen umbricht.
+*/
+.week-plan-table tbody th:first-child {
+    white-space: nowrap;
+}
