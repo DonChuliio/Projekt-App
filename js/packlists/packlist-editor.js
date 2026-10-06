@@ -26,29 +26,11 @@ export async function initPacklistEditor() {
     packlist.buckets ||= [];
     document.getElementById("packlist-edit-title").textContent = packlist.name;
 
-    const toolbar = document.createElement("div");
-    toolbar.className = "packlist-editor-toolbar";
-
-    const deleteButton = document.createElement("button");
-    deleteButton.type = "button";
-    deleteButton.className = "packlist-icon-button packlist-delete-button";
-    deleteButton.textContent = "×";
-    deleteButton.setAttribute("aria-label", "Packliste löschen");
-    deleteButton.title = "Packliste löschen";
-    deleteButton.onclick = async () => {
-        if (!confirm("Packliste wirklich löschen?")) return;
-        await deletePacklist(packlist.id);
-        await renderPacklists();
-        showView("packlists");
-    };
-
-    toolbar.appendChild(deleteButton);
-
     if (packlist.buckets.length < 5) {
         const addBucketButton = document.createElement("button");
         addBucketButton.type = "button";
-        addBucketButton.className = "packlist-icon-button";
-        addBucketButton.textContent = "+";
+        addBucketButton.className = "packlist-add-bucket";
+        addBucketButton.textContent = "+ Bucket";
         addBucketButton.setAttribute("aria-label", "Bucket hinzufügen");
         addBucketButton.title = "Bucket hinzufügen";
 
@@ -70,10 +52,8 @@ export async function initPacklistEditor() {
             bucketInputs[bucketInputs.length - 1]?.focus();
         };
 
-        toolbar.appendChild(addBucketButton);
+        content.appendChild(addBucketButton);
     }
-
-    content.appendChild(toolbar);
 
     for (const bucket of packlist.buckets) {
         bucket.items ||= [];
@@ -116,7 +96,33 @@ export async function initPacklistEditor() {
             });
         };
 
-        header.append(toggle, title);
+        const deleteBucket = document.createElement("button");
+        deleteBucket.type = "button";
+        deleteBucket.className = "packlist-bucket-delete";
+        deleteBucket.textContent = "×";
+        deleteBucket.setAttribute("aria-label", "Bucket löschen");
+        deleteBucket.title = "Bucket löschen";
+
+        deleteBucket.onclick = async () => {
+            if (!confirm("Bucket wirklich löschen?")) return;
+
+            const itemIds = new Set(bucket.items.map(item => item.id));
+            packlist.buckets = packlist.buckets.filter(
+                currentBucket => currentBucket.id !== bucket.id
+            );
+            packlist.progress = (packlist.progress || []).filter(
+                itemId => !itemIds.has(itemId)
+            );
+
+            await updatePacklist(packlist.id, {
+                buckets: packlist.buckets,
+                progress: packlist.progress
+            });
+
+            await initPacklistEditor();
+        };
+
+        header.append(toggle, title, deleteBucket);
         section.appendChild(header);
 
         if (!bucket.collapsed) {
