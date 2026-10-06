@@ -1,20 +1,208 @@
 import { showView } from "../router.js";
 import { loadPacklist, updatePacklist, deletePacklist } from "../data/packlist-data.js?v=0.97";
 import { renderPacklists } from "./packlists.js?v=0.97";
-function id(){return sessionStorage.getItem("active-packlist-id");}
-export async function initPacklistEditor(){
- const c=document.getElementById("packlist-edit-content");if(!c)return;c.innerHTML="";
- let p;try{p=await loadPacklist(id());}catch(e){console.error(e);return;}if(!p)return;p.buckets ||= [];
- document.getElementById("packlist-edit-title").textContent=p.name;
- const del=document.createElement("button");del.textContent="Packliste löschen";del.onclick=async()=>{if(!confirm("Packliste wirklich löschen?"))return;await deletePacklist(p.id);await renderPacklists();showView("packlists");};c.appendChild(del);
- if(p.buckets.length<5){const add=document.createElement("button");add.textContent="Bucket hinzufügen";add.onclick=async()=>{p.buckets.push({id:crypto.randomUUID(),name:"Neuer Bucket",collapsed:false,items:[]});await updatePacklist(p.id,{buckets:p.buckets});await initPacklistEditor();};c.appendChild(add);}
- for(const b of p.buckets){
-  const s=document.createElement("section"), title=document.createElement("input"), toggle=document.createElement("button");
-  title.value=b.name;title.onchange=async()=>{b.name=title.value;await updatePacklist(p.id,{buckets:p.buckets});};
-  toggle.textContent=b.collapsed?">":"v";toggle.onclick=async()=>{b.collapsed=!b.collapsed;await updatePacklist(p.id,{buckets:p.buckets});await initPacklistEditor();};
-  s.append(toggle,title);
-  if(!b.collapsed){for(const item of (b.items||[])){const row=document.createElement("div");row.textContent=item.text;const x=document.createElement("button");x.textContent="Löschen";x.onclick=async()=>{b.items=b.items.filter(i=>i.id!==item.id);p.progress=(p.progress||[]).filter(i=>i!==item.id);await updatePacklist(p.id,{buckets:p.buckets,progress:p.progress});await initPacklistEditor();};row.appendChild(x);s.appendChild(row);}
-   const addItem=document.createElement("button");addItem.textContent="Item hinzufügen";addItem.onclick=async()=>{const text=prompt("Item:")?.trim();if(!text)return;b.items ||= [];b.items.push({id:crypto.randomUUID(),text});await updatePacklist(p.id,{buckets:p.buckets});await initPacklistEditor();};s.appendChild(addItem);}
-  c.appendChild(s);
- }
+
+function id() {
+    return sessionStorage.getItem("active-packlist-id");
+}
+
+export async function initPacklistEditor() {
+    const content = document.getElementById("packlist-edit-content");
+    if (!content) return;
+
+    content.innerHTML = "";
+
+    let packlist;
+
+    try {
+        packlist = await loadPacklist(id());
+    } catch (error) {
+        console.error(error);
+        return;
+    }
+
+    if (!packlist) return;
+
+    packlist.buckets ||= [];
+    document.getElementById("packlist-edit-title").textContent = packlist.name;
+
+    const toolbar = document.createElement("div");
+    toolbar.className = "packlist-editor-toolbar";
+
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "packlist-icon-button packlist-delete-button";
+    deleteButton.textContent = "×";
+    deleteButton.setAttribute("aria-label", "Packliste löschen");
+    deleteButton.title = "Packliste löschen";
+    deleteButton.onclick = async () => {
+        if (!confirm("Packliste wirklich löschen?")) return;
+        await deletePacklist(packlist.id);
+        await renderPacklists();
+        showView("packlists");
+    };
+
+    toolbar.appendChild(deleteButton);
+
+    if (packlist.buckets.length < 5) {
+        const addBucketButton = document.createElement("button");
+        addBucketButton.type = "button";
+        addBucketButton.className = "packlist-icon-button";
+        addBucketButton.textContent = "+";
+        addBucketButton.setAttribute("aria-label", "Bucket hinzufügen");
+        addBucketButton.title = "Bucket hinzufügen";
+
+        addBucketButton.onclick = async () => {
+            packlist.buckets.push({
+                id: crypto.randomUUID(),
+                name: "",
+                collapsed: false,
+                items: []
+            });
+
+            await updatePacklist(packlist.id, {
+                buckets: packlist.buckets
+            });
+
+            await initPacklistEditor();
+
+            const bucketInputs = content.querySelectorAll(".packlist-bucket-name");
+            bucketInputs[bucketInputs.length - 1]?.focus();
+        };
+
+        toolbar.appendChild(addBucketButton);
+    }
+
+    content.appendChild(toolbar);
+
+    for (const bucket of packlist.buckets) {
+        bucket.items ||= [];
+
+        const section = document.createElement("section");
+        section.className = "packlist-bucket-editor";
+
+        const header = document.createElement("div");
+        header.className = "packlist-bucket-header";
+
+        const toggle = document.createElement("button");
+        toggle.type = "button";
+        toggle.className = "packlist-bucket-toggle";
+        toggle.textContent = bucket.collapsed ? ">" : "v";
+        toggle.setAttribute(
+            "aria-label",
+            bucket.collapsed ? "Bucket aufklappen" : "Bucket zuklappen"
+        );
+
+        toggle.onclick = async () => {
+            bucket.collapsed = !bucket.collapsed;
+
+            await updatePacklist(packlist.id, {
+                buckets: packlist.buckets
+            });
+
+            await initPacklistEditor();
+        };
+
+        const title = document.createElement("input");
+        title.className = "packlist-bucket-name";
+        title.value = bucket.name;
+        title.placeholder = "Bucketname";
+
+        title.onchange = async () => {
+            bucket.name = title.value.trim();
+
+            await updatePacklist(packlist.id, {
+                buckets: packlist.buckets
+            });
+        };
+
+        header.append(toggle, title);
+        section.appendChild(header);
+
+        if (!bucket.collapsed) {
+            const items = document.createElement("div");
+            items.className = "packlist-editor-items";
+
+            for (const item of bucket.items) {
+                const row = document.createElement("div");
+                row.className = "packlist-editor-item";
+
+                const text = document.createElement("span");
+                text.textContent = item.text;
+
+                const remove = document.createElement("button");
+                remove.type = "button";
+                remove.className = "packlist-item-delete";
+                remove.textContent = "×";
+                remove.setAttribute("aria-label", "Item löschen");
+
+                remove.onclick = async () => {
+                    bucket.items = bucket.items.filter(
+                        currentItem => currentItem.id !== item.id
+                    );
+
+                    packlist.progress = (packlist.progress || []).filter(
+                        itemId => itemId !== item.id
+                    );
+
+                    await updatePacklist(packlist.id, {
+                        buckets: packlist.buckets,
+                        progress: packlist.progress
+                    });
+
+                    await initPacklistEditor();
+                };
+
+                row.append(text, remove);
+                items.appendChild(row);
+            }
+
+            const addRow = document.createElement("div");
+            addRow.className = "packlist-add-item-row";
+
+            const addItemButton = document.createElement("button");
+            addItemButton.type = "button";
+            addItemButton.className = "packlist-icon-button";
+            addItemButton.textContent = "+";
+            addItemButton.setAttribute("aria-label", "Item hinzufügen");
+
+            const itemInput = document.createElement("input");
+            itemInput.type = "text";
+            itemInput.placeholder = "Neues Item";
+            itemInput.className = "packlist-new-item";
+
+            async function addItem() {
+                const text = itemInput.value.trim();
+                if (!text) {
+                    itemInput.focus();
+                    return;
+                }
+
+                bucket.items.push({
+                    id: crypto.randomUUID(),
+                    text
+                });
+
+                await updatePacklist(packlist.id, {
+                    buckets: packlist.buckets
+                });
+
+                await initPacklistEditor();
+            }
+
+            addItemButton.onclick = addItem;
+            itemInput.addEventListener("keydown", event => {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    addItem();
+                }
+            });
+
+            addRow.append(addItemButton, itemInput);
+            items.appendChild(addRow);
+            section.appendChild(items);
+        }
+
+        content.appendChild(section);
+    }
 }
