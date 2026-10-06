@@ -1404,3 +1404,11 @@ html, body {
 
 /* v1.27 – Monatsanpassungen */
 .overview-adjust-input{display:flex;align-items:center;gap:8px;max-width:150px}.overview-adjust-input input{width:105px;margin:0;text-align:right}.overview-adjust-input span{min-width:auto}.overview-save{width:100%;margin:10px 0 4px}
+
+
+/* v1.33 – Packlisten: geöffneter Bucket bleibt hervorgehoben */
+.bucket-toggle.open {
+    background: var(--petrol);
+    border-color: var(--petrol);
+    color: #fff;
+}
