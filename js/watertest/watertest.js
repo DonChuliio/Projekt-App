@@ -1,7 +1,10 @@
 // js/watertest/watertest.js
 
 import { showView } from "../router.js";
-
+import {
+    getISOWeek,
+    getISOWeekYear
+} from "../utils/date.js";
 
 /*
  =========================================================
@@ -1280,86 +1283,5 @@ function renderCurrentWeekTitle() {
 }
 
 
-/*
- =========================================================
- ISO-KALENDERWOCHE
- =========================================================
-*/
-
-function getISOWeek(date) {
-
-    const tempDate =
-        new Date(
-            Date.UTC(
-                date.getFullYear(),
-                date.getMonth(),
-                date.getDate()
-            )
-        );
 
 
-    const dayNumber =
-        tempDate.getUTCDay() || 7;
-
-
-    tempDate.setUTCDate(
-        tempDate.getUTCDate()
-        + 4
-        - dayNumber
-    );
-
-
-    const yearStart =
-        new Date(
-            Date.UTC(
-                tempDate.getUTCFullYear(),
-                0,
-                1
-            )
-        );
-
-
-    return Math.ceil(
-        (
-            (
-                (tempDate - yearStart)
-                / 86400000
-            )
-            + 1
-        )
-        / 7
-    );
-}
-
-
-/*
- =========================================================
- ISO-JAHR
- =========================================================
-*/
-
-function getISOWeekYear(date) {
-
-    const tempDate =
-        new Date(
-            Date.UTC(
-                date.getFullYear(),
-                date.getMonth(),
-                date.getDate()
-            )
-        );
-
-
-    const dayNumber =
-        tempDate.getUTCDay() || 7;
-
-
-    tempDate.setUTCDate(
-        tempDate.getUTCDate()
-        + 4
-        - dayNumber
-    );
-
-
-    return tempDate.getUTCFullYear();
-}
