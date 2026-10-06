@@ -1,116 +1,20 @@
 import { showView } from "../router.js";
-
-const STORAGE_KEY = "packlists";
-
-function loadPacklists() {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-}
-
-function savePacklists(packlists) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(packlists));
-}
-
-function getActivePacklist() {
-    const id = localStorage.getItem("active-packlist-id");
-    return loadPacklists().find(p => p.id === id);
-}
-
-function saveActivePacklist(updated) {
-    const packlists = loadPacklists().map(p =>
-        p.id === updated.id ? updated : p
-    );
-    savePacklists(packlists);
-}
-
-export function initPacklistEditor() {
-    const container = document.getElementById("packlist-edit-content");
-    if (!container) return;
-
-    container.innerHTML = "";
-
-    const packlist = getActivePacklist();
-    if (!packlist) return;
-
-    packlist.buckets ||= [];
-
-    /* 🔴 Löschen */
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "🗑 Packliste löschen";
-    deleteBtn.addEventListener("click", () => {
-        if (!confirm("Packliste wirklich löschen?")) return;
-        const remaining = loadPacklists().filter(p => p.id !== packlist.id);
-        savePacklists(remaining);
-        showView("packlists");
-    });
-    container.appendChild(deleteBtn);
-
-    /* ➕ Bucket hinzufügen */
-    if (packlist.buckets.length < 5) {
-        const addBucket = document.createElement("button");
-        addBucket.textContent = "➕ Bucket hinzufügen";
-        addBucket.onclick = () => {
-            packlist.buckets.push({
-                id: Date.now().toString(),
-                name: "Neuer Bucket",
-                collapsed: false,
-                items: []
-            });
-            saveActivePacklist(packlist);
-            initPacklistEditor();
-        };
-        container.appendChild(addBucket);
-    }
-
-    /* Buckets rendern */
-    packlist.buckets.forEach(bucket => {
-        const section = document.createElement("section");
-
-        const title = document.createElement("input");
-        title.value = bucket.name;
-        title.onchange = () => {
-            bucket.name = title.value;
-            saveActivePacklist(packlist);
-        };
-
-        const toggle = document.createElement("button");
-        toggle.textContent = bucket.collapsed ? "▶" : "▼";
-        toggle.onclick = () => {
-            bucket.collapsed = !bucket.collapsed;
-            saveActivePacklist(packlist);
-            initPacklistEditor();
-        };
-
-        section.append(toggle, title);
-
-        if (!bucket.collapsed) {
-            bucket.items.forEach(item => {
-                const row = document.createElement("div");
-                row.textContent = item.text;
-
-                const del = document.createElement("button");
-                del.textContent = "✖";
-                del.onclick = () => {
-                    bucket.items = bucket.items.filter(i => i.id !== item.id);
-                    saveActivePacklist(packlist);
-                    initPacklistEditor();
-                };
-
-                row.appendChild(del);
-                section.appendChild(row);
-            });
-
-            const addItem = document.createElement("button");
-            addItem.textContent = "➕ Item";
-            addItem.onclick = () => {
-                const text = prompt("Item:");
-                if (!text) return;
-                bucket.items.push({ id: Date.now().toString(), text });
-                saveActivePacklist(packlist);
-                initPacklistEditor();
-            };
-            section.appendChild(addItem);
-        }
-
-        container.appendChild(section);
-    });
+import { loadPacklist, updatePacklist, deletePacklist } from "../data/packlist-data.js?v=0.97";
+import { renderPacklists } from "./packlists.js?v=0.97";
+function id(){return sessionStorage.getItem("active-packlist-id");}
+export async function initPacklistEditor(){
+ const c=document.getElementById("packlist-edit-content");if(!c)return;c.innerHTML="";
+ let p;try{p=await loadPacklist(id());}catch(e){console.error(e);return;}if(!p)return;p.buckets ||= [];
+ document.getElementById("packlist-edit-title").textContent=p.name;
+ const del=document.createElement("button");del.textContent="Packliste löschen";del.onclick=async()=>{if(!confirm("Packliste wirklich löschen?"))return;await deletePacklist(p.id);await renderPacklists();showView("packlists");};c.appendChild(del);
+ if(p.buckets.length<5){const add=document.createElement("button");add.textContent="Bucket hinzufügen";add.onclick=async()=>{p.buckets.push({id:crypto.randomUUID(),name:"Neuer Bucket",collapsed:false,items:[]});await updatePacklist(p.id,{buckets:p.buckets});await initPacklistEditor();};c.appendChild(add);}
+ for(const b of p.buckets){
+  const s=document.createElement("section"), title=document.createElement("input"), toggle=document.createElement("button");
+  title.value=b.name;title.onchange=async()=>{b.name=title.value;await updatePacklist(p.id,{buckets:p.buckets});};
+  toggle.textContent=b.collapsed?">":"v";toggle.onclick=async()=>{b.collapsed=!b.collapsed;await updatePacklist(p.id,{buckets:p.buckets});await initPacklistEditor();};
+  s.append(toggle,title);
+  if(!b.collapsed){for(const item of (b.items||[])){const row=document.createElement("div");row.textContent=item.text;const x=document.createElement("button");x.textContent="Löschen";x.onclick=async()=>{b.items=b.items.filter(i=>i.id!==item.id);p.progress=(p.progress||[]).filter(i=>i!==item.id);await updatePacklist(p.id,{buckets:p.buckets,progress:p.progress});await initPacklistEditor();};row.appendChild(x);s.appendChild(row);}
+   const addItem=document.createElement("button");addItem.textContent="Item hinzufügen";addItem.onclick=async()=>{const text=prompt("Item:")?.trim();if(!text)return;b.items ||= [];b.items.push({id:crypto.randomUUID(),text});await updatePacklist(p.id,{buckets:p.buckets});await initPacklistEditor();};s.appendChild(addItem);}
+  c.appendChild(s);
+ }
 }
