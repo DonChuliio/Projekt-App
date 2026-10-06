@@ -1,7 +1,6 @@
 // js/calendar/calendar.js
 
 import { showView } from "../router.js";
-import { syncNotificationState } from "../push/notification-state.js?v=0.98";
 import {
     getISOWeek,
     getISOWeekYear,
@@ -99,7 +98,6 @@ async function renderCurrentWeek() {
             try {
                 await setCalendarTaskDone(row.id, !row.done);
                 await renderCurrentWeek();
-                await syncNotificationState();
             } catch (error) {
                 console.error("Kalender-Aufgabe konnte nicht geändert werden:", error);
                 li.style.pointerEvents = "";
