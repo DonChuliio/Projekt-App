@@ -7,6 +7,8 @@ import {
     SUPABASE_KEY
 } from "../config/supabase.js";
 
+import { getSession, getAccessToken } from "../auth/auth.js";
+
 
 const VAPID_PUBLIC_KEY =
     "BGK06tFp_McKbIERoqB3Vm-rYyF83BFnKSCqwICBswnZslLXpspVFZYdsWoVZJib4YoAGZ_eFwsODALJ7p_xU44";
@@ -197,39 +199,34 @@ async function enablePushNotifications() {
    SUBSCRIPTION SPEICHERN
    ========================================================= */
 
-async function saveSubscriptionToSupabase(
-    subscription
-) {
+async function saveSubscriptionToSupabase(subscription) {
+    const accessToken = getAccessToken();
+    const userId = getSession()?.user?.id;
 
-    const response =
-        await fetch(
-            `${SUPABASE_URL}/rest/v1/push_subscriptions`,
-            {
-                method: "POST",
+    if (!accessToken || !userId) {
+        throw new Error("Für Push ist eine aktive Anmeldung erforderlich.");
+    }
 
-                headers: {
-                    "apikey":
-                        SUPABASE_KEY,
-
-                    "Content-Type":
-                        "application/json"
-                },
-
-                body:
-                    JSON.stringify(
-                        subscription
-                    )
-            }
-        );
-
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/push_subscriptions?on_conflict=endpoint`,
+        {
+            method: "POST",
+            headers: {
+                "apikey": SUPABASE_KEY,
+                "Authorization": `Bearer ${accessToken}`,
+                "Content-Type": "application/json",
+                "Prefer": "resolution=merge-duplicates,return=minimal"
+            },
+            body: JSON.stringify({
+                ...subscription,
+                user_id: userId
+            })
+        }
+    );
 
     if (!response.ok) {
-
-        const text =
-            await response.text();
-
         throw new Error(
-            `Supabase Fehler ${response.status}: ${text}`
+            `Supabase Fehler ${response.status}: ${await response.text()}`
         );
     }
 }
