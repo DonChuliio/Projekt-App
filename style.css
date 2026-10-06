@@ -848,9 +848,13 @@ html, body {
    DASHBOARD KOPFZEILE
    ========================================================= */
 
+/* =========================================================
+   DASHBOARD KOPFZEILE
+   ========================================================= */
+
 .dashboard-title {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 12px;
 }
 
@@ -859,7 +863,11 @@ html, body {
 }
 
 .dashboard-title .app-version {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     margin: 0;
+    line-height: 1;
 }
 
 .dashboard-title .backup-btn {
