@@ -17,7 +17,7 @@
 
     <link
         rel="manifest"
-        href="manifest.json?v=1.11"
+        href="manifest.json?v=1.12"
     >
 
     <meta
@@ -32,13 +32,13 @@
 
     <link
         rel="stylesheet"
-        href="style.css?v=1.11"
+        href="style.css?v=1.12"
     >
 
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=1.11"
+        src="js/app.js?v=1.12"
     ></script>
 
     <title>Dock</title>
@@ -242,7 +242,7 @@
          ================================================== -->
 
     <div data-view="red-folder" class="hidden">
-        <button class="back-button" data-view-back="planner">Zurück</button>
+        <button class="back-button" data-view-back="notes">Zurück</button>
         <h2>Roter Ordner</h2>
         <textarea class="simple-note-field" data-text-key="red-folder" placeholder="Hier schreiben..."></textarea>
     </div>
@@ -356,7 +356,7 @@
          ================================================== -->
 
     <div data-view="wishes" class="hidden">
-        <button class="back-button" data-view-back="planner">Zurück</button>
+        <button class="back-button" data-view-back="notes">Zurück</button>
         <h2>Wünsche</h2>
         <div class="tiles">
             <div class="tile" data-tile="wishes-me">Ich</div>
@@ -395,7 +395,7 @@
          ================================================== -->
 
     <div data-view="recommendations" class="hidden">
-        <button class="back-button" data-view-back="planner">Zurück</button>
+        <button class="back-button" data-view-back="notes">Zurück</button>
         <h2>Empfehlungen</h2>
         <div class="tiles">
             <div class="tile" data-tile="movies-series">Filme / Serien</div>
@@ -831,4 +831,29 @@
 
 </body>
 
-</html>
+</html><div class="tiles">
+            <div class="tile" data-tile="todo">To-Do</div>
+            <div class="tile" data-tile="calendar">Kalender</div>
+        </div><!-- ==================================================
+         NOTIZEN
+         ================================================== -->
+
+    <div data-view="notes" class="hidden">
+        <button class="back-button" data-view-back="dashboard">Zurück</button>
+        <h2>Notizen</h2>
+        <div class="tiles">
+            <div class="tile" data-tile="general-note">Allgemein</div>
+            <div class="tile" data-tile="wishes">Wünsche</div>
+            <div class="tile" data-tile="recommendations">Empfehlungen</div>
+            <div class="tile" data-tile="red-folder">Roter Ordner</div>
+        </div>
+    </div>
+
+    <div data-view="general-note" class="hidden">
+        <button class="back-button" data-view-back="notes">Zurück</button>
+        <h2>Allgemein</h2>
+        <textarea id="note" placeholder="Schreibe hier deine Notiz..."></textarea>
+    </div>
+
+
+    
