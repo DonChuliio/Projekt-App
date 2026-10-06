@@ -17,7 +17,7 @@
 
     <link
         rel="manifest"
-        href="manifest.json?v=1.02"
+        href="manifest.json?v=1.03"
     >
 
     <meta
@@ -38,7 +38,7 @@
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=1.02"
+        src="js/app.js?v=1.03"
     ></script>
 
     <title>Dock</title>
@@ -140,6 +140,13 @@
 
             <div
                 class="tile"
+                data-tile="finances"
+            >
+                Finanzen
+            </div>
+
+            <div
+                class="tile"
                 data-tile="hobby"
             >
                 Hobby
@@ -193,6 +200,20 @@
                 Kalender
             </div>
 
+            <div
+                class="tile"
+                data-tile="wishes"
+            >
+                Wünsche
+            </div>
+
+            <div
+                class="tile"
+                data-tile="recommendations"
+            >
+                Empfehlungen
+            </div>
+
         </div>
 
     </div>
@@ -226,6 +247,12 @@
             >
                 Aquaristik
             </div>
+
+            <div class="tile" data-tile="mtg">MTG</div>
+
+            <div class="tile" data-tile="fishing">Angeln</div>
+
+            <div class="tile" data-tile="fitness">Fitness</div>
 
         </div>
 
@@ -263,6 +290,114 @@
 
         </div>
 
+    </div>
+
+
+
+    <!-- ==================================================
+         FINANZEN
+         ================================================== -->
+
+    <div data-view="finances" class="hidden">
+        <button class="back-button" data-view-back="dashboard">Zurück</button>
+        <h2>Finanzen</h2>
+        <div class="tiles">
+            <div class="tile" data-tile="saving">Sparen</div>
+            <div class="tile" data-tile="expenses">Ausgaben</div>
+            <div class="tile" data-tile="house-calculator">Hausrechner</div>
+        </div>
+    </div>
+
+    <div data-view="saving" class="hidden">
+        <button class="back-button" data-view-back="finances">Zurück</button>
+        <h2>Sparen</h2>
+    </div>
+
+    <div data-view="expenses" class="hidden">
+        <button class="back-button" data-view-back="finances">Zurück</button>
+        <h2>Ausgaben</h2>
+    </div>
+
+    <div data-view="house-calculator" class="hidden">
+        <button class="back-button" data-view-back="finances">Zurück</button>
+        <h2>Hausrechner</h2>
+    </div>
+
+    <!-- ==================================================
+         WÜNSCHE
+         ================================================== -->
+
+    <div data-view="wishes" class="hidden">
+        <button class="back-button" data-view-back="planner">Zurück</button>
+        <h2>Wünsche</h2>
+        <div class="tiles">
+            <div class="tile" data-tile="wishes-me">Ich</div>
+            <div class="tile" data-tile="wishes-lissy">Lissy</div>
+            <div class="tile" data-tile="wishes-family">Family</div>
+            <div class="tile" data-tile="wishes-boys">Jungs</div>
+        </div>
+    </div>
+
+    <div data-view="wishes-me" class="hidden">
+        <button class="back-button" data-view-back="wishes">Zurück</button>
+        <h2>Wünsche – Ich</h2>
+    </div>
+
+    <div data-view="wishes-lissy" class="hidden">
+        <button class="back-button" data-view-back="wishes">Zurück</button>
+        <h2>Wünsche – Lissy</h2>
+    </div>
+
+    <div data-view="wishes-family" class="hidden">
+        <button class="back-button" data-view-back="wishes">Zurück</button>
+        <h2>Wünsche – Family</h2>
+    </div>
+
+    <div data-view="wishes-boys" class="hidden">
+        <button class="back-button" data-view-back="wishes">Zurück</button>
+        <h2>Wünsche – Jungs</h2>
+    </div>
+
+    <!-- ==================================================
+         EMPFEHLUNGEN
+         ================================================== -->
+
+    <div data-view="recommendations" class="hidden">
+        <button class="back-button" data-view-back="planner">Zurück</button>
+        <h2>Empfehlungen</h2>
+        <div class="tiles">
+            <div class="tile" data-tile="movies-series">Filme / Serien</div>
+            <div class="tile" data-tile="recommendations-other">Sonstiges</div>
+        </div>
+    </div>
+
+    <div data-view="movies-series" class="hidden">
+        <button class="back-button" data-view-back="recommendations">Zurück</button>
+        <h2>Filme / Serien</h2>
+    </div>
+
+    <div data-view="recommendations-other" class="hidden">
+        <button class="back-button" data-view-back="recommendations">Zurück</button>
+        <h2>Sonstiges</h2>
+    </div>
+
+    <!-- ==================================================
+         WEITERE HOBBYS
+         ================================================== -->
+
+    <div data-view="mtg" class="hidden">
+        <button class="back-button" data-view-back="hobby">Zurück</button>
+        <h2>MTG</h2>
+    </div>
+
+    <div data-view="fishing" class="hidden">
+        <button class="back-button" data-view-back="hobby">Zurück</button>
+        <h2>Angeln</h2>
+    </div>
+
+    <div data-view="fitness" class="hidden">
+        <button class="back-button" data-view-back="hobby">Zurück</button>
+        <h2>Fitness</h2>
     </div>
 
 
