@@ -38,7 +38,7 @@
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=0.81"
+        src="js/app.js?v=0.82"
     ></script>
 
     <title>Projekt App</title>
@@ -79,10 +79,10 @@
 
 
             <button
-                id="open-backup"
+                id="open-settings"
                 class="backup-btn"
             >
-                Backup
+                Einstellungen
             </button>
 
         </div>
@@ -574,44 +574,79 @@
 
 
     <!-- ==================================================
-         BACKUP / SYNCHRONISATION
+         EINSTELLUNGEN
          ================================================== -->
 
     <div
-        data-view="backup"
+        data-view="settings"
         class="hidden"
     >
 
         <button
             class="back-button"
-            data-back
+            data-view-back="dashboard"
         >
             Zurück
         </button>
 
 
-        <h2>
-            Synchronisation & Backup
-        </h2>
+        <h2>Einstellungen</h2>
 
 
-        <p id="backup-status">
-            Letztes Backup: nie
-        </p>
+        <!-- ==============================================
+             BENACHRICHTIGUNGEN
+             ============================================== -->
+
+        <section>
+
+            <h3>Benachrichtigungen</h3>
 
 
-        <div class="backup-actions">
+            <p id="push-status">
+                Status wird geprüft...
+            </p>
 
-            <button id="backup-export">
-                Backup exportieren
+
+            <button id="push-enable">
+                Benachrichtigungen aktivieren
             </button>
 
 
-            <button id="backup-import">
-                Backup importieren
+            <button id="push-test">
+                Test-Benachrichtigung
             </button>
 
-        </div>
+        </section>
+
+
+        <!-- ==============================================
+             BACKUP
+             ============================================== -->
+
+        <section>
+
+            <h3>Backup</h3>
+
+
+            <p id="backup-status">
+                Letztes Backup: nie
+            </p>
+
+
+            <div class="backup-actions">
+
+                <button id="backup-export">
+                    Backup exportieren
+                </button>
+
+
+                <button id="backup-import">
+                    Backup importieren
+                </button>
+
+            </div>
+
+        </section>
 
     </div>
 
