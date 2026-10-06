@@ -1,16 +1,16 @@
 // js/app.js
 
 import { initDashboard } from "./dashboard.js";
-import { initNotes } from "./notes/notes.js?v=0.98";
-import { initCalendar } from "./calendar/calendar.js?v=0.98";
+import { initNotes } from "./notes/notes.js?v=0.99";
+import { initCalendar } from "./calendar/calendar.js?v=0.99";
 import { showView, goToDashboard } from "./router.js";
-import { initTodo } from "./todo/todo.js?v=0.98";
+import { initTodo } from "./todo/todo.js?v=0.99";
 import { initBackup } from "./backup/backup.js";
-import { initPacklists } from "./packlists/packlists.js?v=0.98";
-import { initPacklistEditor } from "./packlists/packlist-editor.js?v=0.98";
-import { initPacklistRun } from "./packlists/packlist-run.js?v=0.98";
-import { initWatertest } from "./watertest/watertest.js?v=0.98";
-import { initPush } from "./push/push.js?v=0.98";
+import { initPacklists } from "./packlists/packlists.js?v=0.99";
+import { initPacklistEditor } from "./packlists/packlist-editor.js?v=0.99";
+import { initPacklistRun } from "./packlists/packlist-run.js?v=0.99";
+import { initWatertest } from "./watertest/watertest.js?v=0.99";
+import { initPush } from "./push/push.js?v=0.99";
 import { initAuth } from "./auth/auth-view.js";
 /*
  Einstiegspunkt der App.
@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("✅ app.js geladen");
 
 // Versionsnummer direkt aus der URL von app.js lesen.
-// Beispiel: js/app.js?v=0.98 → Version 0.36
+// Beispiel: js/app.js?v=0.99 → Version 0.36
 
 const appScript = document.getElementById("app-script");
 const scriptUrl = new URL(appScript.src);
