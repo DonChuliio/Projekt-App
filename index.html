@@ -17,7 +17,7 @@
 
     <link
         rel="manifest"
-        href="manifest.json?v=1.12"
+        href="manifest.json?v=1.13"
     >
 
     <meta
@@ -32,13 +32,13 @@
 
     <link
         rel="stylesheet"
-        href="style.css?v=1.12"
+        href="style.css?v=1.13"
     >
 
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=1.12"
+        src="js/app.js?v=1.13"
     ></script>
 
     <title>Dock</title>
@@ -171,69 +171,16 @@
          PLANER
          ================================================== -->
 
-    <div
-        data-view="planner"
-        class="hidden"
-    >
-
-        <button
-            class="back-button"
-            data-view-back="dashboard"
-        >
-            Zurück
-        </button>
-
-
+    <div data-view="planner" class="hidden">
+        <button class="back-button" data-view-back="dashboard">Zurück</button>
         <h2>Planer</h2>
-
-
         <div class="tiles">
-
-            <div
-                class="tile"
-                data-tile="notes"
-            >
-                Notizen
-            </div>
-
-            <div
-                class="tile"
-                data-tile="todo"
-            >
-                To-Do
-            </div>
-
-            <div
-                class="tile"
-                data-tile="calendar"
-            >
-                Kalender
-            </div>
-
-            <div
-                class="tile"
-                data-tile="wishes"
-            >
-                Wünsche
-            </div>
-
-            <div
-                class="tile"
-                data-tile="recommendations"
-            >
-                Empfehlungen
-            </div>
-
-            <div
-                class="tile"
-                data-tile="red-folder"
-            >
-                Roter Ordner
-            </div>
-
+            <div class="tile" data-tile="todo">To-Do</div>
+            <div class="tile" data-tile="calendar">Kalender</div>
         </div>
-
     </div>
+
+    
 
 
 
@@ -439,28 +386,24 @@
          NOTIZEN
          ================================================== -->
 
-    <div
-        data-view="notes"
-        class="hidden"
-    >
-
-        <button
-            class="back-button"
-            data-view-back="planner"
-        >
-            Zurück
-        </button>
-
-
+    <div data-view="notes" class="hidden">
+        <button class="back-button" data-view-back="dashboard">Zurück</button>
         <h2>Notizen</h2>
-
-
-        <textarea
-            id="note"
-            placeholder="Schreibe hier deine Notiz..."
-        ></textarea>
-
+        <div class="tiles">
+            <div class="tile" data-tile="general-note">Allgemein</div>
+            <div class="tile" data-tile="wishes">Wünsche</div>
+            <div class="tile" data-tile="recommendations">Empfehlungen</div>
+            <div class="tile" data-tile="red-folder">Roter Ordner</div>
+        </div>
     </div>
+
+    <div data-view="general-note" class="hidden">
+        <button class="back-button" data-view-back="notes">Zurück</button>
+        <h2>Allgemein</h2>
+        <textarea id="note" placeholder="Schreibe hier deine Notiz..."></textarea>
+    </div>
+
+    
 
 
     <!-- ==================================================
@@ -831,29 +774,4 @@
 
 </body>
 
-</html><div class="tiles">
-            <div class="tile" data-tile="todo">To-Do</div>
-            <div class="tile" data-tile="calendar">Kalender</div>
-        </div><!-- ==================================================
-         NOTIZEN
-         ================================================== -->
-
-    <div data-view="notes" class="hidden">
-        <button class="back-button" data-view-back="dashboard">Zurück</button>
-        <h2>Notizen</h2>
-        <div class="tiles">
-            <div class="tile" data-tile="general-note">Allgemein</div>
-            <div class="tile" data-tile="wishes">Wünsche</div>
-            <div class="tile" data-tile="recommendations">Empfehlungen</div>
-            <div class="tile" data-tile="red-folder">Roter Ordner</div>
-        </div>
-    </div>
-
-    <div data-view="general-note" class="hidden">
-        <button class="back-button" data-view-back="notes">Zurück</button>
-        <h2>Allgemein</h2>
-        <textarea id="note" placeholder="Schreibe hier deine Notiz..."></textarea>
-    </div>
-
-
-    
+</html>

@@ -1,17 +1,17 @@
 // js/app.js
 
 import { initDashboard } from "./dashboard.js";
-import { initNotes } from "./notes/notes.js?v=1.12";
-import { initCalendar } from "./calendar/calendar.js?v=1.12";
+import { initNotes } from "./notes/notes.js?v=1.13";
+import { initCalendar } from "./calendar/calendar.js?v=1.13";
 import { showView, goToDashboard } from "./router.js";
-import { initTodo } from "./todo/todo.js?v=1.12";
-import { initPacklists } from "./packlists/packlists.js?v=1.12";
-import { initPacklistEditor } from "./packlists/packlist-editor.js?v=1.12";
-import { initPacklistRun } from "./packlists/packlist-run.js?v=1.12";
-import { initWatertest } from "./watertest/watertest.js?v=1.12";
-import { initPush } from "./push/push.js?v=1.12";
+import { initTodo } from "./todo/todo.js?v=1.13";
+import { initPacklists } from "./packlists/packlists.js?v=1.13";
+import { initPacklistEditor } from "./packlists/packlist-editor.js?v=1.13";
+import { initPacklistRun } from "./packlists/packlist-run.js?v=1.13";
+import { initWatertest } from "./watertest/watertest.js?v=1.13";
+import { initPush } from "./push/push.js?v=1.13";
 import { initAuth } from "./auth/auth-view.js";
-import { initPlannerTexts } from "./planner-texts/planner-texts.js?v=1.12";
+import { initPlannerTexts } from "./planner-texts/planner-texts.js?v=1.13";
 /*
  Einstiegspunkt der App.
  Wird ausgeführt, sobald das DOM vollständig geladen ist.
@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("✅ app.js geladen");
 
 // Versionsnummer direkt aus der URL von app.js lesen.
-// Beispiel: js/app.js?v=1.12 → Version 0.36
+// Beispiel: js/app.js?v=1.13 → Version 0.36
 
 const appScript = document.getElementById("app-script");
 const scriptUrl = new URL(appScript.src);
