@@ -7,7 +7,7 @@ import {
 
 export function initNotes() {
     const textarea = document.getElementById("note");
-    const notesTile = document.querySelector('[data-tile="notes"]');
+    const notesTile = document.querySelector('[data-tile="general-note"]');
 
     if (!textarea) return;
 
