@@ -262,7 +262,7 @@ async function showTestNotification() {
 
 
         await registration.showNotification(
-            "Projekt App",
+            "Dock",
             {
                 body:
                     "Test-Benachrichtigung erfolgreich."
