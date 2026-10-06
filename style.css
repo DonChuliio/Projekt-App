@@ -1175,3 +1175,61 @@ html, body {
     width: 100%;
     min-height: 220px;
 }
+
+
+/* =========================================================
+   v1.10 – NAVIGATION + LINE-ICON-STIL
+   ========================================================= */
+
+/* Einstellungen: schlichtes Zahnrad als Outline-Piktogramm */
+.settings-gear {
+    width: 24px;
+    height: 24px;
+    display: block;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.settings-gear::before {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    clip-path: polygon(
+        42% 0%, 58% 0%, 62% 13%, 70% 16%, 81% 8%, 92% 19%,
+        84% 30%, 87% 38%, 100% 42%, 100% 58%, 87% 62%,
+        84% 70%, 92% 81%, 81% 92%, 70% 84%, 62% 87%,
+        58% 100%, 42% 100%, 38% 87%, 30% 84%, 19% 92%,
+        8% 81%, 16% 70%, 13% 62%, 0% 58%, 0% 42%,
+        13% 38%, 16% 30%, 8% 19%, 19% 8%, 30% 16%, 38% 13%
+    );
+}
+
+.settings-gear::after {
+    content: "";
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    left: 8px;
+    top: 8px;
+    background: var(--surface);
+    border-radius: 50%;
+}
+
+/* Zurück und Home etwas größer und leichter zu treffen */
+.back-button,
+.home-button {
+    min-height: 44px;
+    padding: 8px 4px;
+    margin-bottom: 12px;
+    font-size: 17px;
+    line-height: 1.2;
+}
+
+.home-button {
+    margin-left: 16px;
+}
