@@ -2,7 +2,7 @@ import {
     loadRecurringTransactions,
     addRecurringTransaction,
     deleteRecurringTransaction
-} from "../data/recurring-transactions-data.js?v=1.25";
+} from "../data/recurring-transactions-data.js?v=1.26";
 
 const GROUPS = [
     { frequency: "monthly", title: "Monatlich" },
@@ -71,6 +71,7 @@ export function initRecurringTransactions() {
                             await deleteRecurringTransaction(entry.id);
                             entries = entries.filter(item => item.id !== entry.id);
                             render();
+                            document.dispatchEvent(new CustomEvent("dock:recurring-changed"));
                         } catch (error) {
                             console.error(error);
                         }
@@ -128,6 +129,7 @@ export function initRecurringTransactions() {
             try {
                 entries.push(await addRecurringTransaction(entry));
                 render();
+                document.dispatchEvent(new CustomEvent("dock:recurring-changed"));
             } catch (error) {
                 console.error(error);
                 submit.disabled = false;

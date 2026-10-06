@@ -1,5 +1,5 @@
-import { loadRecurringTransactions } from "../data/recurring-transactions-data.js?v=1.24";
-import { loadPocketMoneyExpenses } from "../data/pocket-money-data.js?v=1.24";
+import { loadRecurringTransactions } from "../data/recurring-transactions-data.js?v=1.26";
+import { loadPocketMoneyExpenses } from "../data/pocket-money-data.js?v=1.26";
 const BUDGET=500;
 const euro=v=>new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"}).format(v);
 const daysInMonth=(y,m)=>new Date(y,m+1,0).getDate();
@@ -34,5 +34,8 @@ export function initExpensesOverview(){
   else appendGroup(list,"Buchungen",items,false);
  }
  function appendGroup(parent,title,items,future){if(!items.length)return;const h=document.createElement("h3");h.className="overview-list-title";h.textContent=title;parent.append(h);items.forEach(x=>{const row=document.createElement("div");row.className=`overview-booking${future?" overview-future":""}`;const d=String(x.date.getDate()).padStart(2,"0")+".";const amount=Number(x.entry.amount),sign=x.entry.transaction_type==="income"?"+":"−";row.innerHTML=`<span class="overview-date">${d}</span><strong></strong><span class="overview-amount">${sign} ${euro(amount)}</span>`;row.querySelector("strong").textContent=x.entry.name;parent.append(row);});}
+ document.addEventListener("dock:recurring-changed", load);
+ const overviewTile=document.querySelector('[data-tile="expenses-overview"]');
+ if(overviewTile) overviewTile.addEventListener("click", load);
  load();
 }
