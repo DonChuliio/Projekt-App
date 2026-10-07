@@ -104,7 +104,7 @@ function openBringExport(packlist){
   const params=new URLSearchParams();
   params.set("name",packlist.name||"Dock Packliste");
   items.forEach(item=>params.append("item",item));
-  window.location.href=`bring-export.html?${params.toString()}`;
+  window.location.href=`https://osmmjfuzuxhwtfcttdxp.supabase.co/functions/v1/bring-export?${params.toString()}`;
  };
 
  const cancel=document.createElement("button");
