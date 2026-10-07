@@ -1,7 +1,7 @@
 // js/notes/notes.js
 // v1.39 – mehrere Allgemein-Notizen mit Supabase-Autosave.
 
-import { loadNotes, createNote, updateNote, deleteNote } from "../data/notes-data.js?v=1.51";
+import { loadNotes, createNote, updateNote, deleteNote } from "../data/notes-data.js?v=1.52";
 
 let notes = [];
 let loadPromise = null;
@@ -75,7 +75,14 @@ export function initNotes() {
             const deleteButton = document.createElement("button");
             deleteButton.type = "button";
             deleteButton.className = "general-note-delete";
-            deleteButton.textContent = "Notiz löschen";
+            deleteButton.setAttribute("aria-label", "Notiz löschen");
+            deleteButton.title = "Notiz löschen";
+
+            const trashIcon = document.createElement("span");
+            trashIcon.className = "general-note-trash-icon";
+            trashIcon.setAttribute("aria-hidden", "true");
+            deleteButton.appendChild(trashIcon);
+
             deleteButton.addEventListener("click", async () => {
                 if (!confirm("Diese Notiz wirklich löschen?")) return;
 
@@ -92,7 +99,11 @@ export function initNotes() {
                 }
             });
 
-            body.append(textarea, deleteButton);
+            const actions = document.createElement("div");
+            actions.className = "general-note-actions";
+            actions.appendChild(deleteButton);
+
+            body.append(textarea, actions);
 
             header.addEventListener("click", () => {
                 note.open = !note.open;

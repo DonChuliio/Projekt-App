@@ -1475,16 +1475,58 @@ html, body {
 /* =====================================================
    v1.51 – NOTIZEN LÖSCHEN + TODO PRIORITÄT VERSCHIEBEN
    ===================================================== */
-.general-note-delete{
-    width:100%;
+.general-note-actions{
+    display:flex;
+    justify-content:flex-end;
     margin-top:10px;
+}
+.general-note-delete{
+    width:38px;
+    min-width:38px;
+    height:38px;
+    padding:0;
+    margin:0;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
     background:transparent;
     color:var(--danger);
-    border:1px solid var(--danger);
+    border:1px solid var(--border);
+    border-radius:8px;
 }
 .general-note-delete:hover{
     background:transparent;
     opacity:.85;
+}
+.general-note-trash-icon{
+    position:relative;
+    display:block;
+    width:14px;
+    height:16px;
+    border:2px solid currentColor;
+    border-top:0;
+    border-radius:0 0 2px 2px;
+}
+.general-note-trash-icon::before{
+    content:"";
+    position:absolute;
+    left:-3px;
+    top:-5px;
+    width:16px;
+    height:2px;
+    background:currentColor;
+    border-radius:2px;
+}
+.general-note-trash-icon::after{
+    content:"";
+    position:absolute;
+    left:3px;
+    top:-8px;
+    width:6px;
+    height:3px;
+    border:2px solid currentColor;
+    border-bottom:0;
+    border-radius:2px 2px 0 0;
 }
 
 .todo-actions{
