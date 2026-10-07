@@ -47,8 +47,21 @@ export function initDashboard() {
                     }
 
 
-                    showView(
-                        targetView
+                    /*
+                     Kurzes sichtbares Touch-Feedback:
+                     Die Zielansicht wird erst nach 120 ms geöffnet,
+                     damit die petrolfarbene Kachel wahrnehmbar bleibt.
+                    */
+                    tile.classList.add("tile-tapped");
+
+                    window.setTimeout(
+                        () => {
+                            tile.classList.remove("tile-tapped");
+                            showView(
+                                targetView
+                            );
+                        },
+                        120
                     );
                 }
             );

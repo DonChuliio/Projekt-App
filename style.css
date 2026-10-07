@@ -1445,3 +1445,14 @@ html, body {
     color: #000;
     transform: scale(0.97);
 }
+
+
+/*
+ Sichtbarer Tap-Zustand während der kurzen Navigationsverzögerung.
+*/
+.tile.tile-tapped {
+    background: var(--petrol);
+    border-color: var(--petrol);
+    color: #000;
+    transform: scale(0.97);
+}
