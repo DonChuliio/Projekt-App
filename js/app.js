@@ -1,22 +1,22 @@
 // js/app.js
 
 import { initDashboard } from "./dashboard.js";
-import { initNotes } from "./notes/notes.js?v=1.37";
-import { initCalendar } from "./calendar/calendar.js?v=1.37";
+import { initNotes } from "./notes/notes.js?v=1.38";
+import { initCalendar } from "./calendar/calendar.js?v=1.38";
 import { showView, goToDashboard } from "./router.js";
-import { initTodo } from "./todo/todo.js?v=1.37";
-import { initPacklists } from "./packlists/packlists.js?v=1.37";
-import { initPacklistEditor } from "./packlists/packlist-editor.js?v=1.37";
-import { initPacklistRun } from "./packlists/packlist-run.js?v=1.37";
-import { initWatertest } from "./watertest/watertest.js?v=1.37";
-import { initPush } from "./push/push.js?v=1.37";
+import { initTodo } from "./todo/todo.js?v=1.38";
+import { initPacklists } from "./packlists/packlists.js?v=1.38";
+import { initPacklistEditor } from "./packlists/packlist-editor.js?v=1.38";
+import { initPacklistRun } from "./packlists/packlist-run.js?v=1.38";
+import { initWatertest } from "./watertest/watertest.js?v=1.38";
+import { initPush } from "./push/push.js?v=1.38";
 import { initAuth } from "./auth/auth-view.js";
-import { initPlannerTexts } from "./planner-texts/planner-texts.js?v=1.37";
-import { initHouseCalculator } from "./finances/house-calculator.js?v=1.37";
-import { initSavingsCalculator } from "./finances/savings-calculator.js?v=1.37";
-import { initRecurringTransactions } from "./finances/recurring-transactions.js?v=1.37";
-import { initPocketMoney } from "./finances/pocket-money.js?v=1.37";
-import { initExpensesOverview } from "./finances/expenses-overview.js?v=1.37";
+import { initPlannerTexts } from "./planner-texts/planner-texts.js?v=1.38";
+import { initHouseCalculator } from "./finances/house-calculator.js?v=1.38";
+import { initSavingsCalculator } from "./finances/savings-calculator.js?v=1.38";
+import { initRecurringTransactions } from "./finances/recurring-transactions.js?v=1.38";
+import { initPocketMoney } from "./finances/pocket-money.js?v=1.38";
+import { initExpensesOverview } from "./finances/expenses-overview.js?v=1.38";
 /*
  Einstiegspunkt der App.
  Wird ausgeführt, sobald das DOM vollständig geladen ist.
@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("✅ app.js geladen");
 
 // Versionsnummer direkt aus der URL von app.js lesen.
-// Beispiel: js/app.js?v=1.37 → Version 0.36
+// Beispiel: js/app.js?v=1.38 → Version 0.36
 
 const appScript = document.getElementById("app-script");
 const scriptUrl = new URL(appScript.src);
