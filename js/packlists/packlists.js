@@ -1,3 +1,5 @@
+import { SUPABASE_URL, SUPABASE_KEY } from "../config/supabase.js";
+import { getValidAccessToken } from "../auth/auth.js";
 import { showView } from "../router.js";
 import { loadPacklists, createPacklist, updatePacklist, deletePacklist } from "../data/packlist-data.js?v=0.97";
 import { initPacklistEditor } from "./packlist-editor.js?v=1.07";
@@ -95,16 +97,44 @@ function openBringExport(packlist){
  const confirm=document.createElement("button");
  confirm.type="button";
  confirm.textContent="Auswahl bestätigen";
- confirm.onclick=()=>{
+ confirm.onclick=async()=>{
   const items=[...dialog.querySelectorAll('.packlist-export-item input[type="checkbox"]:checked')]
    .map(input=>input.dataset.itemText)
    .filter(Boolean);
   if(!items.length){alert("Bitte mindestens einen Eintrag auswählen.");return;}
 
-  const params=new URLSearchParams();
-  params.set("name",packlist.name||"Dock Packliste");
-  items.forEach(item=>params.append("item",item));
-  window.location.href=`https://osmmjfuzuxhwtfcttdxp.supabase.co/functions/v1/bring-export?${params.toString()}`;
+  confirm.disabled=true;
+  confirm.textContent="Export wird vorbereitet...";
+
+  try{
+   const token=await getValidAccessToken();
+   if(!token)throw new Error("Keine aktive Anmeldung.");
+
+   const response=await fetch(`${SUPABASE_URL}/rest/v1/bring_exports`,{
+    method:"POST",
+    headers:{
+     "apikey":SUPABASE_KEY,
+     "Authorization":`Bearer ${token}`,
+     "Content-Type":"application/json",
+     "Prefer":"return=representation"
+    },
+    body:JSON.stringify({
+     name:packlist.name||"Dock Packliste",
+     items
+    })
+   });
+
+   if(!response.ok)throw new Error(await response.text());
+   const created=(await response.json())[0];
+   if(!created?.id)throw new Error("Keine Export-ID erhalten.");
+
+   window.location.href=`${SUPABASE_URL}/functions/v1/bring-export?id=${encodeURIComponent(created.id)}`;
+  }catch(error){
+   console.error("Bring!-Export fehlgeschlagen:",error);
+   alert("Der Bring!-Export konnte nicht vorbereitet werden.");
+   confirm.disabled=false;
+   confirm.textContent="Auswahl bestätigen";
+  }
  };
 
  const cancel=document.createElement("button");
