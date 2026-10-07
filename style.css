@@ -1427,3 +1427,21 @@ html, body {
 .general-note-toggle{width:100%;display:flex;align-items:center;gap:10px;text-align:left;background:var(--surface);color:var(--text);border:0;border-radius:0;padding:14px}
 .general-note-toggle.open{background:var(--petrol);color:#fff}.general-note-arrow{width:18px;flex-shrink:0}.general-note-toggle strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .general-note-body{padding:12px}.general-note-text{width:100%;min-height:220px;margin:0;resize:vertical}
+
+
+/* ======================================================
+   KACHEL-TAP-FEEDBACK
+   ====================================================== */
+
+/*
+ Beim Antippen einer Dashboard- oder Unterordner-Kachel
+ wird die Kachel kurz petrol hervorgehoben.
+ :active funktioniert ohne zusätzliches JavaScript und
+ verschwindet direkt wieder, sobald der Finger loslässt.
+*/
+.tile:active {
+    background: var(--petrol);
+    border-color: var(--petrol);
+    color: #000;
+    transform: scale(0.97);
+}
