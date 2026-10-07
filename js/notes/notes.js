@@ -1,18 +1,14 @@
 // js/notes/notes.js
-// v1.34 – Oberfläche für mehrere Allgemein-Notizen.
-// Die Supabase-Speicherung ergänzen wir im nächsten Schritt.
+// v1.39 – mehrere Allgemein-Notizen mit Supabase-Autosave.
 
-const draftNotes = [];
-let nextDraftId = 1;
+import { loadNotes, createNote, updateNote } from "../data/notes-data.js?v=1.39";
+
+let notes = [];
+let loadPromise = null;
+const saveTimers = new Map();
 
 function titleOf(content) {
     return content.split("\n")[0].trim() || "Neue Notiz";
-}
-
-function makeDraft() {
-    const note = { id: `draft-${nextDraftId++}`, content: "", open: true };
-    draftNotes.unshift(note);
-    return note;
 }
 
 export function initNotes() {
@@ -21,16 +17,22 @@ export function initNotes() {
     const notesTile = document.querySelector('[data-tile="general-note"]');
     if (!list) return;
 
+    const showMessage = text => {
+        list.innerHTML = "";
+        const p = document.createElement("p");
+        p.className = "general-notes-empty";
+        p.textContent = text;
+        list.appendChild(p);
+    };
+
     const render = (focusId = null) => {
         list.innerHTML = "";
-        if (!draftNotes.length) {
-            const empty = document.createElement("p");
-            empty.className = "general-notes-empty";
-            empty.textContent = "Noch keine Notizen.";
-            list.appendChild(empty);
+        if (!notes.length) {
+            showMessage("Noch keine Notizen.");
+            return;
         }
 
-        for (const note of draftNotes) {
+        for (const note of notes) {
             const section = document.createElement("section");
             section.className = "general-note-card";
 
@@ -55,10 +57,21 @@ export function initNotes() {
             textarea.className = "general-note-text";
             textarea.placeholder = "Notiz schreiben...";
             textarea.value = note.content;
+
             textarea.addEventListener("input", () => {
                 note.content = textarea.value;
                 title.textContent = titleOf(note.content);
+
+                clearTimeout(saveTimers.get(note.id));
+                saveTimers.set(note.id, setTimeout(async () => {
+                    try {
+                        await updateNote(note.id, note.content);
+                    } catch (error) {
+                        console.error("Notiz konnte nicht gespeichert werden:", error);
+                    }
+                }, 500));
             });
+
             body.appendChild(textarea);
 
             header.addEventListener("click", () => {
@@ -75,22 +88,48 @@ export function initNotes() {
         }
     };
 
-    const addNote = () => {
-        const note = makeDraft();
-        render(note.id);
+    const ensureLoaded = async () => {
+        if (!loadPromise) {
+            showMessage("Notizen werden geladen...");
+            loadPromise = loadNotes()
+                .then(rows => {
+                    notes = rows.map(row => ({ ...row, open: false }));
+                    render();
+                })
+                .catch(error => {
+                    console.error("Notizen konnten nicht geladen werden:", error);
+                    showMessage("Notizen konnten nicht geladen werden.");
+                    loadPromise = null;
+                    throw error;
+                });
+        }
+        return loadPromise;
+    };
+
+    const addNote = async () => {
+        try {
+            await ensureLoaded();
+            const row = await createNote("");
+            const note = { ...row, open: true };
+            notes.unshift(note);
+            render(note.id);
+        } catch (error) {
+            console.error("Neue Notiz konnte nicht angelegt werden:", error);
+        }
     };
 
     addButton?.addEventListener("click", addNote);
+    notesTile?.addEventListener("click", ensureLoaded);
+
     document.addEventListener("dock:new-general-note", () => {
         sessionStorage.removeItem("dock-new-general-note");
         addNote();
     });
-    notesTile?.addEventListener("click", () => render());
 
-    if (sessionStorage.getItem("dock-new-general-note") === "1") {
-        sessionStorage.removeItem("dock-new-general-note");
-        addNote();
-    } else {
-        render();
-    }
+    ensureLoaded().then(() => {
+        if (sessionStorage.getItem("dock-new-general-note") === "1") {
+            sessionStorage.removeItem("dock-new-general-note");
+            addNote();
+        }
+    }).catch(() => {});
 }

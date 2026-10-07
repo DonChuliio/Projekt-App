@@ -1,92 +1,59 @@
 // js/data/notes-data.js
+// Supabase persistence for multiple general notes.
 
-import {
-    SUPABASE_URL,
-    SUPABASE_KEY
-} from "../config/supabase.js";
-
-import {
-    getAccessToken
-} from "../auth/auth.js";
+import { SUPABASE_URL, SUPABASE_KEY } from "../config/supabase.js";
+import { getValidAccessToken } from "../auth/auth.js";
 
 const TABLE_URL = `${SUPABASE_URL}/rest/v1/notes`;
 
-function createHeaders() {
-    const accessToken = getAccessToken();
-
-    if (!accessToken) {
-        throw new Error("Keine aktive Anmeldung vorhanden.");
-    }
-
+async function headers(extra = {}) {
+    const accessToken = await getValidAccessToken();
     return {
         "apikey": SUPABASE_KEY,
         "Authorization": `Bearer ${accessToken}`,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        ...extra
     };
 }
 
-export async function loadNote() {
-    const response = await fetch(
-        `${TABLE_URL}?select=id,content,updated_at&limit=1`,
-        {
-            method: "GET",
-            headers: createHeaders()
-        }
-    );
-
+async function api(url, options = {}) {
+    const response = await fetch(url, {
+        ...options,
+        headers: await headers(options.headers || {})
+    });
     if (!response.ok) {
-        throw new Error(
-            `Notiz konnte nicht geladen werden (${response.status}): ${await response.text()}`
-        );
+        throw new Error(`Notizen-Fehler ${response.status}: ${await response.text()}`);
     }
-
-    const rows = await response.json();
-    return rows[0] || null;
+    return response;
 }
 
-export async function saveNote(content) {
-    const existing = await loadNote();
+export async function loadNotes() {
+    const response = await api(
+        `${TABLE_URL}?select=id,content,created_at,updated_at&order=updated_at.desc,id.desc`
+    );
+    return response.json();
+}
 
-    if (existing) {
-        const response = await fetch(
-            `${TABLE_URL}?id=eq.${encodeURIComponent(existing.id)}`,
-            {
-                method: "PATCH",
-                headers: {
-                    ...createHeaders(),
-                    "Prefer": "return=minimal"
-                },
-                body: JSON.stringify({
-                    content,
-                    updated_at: new Date().toISOString()
-                })
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error(
-                `Notiz konnte nicht gespeichert werden (${response.status}): ${await response.text()}`
-            );
-        }
-
-        return;
-    }
-
-    const response = await fetch(TABLE_URL, {
+export async function createNote(content = "") {
+    const response = await api(TABLE_URL, {
         method: "POST",
-        headers: {
-            ...createHeaders(),
-            "Prefer": "return=minimal"
-        },
+        headers: { "Prefer": "return=representation" },
         body: JSON.stringify({
             content,
             updated_at: new Date().toISOString()
         })
     });
+    const rows = await response.json();
+    return rows[0];
+}
 
-    if (!response.ok) {
-        throw new Error(
-            `Notiz konnte nicht gespeichert werden (${response.status}): ${await response.text()}`
-        );
-    }
+export async function updateNote(id, content) {
+    await api(`${TABLE_URL}?id=eq.${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        headers: { "Prefer": "return=minimal" },
+        body: JSON.stringify({
+            content,
+            updated_at: new Date().toISOString()
+        })
+    });
 }
