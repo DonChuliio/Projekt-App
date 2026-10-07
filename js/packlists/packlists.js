@@ -128,7 +128,7 @@ function openBringExport(packlist){
    const created=(await response.json())[0];
    if(!created?.id)throw new Error("Keine Export-ID erhalten.");
 
-   window.location.href=`bring-export.html?id=${encodeURIComponent(created.id)}`;
+   window.location.href=`https://dock-woad.vercel.app/api/bring-export?id=${encodeURIComponent(created.id)}`;
   }catch(error){
    console.error("Bring!-Export fehlgeschlagen:",error);
    alert("Der Bring!-Export konnte nicht vorbereitet werden.");
