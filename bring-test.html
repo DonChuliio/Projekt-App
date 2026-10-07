@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dock Bring Test</title>
+<meta name="description" content="Technischer Test für den Packlisten-Export aus Dock nach Bring!">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Recipe",
+  "name": "Dock Packlisten-Test",
+  "author": {"@type":"Person","name":"Dock"},
+  "image": "https://donchuliio.github.io/Projekt-App/dock-icon-512.png",
+  "recipeYield": "1 Packliste",
+  "recipeIngredient": [
+    "1 Zahnbürste",
+    "5 T-Shirts",
+    "1 Sonnencreme",
+    "1 Ladekabel"
+  ]
+}
+</script>
+<script async="async" src="https://platform.getbring.com/widgets/import.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#121212;--surface:#1e1e1e;--border:#2a2a2a;--text:#eaeaea;--muted:#9aa0a6;--petrol:#2bb0a6}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:24px}
+main{max-width:520px;margin:0 auto}.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px}
+h1{margin-top:0}li{padding:7px 0}.hint{color:var(--muted);line-height:1.45}
+a.back{display:inline-block;margin-top:18px;color:var(--petrol)}
+</style>
+</head>
+<body>
+<main>
+<div class="card">
+<h1>Dock Packlisten-Test</h1>
+<p>Diese Testseite enthält vier Packlisten-Artikel im Rezeptformat, das Bring! aus Webseiten lesen kann.</p>
+<ul><li>Zahnbürste</li><li>5 T-Shirts</li><li>Sonnencreme</li><li>Ladekabel</li></ul>
+<div data-bring-import="" style="display:none"></div>
+<p class="hint">Test auf dem iPhone: Diese Seite in Safari öffnen und über „Teilen“ an Bring! senden. Entscheidend ist, ob Bring! die vier Artikel erkennt.</p>
+</div>
+<a class="back" href="./">Zurück zu Dock</a>
+</main>
+</body>
+</html>
