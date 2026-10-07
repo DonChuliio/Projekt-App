@@ -1555,3 +1555,27 @@ html, body {
     background:transparent;
     opacity:.85;
 }
+
+
+/* =====================================================
+   v1.53 – PACKLISTEN KACHELN GRÖSSER
+   ===================================================== */
+#packlists-list{
+    margin-top:16px;
+}
+#packlists-list li{
+    min-height:68px;
+    padding:18px 16px;
+    margin-bottom:10px;
+    border-radius:14px;
+    font-size:18px;
+    font-weight:600;
+    cursor:pointer;
+    transition:background .15s ease, transform .1s ease, border-color .15s ease;
+}
+#packlists-list li:active{
+    background:var(--petrol);
+    border-color:var(--petrol);
+    color:#000;
+    transform:scale(.98);
+}
