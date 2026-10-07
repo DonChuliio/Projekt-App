@@ -208,3 +208,31 @@ function validatePriority(priority) {
         );
     }
 }
+
+
+/*
+ Verschiebt ein To-Do zwischen den sichtbaren Prioritäten A und B.
+*/
+export async function updateTodoPriority(id, priority) {
+    if (id === null || id === undefined) {
+        throw new Error("Zum Verschieben wird eine To-Do-ID benötigt.");
+    }
+
+    validatePriority(priority);
+
+    const response = await fetch(
+        `${TODO_TABLE_URL}?id=eq.${encodeURIComponent(id)}`,
+        {
+            method: "PATCH",
+            headers: createHeaders(),
+            body: JSON.stringify({ priority })
+        }
+    );
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+            `To-Do konnte nicht verschoben werden (${response.status}): ${errorText}`
+        );
+    }
+}

@@ -1,6 +1,11 @@
 // js/todo/todo.js
 
-import { loadTodos, addTodo, deleteTodo } from "../data/todo-data.js?v=1.35";
+import {
+    loadTodos,
+    addTodo,
+    deleteTodo,
+    updateTodoPriority
+} from "../data/todo-data.js?v=1.51";
 
 export function initTodo() {
     initList("a");
@@ -22,7 +27,7 @@ async function initList(type) {
     async function reloadTodos() {
         try {
             todos = await loadTodos(type);
-            renderList(list, todos, reloadTodos);
+            renderList(list, todos, type, reloadTodos);
         } catch (error) {
             console.log(`To-Do ${type} noch nicht geladen:`, error.message);
         }
@@ -39,8 +44,7 @@ async function initList(type) {
         try {
             await addTodo(text, type);
             input.value = "";
-            await reloadTodos();
-
+            document.dispatchEvent(new CustomEvent("dock:todos-changed"));
             input.focus();
         } catch (error) {
             console.error("To-Do konnte nicht hinzugefügt werden:", error);
@@ -61,9 +65,11 @@ async function initList(type) {
     document
         .querySelector('[data-tile="todo"]')
         ?.addEventListener("click", reloadTodos);
+
+    document.addEventListener("dock:todos-changed", reloadTodos);
 }
 
-function renderList(listElement, todos, reloadTodos) {
+function renderList(listElement, todos, type, reloadTodos) {
     listElement.innerHTML = "";
 
     todos.forEach(todo => {
@@ -73,6 +79,33 @@ function renderList(listElement, todos, reloadTodos) {
         textElement.textContent = todo.text;
         textElement.className = "todo-text";
         li.appendChild(textElement);
+
+        const actions = document.createElement("div");
+        actions.className = "todo-actions";
+
+        const targetType = type === "a" ? "b" : "a";
+        const moveButton = document.createElement("button");
+        moveButton.type = "button";
+        moveButton.textContent = type === "a" ? "↓" : "↑";
+        moveButton.className = "todo-move";
+        moveButton.setAttribute(
+            "aria-label",
+            type === "a" ? "Zu Später verschieben" : "Zu Wichtig verschieben"
+        );
+        moveButton.title =
+            type === "a" ? "Zu Später verschieben" : "Zu Wichtig verschieben";
+
+        moveButton.addEventListener("click", async () => {
+            moveButton.disabled = true;
+
+            try {
+                await updateTodoPriority(todo.id, targetType);
+                document.dispatchEvent(new CustomEvent("dock:todos-changed"));
+            } catch (error) {
+                console.error("To-Do konnte nicht verschoben werden:", error);
+                moveButton.disabled = false;
+            }
+        });
 
         const deleteButton = document.createElement("button");
         deleteButton.type = "button";
@@ -85,14 +118,15 @@ function renderList(listElement, todos, reloadTodos) {
 
             try {
                 await deleteTodo(todo.id);
-                await reloadTodos();
+                document.dispatchEvent(new CustomEvent("dock:todos-changed"));
             } catch (error) {
                 console.error("To-Do konnte nicht gelöscht werden:", error);
                 deleteButton.disabled = false;
             }
         });
 
-        li.appendChild(deleteButton);
+        actions.append(moveButton, deleteButton);
+        li.appendChild(actions);
         listElement.appendChild(li);
     });
 }

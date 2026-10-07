@@ -57,3 +57,11 @@ export async function updateNote(id, content) {
         })
     });
 }
+
+
+export async function deleteNote(id) {
+    await api(`${TABLE_URL}?id=eq.${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        headers: { "Prefer": "return=minimal" }
+    });
+}

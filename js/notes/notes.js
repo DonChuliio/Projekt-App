@@ -1,7 +1,7 @@
 // js/notes/notes.js
 // v1.39 – mehrere Allgemein-Notizen mit Supabase-Autosave.
 
-import { loadNotes, createNote, updateNote } from "../data/notes-data.js?v=1.39";
+import { loadNotes, createNote, updateNote, deleteNote } from "../data/notes-data.js?v=1.51";
 
 let notes = [];
 let loadPromise = null;
@@ -72,7 +72,27 @@ export function initNotes() {
                 }, 500));
             });
 
-            body.appendChild(textarea);
+            const deleteButton = document.createElement("button");
+            deleteButton.type = "button";
+            deleteButton.className = "general-note-delete";
+            deleteButton.textContent = "Notiz löschen";
+            deleteButton.addEventListener("click", async () => {
+                if (!confirm("Diese Notiz wirklich löschen?")) return;
+
+                deleteButton.disabled = true;
+                try {
+                    clearTimeout(saveTimers.get(note.id));
+                    saveTimers.delete(note.id);
+                    await deleteNote(note.id);
+                    notes = notes.filter(item => item.id !== note.id);
+                    render();
+                } catch (error) {
+                    console.error("Notiz konnte nicht gelöscht werden:", error);
+                    deleteButton.disabled = false;
+                }
+            });
+
+            body.append(textarea, deleteButton);
 
             header.addEventListener("click", () => {
                 note.open = !note.open;

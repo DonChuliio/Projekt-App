@@ -1470,3 +1470,46 @@ html, body {
 .packlist-export-bucket input{width:20px;height:20px;margin:0;flex:0 0 20px;accent-color:var(--petrol)}
 .packlist-export-actions{position:sticky;bottom:-20px;padding-top:10px;background:var(--surface)}
 .packlist-export-count{display:block;margin:0 0 10px;text-align:center;color:var(--text-muted);font-size:14px}
+
+
+/* =====================================================
+   v1.51 – NOTIZEN LÖSCHEN + TODO PRIORITÄT VERSCHIEBEN
+   ===================================================== */
+.general-note-delete{
+    width:100%;
+    margin-top:10px;
+    background:transparent;
+    color:var(--danger);
+    border:1px solid var(--danger);
+}
+.general-note-delete:hover{
+    background:transparent;
+    opacity:.85;
+}
+
+.todo-actions{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-shrink:0;
+}
+.todo-move{
+    width:36px;
+    min-width:36px;
+    height:36px;
+    padding:0;
+    margin:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:transparent;
+    color:var(--petrol);
+    border:1px solid var(--border);
+    border-radius:8px;
+    font-size:22px;
+    line-height:1;
+}
+.todo-move:hover{
+    background:transparent;
+    opacity:.85;
+}
