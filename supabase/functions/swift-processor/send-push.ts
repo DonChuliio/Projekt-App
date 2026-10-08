@@ -7,20 +7,6 @@ Deno.serve(async (req) => {
     try {
 
         /* =================================================
-           MANUELLER TEST
-           ================================================= */
-
-        let force = false;
-
-        try {
-            const body = await req.json();
-            force = body?.force === true;
-        } catch {
-            // Kein Body ist bei Cron-Aufrufen normal.
-        }
-
-
-        /* =================================================
            DEUTSCHE UHRZEIT
            ================================================= */
 
@@ -49,11 +35,10 @@ Deno.serve(async (req) => {
          Der Cron darf nur um 09 Uhr deutscher Zeit
          tatsächlich Pushs versenden.
 
-         force=true umgeht diese Prüfung für Tests.
+         Zusätzliche Aufrufe werden durch den Versandnachweis abgefangen.
         */
         if (
-            !force &&
-            berlinHour !== "10"
+            berlinHour !== "09"
         ) {
 
             return Response.json({
@@ -390,60 +375,17 @@ if (
         "Sparkonto Überschuss überweisen"
     );
 }
-            const {
-                count: openA,
-                error: todoError
-            } =
-                await supabase
-                    .from("todos")
-                    .select(
-                        "id",
-                        {
-                            count: "exact",
-                            head: true
-                        }
-                    )
-                    .eq(
-                        "user_id",
-                        userId
-                    )
-                    .eq(
-                        "priority",
-                        "a"
-                    )
-                    .is("completed_at", null);
-
-
-            if (todoError) {
-                throw todoError;
-            }
-
-
-            /* ---------------------------------------------
-               OFFENE AUFGABEN DER AKTUELLEN KW
-               --------------------------------------------- */
-
-            // Bereits übernommene Routinen nicht noch einmal als KW-Aufgaben zählen.
-            const { data: planned, error: calendarError } = await supabase
-                .from("calendar_tasks").select("year,week,task_id,done")
-                .eq("user_id", userId).lte("year", currentWeek.year).eq("done", false);
-            if (calendarError) throw calendarError;
-            const { data: occurrences, error: occurrenceError } = await supabase
-                .from("todos").select("routine_year,routine_week,routine_task_id")
-                .eq("user_id", userId).not("routine_task_id", "is", null);
-            if (occurrenceError) throw occurrenceError;
-            const generated = new Set((occurrences || []).map(row =>
-                row.routine_year + ":" + row.routine_week + ":" + row.routine_task_id));
-            const openWeek = (planned || []).filter(row =>
-                (row.year < currentWeek.year || row.week <= currentWeek.week) &&
-                !generated.has(row.year + ":" + row.week + ":" + row.task_id)).length;
-
-            const todoCount =
-                openA || 0;
-
-            const weekCount =
-                openWeek || 0;
-
+            // Routinen vor der Zählung übernehmen, auch ohne vorherigen App-Start.
+            const { error: syncError } = await supabase.rpc("sync_routine_todos_for_user", {
+                p_user_id: userId, p_year: currentWeek.year, p_week: currentWeek.week
+            });
+            if (syncError) throw syncError;
+            const { count: openA, error: todoError } = await supabase.from("todos")
+                .select("id", { count: "exact", head: true })
+                .eq("user_id", userId).eq("priority", "a").is("completed_at", null);
+            if (todoError) throw todoError;
+            const todoCount = openA || 0;
+            const weekCount = 0;
 
             console.log(
                 "Offene Aufgaben:",
@@ -485,15 +427,6 @@ if (
             }
 
 
-            if (weekCount > 0) {
-
-                messageParts.push(
-                    weekCount === 1
-                        ? "1 offene KW-Aufgabe"
-                        : `${weekCount} offene KW-Aufgaben`
-                );
-            }
-
 const bodyParts: string[] = [
     ...reminderMessages
 ];
@@ -507,7 +440,9 @@ if (messageParts.length > 0) {
 const payload =
     JSON.stringify({
         title: "Dock",
-        body: bodyParts.join(" · ")
+        body: bodyParts.join(" · "),
+        target: reminderMessages.length ? "expenses-overview" : "todo",
+        tag: "dock-morning-" + berlinDateText
     });
 
 
@@ -527,6 +462,13 @@ const payload =
                 const row
                 of userSubscriptions
             ) {
+
+                // Atomare Reservierung pro Gerät und lokalem Tag.
+                const { error: claimError } = await supabase.from("push_deliveries").insert({
+                    subscription_id: row.id, local_date: berlinDateText, kind: "morning"
+                });
+                if (claimError?.code === "23505") continue;
+                if (claimError) throw claimError;
 
                 const subscription = {
 
@@ -552,6 +494,10 @@ const payload =
                         );
 
                     sent++;
+                    const { error: deliveryError } = await supabase.from("push_deliveries")
+                        .update({ status: "sent", sent_at: new Date().toISOString() })
+                        .eq("subscription_id", row.id).eq("local_date", berlinDateText).eq("kind", "morning");
+                    if (deliveryError) console.error("Versandnachweis:", deliveryError);
 
 
                 } catch (pushError) {
@@ -569,6 +515,9 @@ const payload =
 
                      Solche Einträge entfernen wir direkt.
                     */
+                    // Bei unklaren Netzwerkfehlern keine erneute Zustellung riskieren.
+                    await supabase.from("push_deliveries").update({ status: "failed" })
+                        .eq("subscription_id", row.id).eq("local_date", berlinDateText).eq("kind", "morning");
                     const statusCode =
                         pushError?.statusCode;
 

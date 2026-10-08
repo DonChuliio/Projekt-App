@@ -1,4 +1,5 @@
 // js/app.js
+import { initPushRouting } from "./push/push-routing.js?v=1.60";
 import { initRoutineTodos } from "./data/routine-todos-data.js?v=1.59";
 
 import { initMorning } from "./morning/morning.js?v=1.59";
@@ -19,7 +20,7 @@ import { initHouseCalculator } from "./finances/house-calculator.js?v=1.54";
 import { initSavingsCalculator } from "./finances/savings-calculator.js?v=1.54";
 import { initRecurringTransactions } from "./finances/recurring-transactions.js?v=1.54";
 import { initPocketMoney } from "./finances/pocket-money.js?v=1.54";
-import { initExpensesOverview } from "./finances/expenses-overview.js?v=1.54";
+import { initExpensesOverview } from "./finances/expenses-overview.js?v=1.60";
 import { initRecipes } from "./recipes/recipes.js?v=1.56";
 /*
  Einstiegspunkt der App.
@@ -86,6 +87,7 @@ initRecipes();
     // Startansicht
     showView("dashboard");
     initRoutineTodos();
+    initPushRouting();
     initMorning();
 });
 /*
