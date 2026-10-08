@@ -17,10 +17,10 @@
 
     <link
         rel="manifest"
-        href="manifest.json?v=1.57"
+        href="manifest.json?v=1.58"
     >
 
-    <link rel="apple-touch-icon" sizes="180x180" href="dock-icon-180.png?v=1.57">
+    <link rel="apple-touch-icon" sizes="180x180" href="dock-icon-180.png?v=1.58">
 
     <meta
         name="theme-color"
@@ -34,13 +34,13 @@
 
     <link
         rel="stylesheet"
-        href="style.css?v=1.57"
+        href="style.css?v=1.58"
     >
 
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=1.57"
+        src="js/app.js?v=1.58"
     ></script>
 
     <title>Dock</title>
@@ -194,7 +194,10 @@
 
     <div data-view="good-morning" class="hidden">
         <header class="morning-header">
-            <h2>Guten Morgen ☀️</h2>
+            <h2>Guten Morgen <svg class="morning-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <circle cx="12" cy="12" r="4"></circle>
+                <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"></path>
+            </svg></h2>
             <p id="morning-date"></p>
         </header>
         <section class="morning-section" aria-labelledby="morning-calendar-title">
