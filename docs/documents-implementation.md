@@ -1,3 +1,9 @@
+# Aktueller UI-Prüfstand: v1.66, 08.10.2026
+
+Der allgemeine Speicher-Prüfhinweis wurde nach den unten dokumentierten echten Zwei-Konten-Storage-Tests entfernt. Direkter Import in Ablagen/Ordner, Inbox-Mehrfachauswahl und der navigierbare Zuordnungsdialog sind implementiert. Die Einzelnachweise zu allen zehn Anforderungen und die noch offenen iPhone-Tests stehen in [documents-ui-acceptance-2026-10-08.md](documents-ui-acceptance-2026-10-08.md). Der Testschlüssel wurde laut Benutzer nach Abschluss des echten Testlaufs entfernt. Die Sicherheitsgrenzen bleiben unverändert; dies ist keine uneingeschränkte Sicherheitsgarantie.
+
+---
+
 # Aktueller Prüfstand: 08.10.2026, 13:46 Uhr Europe/Berlin
 
 Der lokale echte Storage-API-Test der Version 01dff4a63f32d051de7aaa180251b6b309cd7c33 wurde unter Windows/Node 24 vollständig durchgeführt. Beide getrennten Testkonten bestanden Upload, bytegleichen Download, Überschreiben mit bytegleicher Prüfung, Löschung, Fremd-/Anonym-/Public-Zugriffe sowie unzulässige Dateien und Größen. Der Benutzer übermittelte beide PASS-Zeilen und die Bereinigungsmeldung. Die anschließende Supabase-Kontrolle bestätigte null temporäre Testkonten und null Dokumentobjekte ohne bestehendes Eigentümerkonto. Vorhandene App-Dokumente blieben erhalten.
@@ -94,4 +100,5 @@ Authentifizierte Dokument-Downloads in App und Test verwenden jetzt einen zufäl
 Bereinigung des zweiten Laufs: keine temporären Testkonten und keine Dokumentobjekte ohne bestehendes Eigentümerkonto gefunden. Ein reguläres JPEG des vorhandenen App-Benutzers bleibt erhalten. Die Freigabe bleibt bis zum vollständig erfolgreichen erneuten API-Test offen.
 
 Quelle: https://supabase.com/docs/guides/storage/cdn/smart-cdn
+
 

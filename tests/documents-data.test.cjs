@@ -1,6 +1,6 @@
 const fs=require('node:fs'),vm=require('node:vm'),a=require('node:assert/strict');
-const uid='11111111-1111-4111-8111-111111111111',id='22222222-2222-4222-8222-222222222222';let requests=[],stored;
-const ctx={Blob,URL,RegExp,Date,JSON,encodeURIComponent,crypto:{randomUUID:()=>id},SUPABASE_URL:'https://example.test',SUPABASE_KEY:'public',getSession:()=>({user:{id:uid}}),getValidAccessToken:async()=> 'user-jwt',TYPES:{'application/pdf':'pdf'},validateFile:b=>b.type,fetch:async(url,options)=>{requests.push({url,options});if(url.includes('/rest/')){if(options.method==='POST')stored={...JSON.parse(options.body),user_id:uid};if(options.method==='PATCH')stored={...stored,...JSON.parse(options.body)};return {ok:true,json:async()=>[stored]};}return {ok:true,blob:async()=>new Blob(['%PDF'],{type:'application/pdf'})};}};
+const uid='11111111-1111-4111-8111-111111111111',id='22222222-2222-4222-8222-222222222222';let requests=[],stored,empty=false,account=uid;
+const ctx={Blob,URL,RegExp,Date,JSON,encodeURIComponent,crypto:{randomUUID:()=>id},SUPABASE_URL:'https://example.test',SUPABASE_KEY:'public',getSession:()=>({user:{id:account}}),getValidAccessToken:async()=> 'user-jwt',TYPES:{'application/pdf':'pdf'},validateFile:b=>b.type,fetch:async(url,options)=>{requests.push({url,options});if(url.includes('/rest/')){if(options.method==='POST')stored={...JSON.parse(options.body),user_id:uid};if(options.method==='PATCH')stored={...stored,...JSON.parse(options.body)};return {ok:true,json:async()=>empty?[]:[stored]};}return {ok:true,blob:async()=>new Blob(['%PDF'],{type:'application/pdf'})};}};
 vm.createContext(ctx);vm.runInContext(fs.readFileSync('js/data/documents-data.js','utf8').replace(/^import .*\n/gm,'').replace(/export /g,''),ctx);
 (async()=>{
  const blob=new Blob(['%PDF original bytes'],{type:'application/pdf'});ctx.input=blob;
@@ -10,5 +10,14 @@ vm.createContext(ctx);vm.runInContext(fs.readFileSync('js/data/documents-data.js
  await a.rejects(vm.runInContext('permanentlyDeleteDocument(doc)',ctx));
  ctx.doc={...doc,trashed_at:'2026-10-08'};await vm.runInContext('permanentlyDeleteDocument(doc)',ctx);a.equal(requests.at(-2).options.method,'DELETE');a.ok(requests.at(-2).url.includes('/storage/'));a.ok(requests.at(-1).url.includes('/rest/'));
  ctx.doc={storage_path:'99999999-9999-4999-8999-999999999999/'+id+'.pdf'};await a.rejects(vm.runInContext('downloadDocument(doc)',ctx));
- console.log('PASS: authenticated/no-store requests, unchanged PDF bytes, no overwrite/public URLs, path ownership and guarded storage-first permanent deletion.');
+ // Direct placement is part of the initial row; moving changes neither ID nor file path.
+ requests=[];ctx.target=id;const placed=await vm.runInContext("createDocument(input,{name:'Direkt',date:'',collection_id:target})",ctx);a.equal(placed.collection_id,id);a.equal(placed.folder_id,null);a.equal(requests.filter(r=>r.options.method==='POST'&&r.url.includes('/rest/')).length,1);a.equal(requests.filter(r=>r.options.method==='POST'&&r.url.includes('/storage/')).length,1);
+ requests=[];ctx.original=placed;await vm.runInContext('moveDocument(original.id,{folder_id:target})',ctx);a.equal(requests.length,1);a.equal(requests[0].options.method,'PATCH');a.ok(requests[0].url.includes('?id=eq.'+id));a.equal(stored.id,placed.id);a.equal(stored.storage_path,placed.storage_path);a.equal(stored.folder_id,id);a.equal(stored.collection_id,null);
+ requests=[];await vm.runInContext('moveDocument(original.id,{collection_id:target},{fromInbox:true})',ctx);a.ok(requests[0].url.includes('collection_id=is.null&folder_id=is.null&trashed_at=is.null&state=eq.ready'));a.equal(requests[0].options.headers.Authorization,'Bearer user-jwt');a.equal(requests[0].options.cache,'no-store');
+ empty=true;await a.rejects(vm.runInContext('moveDocument(original.id,{},{fromInbox:true})',ctx),/bereits verschoben/);empty=false;
+ const before=requests.length;await a.rejects(vm.runInContext('moveDocument(original.id,{collection_id:target,folder_id:target})',ctx));a.equal(requests.length,before);await a.rejects(vm.runInContext("moveDocument(original.id,{folder_id:'bad'})",ctx));a.equal(requests.length,before);
+ account=null;await a.rejects(vm.runInContext('moveDocument(original.id,{})',ctx),/anmelden/);account=uid;
+ const validToken=ctx.getValidAccessToken;ctx.getValidAccessToken=async()=>{account='99999999-9999-4999-8999-999999999999';return 'other-token';};await a.rejects(vm.runInContext('moveDocument(original.id,{})',ctx),/Anmeldung hat sich geändert/);a.equal(requests.length,before);account=uid;ctx.getValidAccessToken=validToken;
+ console.log('PASS: authenticated/no-store requests, unchanged PDF bytes, no overwrite/public URLs, path ownership and guarded storage-first permanent deletion; single-row direct placement and PATCH-only moves, inbox race filter, invalid destinations, anonymous/session change rejection.');
 })().catch(e=>{console.error(e);process.exitCode=1;});
+

@@ -1,4 +1,5 @@
-import { initDocuments } from "./documents/documents.js?v=1.65";
+import { initNavigation } from './navigation.js?v=1.66';
+import { initDocuments } from "./documents/documents.js?v=1.66";
 // js/app.js
 import { initPushRouting } from "./push/push-routing.js?v=1.60";
 import { initRoutineTodos } from "./data/routine-todos-data.js?v=1.59";
@@ -8,7 +9,7 @@ import { initMorning } from "./morning/morning.js?v=1.59";
 import { initDashboard } from "./dashboard.js?v=1.54";
 import { initNotes } from "./notes/notes.js?v=1.54";
 import { initCalendar } from "./calendar/calendar.js?v=1.59";
-import { showView, goToDashboard } from "./router.js";
+import { showView } from "./router.js";
 import { initTodo } from "./todo/todo.js?v=1.59";
 import { initPacklists } from "./packlists/packlists.js?v=1.54";
 import { initPacklistEditor } from "./packlists/packlist-editor.js?v=1.54";
@@ -65,26 +66,7 @@ initExpensesOverview();
 initRecipes();
 initDocuments();
 
-    // Zentrale Zurück-Buttons verbinden
-    document.querySelectorAll("[data-back]").forEach((button) => {
-        button.addEventListener("click", () => {
-            goToDashboard();
-        });
-    });
-
-    // Home-Button neben jedem Zurück-Button ergänzen.
-    document.querySelectorAll(".back-button").forEach((backButton) => {
-        const homeButton = document.createElement("button");
-        homeButton.type = "button";
-        homeButton.className = "home-button";
-        homeButton.textContent = "Home";
-
-        homeButton.addEventListener("click", () => {
-            goToDashboard();
-        });
-
-        backButton.insertAdjacentElement("afterend", homeButton);
-    });
+    initNavigation();
 
     // Startansicht
     showView("dashboard");
@@ -92,26 +74,3 @@ initDocuments();
     initPushRouting();
     initMorning();
 });
-/*
- Neue Zurück-Navigation für
- verschachtelte Ansichten.
-
- Beispiel:
- Aquaristik -> Hobby -> Dashboard
-*/
-document
-    .querySelectorAll("[data-view-back]")
-    .forEach((button) => {
-
-        button.addEventListener(
-            "click",
-            () => {
-
-                const targetView =
-                    button.dataset.viewBack;
-
-                showView(targetView);
-            }
-        );
-    });
-
