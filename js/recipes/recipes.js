@@ -1,5 +1,7 @@
 // js/recipes/recipes.js
 
+import { showView } from "../router.js";
+
 import { SUPABASE_URL, SUPABASE_KEY } from "../config/supabase.js";
 import { getValidAccessToken } from "../auth/auth.js";
 import {
@@ -202,10 +204,12 @@ function openRecipeMenu(recipe) {
 function openRecipeView(recipe) {
     removeRecipeDialogs();
 
-    const overlay = createOverlay("recipe-view-dialog");
-    const dialog = createDialog();
+    const dialog = document.getElementById("recipe-view-content");
+    if (!dialog) return;
+    dialog.innerHTML = "";
+    showView("recipe-view");
 
-    const title = document.createElement("h3");
+    const title = document.createElement("h2");
     title.textContent = recipe.name;
 
     const ingredientsSection = document.createElement("section");
@@ -234,27 +238,29 @@ function openRecipeView(recipe) {
     const close = document.createElement("button");
     close.type = "button";
     close.className = "packlist-dialog-cancel";
-    close.textContent = "Schließen";
-    close.onclick = () => overlay.remove();
+    close.textContent = "Zurück zu den Rezepten";
+    close.onclick = () => showView("red-folder");
 
     dialog.append(title, ingredientsSection, descriptionSection, close);
-    overlay.appendChild(dialog);
-    document.body.appendChild(overlay);
 }
 
 function openRecipeEditor(recipe = null) {
     removeRecipeDialogs();
 
-    const overlay = createOverlay("recipe-editor-dialog");
-    const dialog = createDialog();
+    const dialog = document.getElementById("recipe-editor-content");
+    if (!dialog) return;
+    dialog.innerHTML = "";
+    showView("recipe-editor");
 
-    const title = document.createElement("h3");
+    const title = document.createElement("h2");
     title.textContent = recipe ? "Rezept bearbeiten" : "Neues Rezept";
 
     const nameLabel = document.createElement("label");
     nameLabel.textContent = "Rezeptname";
     const nameInput = document.createElement("input");
     nameInput.type = "text";
+    nameInput.id = "recipe-name-input";
+    nameLabel.htmlFor = nameInput.id;
     nameInput.placeholder = "z. B. Tomatensuppe";
     nameInput.value = recipe?.name || "";
 
@@ -262,6 +268,8 @@ function openRecipeEditor(recipe = null) {
     ingredientsLabel.textContent = "Zutaten – eine Zutat pro Zeile";
     const ingredientsInput = document.createElement("textarea");
     ingredientsInput.className = "recipe-ingredients-input";
+    ingredientsInput.id = "recipe-ingredients-input";
+    ingredientsLabel.htmlFor = ingredientsInput.id;
     ingredientsInput.placeholder = "500 g Tomaten\n1 Zwiebel\n200 ml Sahne";
     ingredientsInput.value = Array.isArray(recipe?.ingredients)
         ? recipe.ingredients.join("\n")
@@ -271,6 +279,8 @@ function openRecipeEditor(recipe = null) {
     descriptionLabel.textContent = "Beschreibung";
     const descriptionInput = document.createElement("textarea");
     descriptionInput.className = "recipe-description-input";
+    descriptionInput.id = "recipe-description-input";
+    descriptionLabel.htmlFor = descriptionInput.id;
     descriptionInput.placeholder = "Zubereitung, Hinweise oder eigene Notizen...";
     descriptionInput.value = recipe?.description || "";
 
@@ -303,7 +313,7 @@ function openRecipeEditor(recipe = null) {
                 await createRecipe(payload);
             }
 
-            overlay.remove();
+            showView("red-folder");
             await renderRecipes();
         } catch (error) {
             console.error("Rezept konnte nicht gespeichert werden:", error);
@@ -317,7 +327,7 @@ function openRecipeEditor(recipe = null) {
     cancel.type = "button";
     cancel.className = "packlist-dialog-cancel";
     cancel.textContent = "Abbrechen";
-    cancel.onclick = () => overlay.remove();
+    cancel.onclick = () => showView("red-folder");
 
     dialog.append(
         title,
@@ -331,8 +341,6 @@ function openRecipeEditor(recipe = null) {
         cancel
     );
 
-    overlay.appendChild(dialog);
-    document.body.appendChild(overlay);
     requestAnimationFrame(() => nameInput.focus());
 }
 

@@ -1660,3 +1660,11 @@ html, body {
 
 /* Rezeptsuche */
 #recipe-search{width:100%;margin:0 0 16px}
+
+/* Rezept anzeigen und bearbeiten als eigene Seiten */
+.recipe-page{width:100%}
+.recipe-page label{display:block;margin:16px 0 6px;color:var(--text-muted)}
+.recipe-page input,.recipe-page textarea{width:100%;margin:0}
+.recipe-page textarea{resize:vertical}
+.recipe-page .recipe-view-section{padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:12px}
+.recipe-page>button{margin-top:16px}
