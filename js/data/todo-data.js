@@ -6,7 +6,7 @@ import {
 } from "../config/supabase.js";
 
 import {
-    getAccessToken
+    getValidAccessToken
 } from "../auth/auth.js";
 
 
@@ -47,10 +47,10 @@ export async function loadTodos(priority) {
 
     const response =
         await fetch(
-            `${TODO_TABLE_URL}?priority=eq.${encodeURIComponent(priority)}&select=id,text,priority,created_at&order=created_at.asc`,
+            `${TODO_TABLE_URL}?priority=eq.${encodeURIComponent(priority)}&select=id,text,priority,created_at,routine_task_id,routine_year,routine_week,completed_at&completed_at=is.null&order=created_at.asc`,
             {
                 method: "GET",
-                headers: createHeaders()
+                headers: await createHeaders()
             }
         );
 
@@ -101,7 +101,7 @@ export async function addTodo(
             {
                 method: "POST",
                 headers: {
-                    ...createHeaders(),
+                    ...await createHeaders(),
                     "Prefer": "return=representation"
                 },
                 body: JSON.stringify({
@@ -149,7 +149,7 @@ export async function deleteTodo(id) {
             `${TODO_TABLE_URL}?id=eq.${encodeURIComponent(id)}`,
             {
                 method: "DELETE",
-                headers: createHeaders()
+                headers: await createHeaders()
             }
         );
 
@@ -169,10 +169,10 @@ export async function deleteTodo(id) {
 /*
  Gemeinsame Header für Supabase REST.
 */
-function createHeaders() {
+async function createHeaders() {
 
     const accessToken =
-        getAccessToken();
+        await getValidAccessToken();
 
 
     if (!accessToken) {
@@ -224,7 +224,7 @@ export async function updateTodoPriority(id, priority) {
         `${TODO_TABLE_URL}?id=eq.${encodeURIComponent(id)}`,
         {
             method: "PATCH",
-            headers: createHeaders(),
+            headers: await createHeaders(),
             body: JSON.stringify({ priority })
         }
     );
@@ -235,4 +235,13 @@ export async function updateTodoPriority(id, priority) {
             `To-Do konnte nicht verschoben werden (${response.status}): ${errorText}`
         );
     }
+}
+
+export async function completeTodo(id) {
+    const response = await fetch(
+        `${TODO_TABLE_URL}?id=eq.${encodeURIComponent(id)}`,
+        { method: "PATCH", headers: await createHeaders(),
+          body: JSON.stringify({ completed_at: new Date().toISOString() }) }
+    );
+    if (!response.ok) throw new Error("To-do konnte nicht abgeschlossen werden.");
 }

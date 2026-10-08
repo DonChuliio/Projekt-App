@@ -9,8 +9,7 @@ import {
 import {
     loadCalendarTasks,
     addCalendarTask,
-    deleteCalendarTask,
-    setCalendarTaskDone
+    deleteCalendarTask
 } from "../data/calendar-data.js?v=0.94";
 import { loadCalendarSettings, saveMonthEndSavingsReminder, saveMonthStartBalanceReminder } from "../data/calendar-settings-data.js?v=1.30";
 
@@ -23,92 +22,8 @@ export const WEEK_TASKS = [
 ];
 
 export function initCalendar() {
-    const weekElement = document.getElementById("calendar-current-week");
-    const tasksElement = document.getElementById("calendar-week-tasks");
-    const editButton = document.getElementById("calendar-edit");
-    const editBackButton = document.getElementById("calendar-edit-back");
-
-    if (!weekElement || !tasksElement || !editButton || !editBackButton) {
-        console.error("Kalender-Elemente nicht gefunden");
-        return;
-    }
-
-    // Vor dem Login kann die erste Abfrage noch fehlschlagen.
-    renderCurrentWeek();
-
-    document
-        .querySelector('[data-tile="calendar"]')
-        ?.addEventListener("click", renderCurrentWeek);
-
-    editButton.addEventListener("click", async () => {
-        await renderWeekEditor();
-        showView("calendar-edit");
-    });
-
-    editBackButton.addEventListener("click", async () => {
-        await renderCurrentWeek();
-        showView("calendar");
-    });
-}
-
-export async function renderCurrentWeek() {
-    const weekElement = document.getElementById("calendar-current-week");
-    const tasksElement = document.getElementById("calendar-week-tasks");
-
-    if (!weekElement || !tasksElement) return;
-
-    const today = new Date();
-    const week = getISOWeek(today);
-    const year = getISOWeekYear(today);
-
-    weekElement.textContent = `KW ${week} · ${year}`;
-
-    let rows;
-
-    try {
-        rows = await loadCalendarTasks(year, week);
-    } catch (error) {
-        console.log("Kalender noch nicht geladen:", error.message);
-        return;
-    }
-
-    tasksElement.innerHTML = "";
-
-    if (rows.length === 0) {
-        const empty = document.createElement("p");
-        empty.className = "calendar-no-tasks";
-        empty.textContent = "Für diese Woche sind keine Aufgaben geplant.";
-        tasksElement.appendChild(empty);
-        return;
-    }
-
-    const list = document.createElement("ul");
-    list.className = "calendar-task-list";
-
-    WEEK_TASKS.forEach(task => {
-        const row = rows.find(item => item.task_id === task.id);
-        if (!row) return;
-
-        const li = document.createElement("li");
-        li.textContent = `${row.done ? "☑" : "☐"} ${task.name}`;
-        li.classList.toggle("done", row.done);
-
-        li.addEventListener("click", async () => {
-            li.style.pointerEvents = "none";
-
-            try {
-                await setCalendarTaskDone(row.id, !row.done);
-                await renderCurrentWeek();
-            } catch (error) {
-                console.error("Kalender-Aufgabe konnte nicht geändert werden:", error);
-                li.style.pointerEvents = "";
-            }
-        });
-
-        list.appendChild(li);
-    });
-
-    tasksElement.appendChild(list);
+    document.querySelector('[data-tile="calendar-edit"]')?.addEventListener("click", renderWeekEditor);
+    document.addEventListener("dock:auth-changed", renderWeekEditor);
 }
 
 async function renderWeekEditor() {
@@ -239,7 +154,9 @@ async function renderWeekEditor() {
 
             function updateButton() {
                 button.classList.toggle("active", Boolean(existingRow));
-                button.textContent = existingRow ? "✓" : "";
+                button.textContent = "";
+                button.setAttribute("aria-label", `${task.name}, KW ${week}: ${existingRow ? "geplant" : "nicht geplant"}`);
+                button.setAttribute("aria-pressed", String(Boolean(existingRow)));
             }
 
             updateButton();
@@ -258,6 +175,7 @@ async function renderWeekEditor() {
                     }
 
                     updateButton();
+                    document.dispatchEvent(new CustomEvent("dock:routines-changed"));
                 } catch (error) {
                     console.error("Wochenplan konnte nicht geändert werden:", error);
                 } finally {

@@ -1,9 +1,8 @@
 // Guten-Morgen-Ansicht: vorhandene Daten, keine eigenen Aufgabenbestände.
 import { getSession, isLoggedIn, getValidAccessToken } from "../auth/auth.js";
-import { loadCalendarTasks } from "../data/calendar-data.js?v=0.94";
-import { loadTodos } from "../data/todo-data.js?v=1.51";
-import { WEEK_TASKS, renderCurrentWeek } from "../calendar/calendar.js?v=1.57";
-import { getISOWeek, getISOWeekYear } from "../utils/date.js";
+import { loadTodos } from "../data/todo-data.js?v=1.59";
+import { syncRoutineTodos } from "../data/routine-todos-data.js?v=1.59";
+import { getISOWeek } from "../utils/date.js";
 import { showView } from "../router.js";
 
 let generation = 0;
@@ -31,12 +30,6 @@ function taskButton(container, text, navigate) {
     container.appendChild(button);
 }
 
-function openCalendar() {
-    generation++;
-    showView("calendar");
-    renderCurrentWeek();
-}
-
 function openTodos() {
     generation++;
     showView("todo");
@@ -59,15 +52,12 @@ export async function maybeShowMorning() {
     if (stored === day || shownThisSession.get(userId) === day) return;
 
     const week = getISOWeek(today);
-    const year = getISOWeekYear(today);
-    const calendar = document.getElementById("morning-calendar-list");
     const todos = document.getElementById("morning-todo-list");
     const dateLabel = document.getElementById("morning-date");
-    if (!calendar || !todos || !dateLabel) return;
+    if (!todos || !dateLabel) return;
     dateLabel.textContent = today.toLocaleDateString("de-DE", {
         weekday: "long", day: "2-digit", month: "long"
     }) + " · KW " + week;
-    message(calendar, "KW-Aufgaben werden geladen…");
     message(todos, "Wichtige To-dos werden geladen…");
     showView("good-morning");
     if (view.classList.contains("hidden")) return;
@@ -81,33 +71,23 @@ export async function maybeShowMorning() {
         await getValidAccessToken();
     } catch (error) {
         if (current()) {
-            message(calendar, "KW-Aufgaben konnten nicht geladen werden.");
             message(todos, "To-dos konnten nicht geladen werden.");
         }
         return;
     }
     if (!current()) return;
+    let syncFailed = false;
+    try { await syncRoutineTodos(); } catch { syncFailed = true; }
+    if (!current()) return;
+    const syncStatus = document.getElementById("morning-sync-status");
+    if (syncStatus) syncStatus.textContent = syncFailed
+        ? "Routinen konnten nicht übernommen werden. Deine vorhandenen To-dos werden angezeigt." : "";
     await Promise.all([
-        loadCalendarTasks(year, week).then(rows => {
-            if (!current()) return;
-            const open = rows.filter(row => !row.done && row.year === year && row.week === week);
-            if (!open.length) {
-                message(calendar, "Alles geschafft! Keine offenen KW-Aufgaben. 🎉");
-                return;
-            }
-            calendar.replaceChildren();
-            for (const row of open) {
-                const task = WEEK_TASKS.find(task => task.id === row.task_id);
-                taskButton(calendar, task?.name || row.task_id, openCalendar);
-            }
-        }).catch(() => {
-            if (current()) message(calendar, "KW-Aufgaben konnten nicht geladen werden.");
-        }),
         loadTodos("a").then(rows => {
             if (!current()) return;
-            const open = rows.filter(row => row.priority === "a" && !row.done);
+            const open = rows.filter(row => row.priority === "a" && !row.completed_at);
             if (!open.length) {
-                message(todos, "Keine wichtigen To-dos offen. Ein guter Start! ☀️");
+                message(todos, "Keine wichtigen To-dos offen. Ein guter Start!");
                 return;
             }
             todos.replaceChildren();
@@ -119,7 +99,6 @@ export async function maybeShowMorning() {
 }
 
 export function initMorning() {
-    document.getElementById("morning-calendar-open")?.addEventListener("click", openCalendar);
     document.getElementById("morning-todo-open")?.addEventListener("click", openTodos);
     document.getElementById("morning-dashboard")?.addEventListener("click", () => {
         generation++;

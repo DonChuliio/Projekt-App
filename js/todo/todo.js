@@ -3,9 +3,10 @@
 import {
     loadTodos,
     addTodo,
-    deleteTodo,
+    completeTodo,
     updateTodoPriority
-} from "../data/todo-data.js?v=1.51";
+} from "../data/todo-data.js?v=1.59";
+import { syncRoutineTodos } from "../data/routine-todos-data.js?v=1.59";
 
 export function initTodo() {
     initList("a");
@@ -26,6 +27,7 @@ async function initList(type) {
 
     async function reloadTodos() {
         try {
+            try { await syncRoutineTodos(); } catch (error) { console.error(error); }
             todos = await loadTodos(type);
             renderList(list, todos, type, reloadTodos);
         } catch (error) {
@@ -107,17 +109,27 @@ function renderList(listElement, todos, type, reloadTodos) {
             }
         });
 
+        if (todo.routine_task_id) {
+            const source = document.createElement("small");
+            source.className = "todo-routine-source";
+            source.textContent = `Routine · KW ${todo.routine_week}/${todo.routine_year}`;
+            textElement.appendChild(source);
+        }
+
         const deleteButton = document.createElement("button");
         deleteButton.type = "button";
-        deleteButton.textContent = "×";
+        const checkIcon = document.createElement("span");
+        checkIcon.className = "todo-check-icon";
+        checkIcon.setAttribute("aria-hidden", "true");
+        deleteButton.appendChild(checkIcon);
         deleteButton.className = "todo-delete";
-        deleteButton.setAttribute("aria-label", "Aufgabe löschen");
+        deleteButton.setAttribute("aria-label", "Aufgabe erledigen");
 
         deleteButton.addEventListener("click", async () => {
             deleteButton.disabled = true;
 
             try {
-                await deleteTodo(todo.id);
+                await completeTodo(todo.id);
                 document.dispatchEvent(new CustomEvent("dock:todos-changed"));
             } catch (error) {
                 console.error("To-Do konnte nicht gelöscht werden:", error);

@@ -17,10 +17,10 @@
 
     <link
         rel="manifest"
-        href="manifest.json?v=1.58"
+        href="manifest.json?v=1.59"
     >
 
-    <link rel="apple-touch-icon" sizes="180x180" href="dock-icon-180.png?v=1.58">
+    <link rel="apple-touch-icon" sizes="180x180" href="dock-icon-180.png?v=1.59">
 
     <meta
         name="theme-color"
@@ -34,13 +34,13 @@
 
     <link
         rel="stylesheet"
-        href="style.css?v=1.58"
+        href="style.css?v=1.59"
     >
 
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=1.58"
+        src="js/app.js?v=1.59"
     ></script>
 
     <title>Dock</title>
@@ -180,7 +180,7 @@
         <h2>Planer</h2>
         <div class="tiles">
             <div class="tile" data-tile="todo">To-Do</div>
-            <div class="tile" data-tile="calendar">Routinen</div>
+            <div class="tile" data-tile="calendar-edit">Routinen</div>
         </div>
     </div>
 
@@ -200,13 +200,9 @@
             </svg></h2>
             <p id="morning-date"></p>
         </header>
-        <section class="morning-section" aria-labelledby="morning-calendar-title">
-            <h3 id="morning-calendar-title">Offene KW-Aufgaben</h3>
-            <div id="morning-calendar-list" aria-live="polite"></div>
-            <button id="morning-calendar-open" type="button">Zum Kalender</button>
-        </section>
         <section class="morning-section" aria-labelledby="morning-todo-title">
             <h3 id="morning-todo-title">Wichtige To-dos</h3>
+            <p id="morning-sync-status" class="morning-status" role="status"></p>
             <div id="morning-todo-list" aria-live="polite"></div>
             <button id="morning-todo-open" type="button">Zu den To-dos</button>
         </section>
@@ -548,41 +544,6 @@
          KALENDER / WOCHENPLAN
          ================================================== -->
 
-    <div
-        data-view="calendar"
-        class="hidden"
-    >
-
-        <button
-            class="back-button"
-            data-view-back="planner"
-        >
-            Zurück
-        </button>
-
-
-        <div class="calendar-header">
-
-            <h2>Routinen</h2>
-
-
-            <button id="calendar-edit">
-                Bearbeiten
-            </button>
-
-        </div>
-
-
-        <h3 id="calendar-current-week">
-            KW --
-        </h3>
-
-
-        <div id="calendar-week-tasks"></div>
-
-    </div>
-
-
     <!-- ==================================================
          KALENDER / WOCHENPLAN BEARBEITEN
          ================================================== -->
@@ -592,17 +553,12 @@
         class="hidden"
     >
 
-        <button
-            id="calendar-edit-back"
-            class="back-button"
-        >
+        <button class="back-button" data-view-back="planner">
             Zurück
         </button>
 
 
-        <h2>
-            Wochenplan bearbeiten
-        </h2>
+        <h2>Routinen verwalten</h2>
 
     </div>
 
@@ -625,6 +581,7 @@
 
 
         <h2>To-Do</h2>
+        <p id="routine-sync-status" role="status"></p>
 
 
         <!-- A-Aufgaben -->

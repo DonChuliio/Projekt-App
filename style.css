@@ -33,7 +33,7 @@ body {
     background: var(--bg);
     color: var(--text);
 
-    /* ⛔ NICHT mehr hier einschränken */
+    /* NICHT mehr hier einschränken */
     /* max-width: 600px; */
     /* margin-inline: auto; */
 }
@@ -1683,3 +1683,10 @@ html, body {
 
 .morning-header h2{display:flex;align-items:center;gap:12px}
 .morning-sun{width:30px;height:30px;flex:0 0 30px;fill:none;stroke:var(--petrol);stroke-width:1.8;stroke-linecap:round}
+
+/* Routinen in To-dos */
+.todo-routine-source{display:block;margin-top:4px;font-size:12px;color:var(--text-muted)}
+.todo-check-icon{display:block;width:13px;height:7px;border-left:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);margin:0 auto}
+.week-task-toggle.active::after{content:"";display:block;width:10px;height:6px;border-left:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);margin:auto}
+#routine-sync-status{color:var(--text-muted);font-size:14px;line-height:1.5}
+#routine-sync-status:empty,#morning-sync-status:empty{display:none}
