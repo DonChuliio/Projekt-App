@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {TEMPLATES,descendants,folderPath,validateCollection} from '../js/documents/templates.js';
+assert.equal(Object.keys(TEMPLATES).length,7);
+assert.ok(TEMPLATES.housing.fields.some(([key])=>key==='meter_number'));
+for(const template of Object.keys(TEMPLATES))assert.equal(validateCollection({name:'Optional fields',template,fields:{},custom_fields:[]}),true);
+assert.equal(validateCollection({name:'Provider',template:'contract',fields:{cost:'10 €'},custom_fields:[{id:'one',label:'Optional custom field',value:''}]}),true);
+assert.throws(()=>validateCollection({name:'Invalid',template:'general',fields:{},custom_fields:[{id:'one',label:'',value:'test'}]}));
+const folders=[{id:'a',name:'Wohnen',parent_id:null},{id:'b',name:'Versorgung',parent_id:'a'},{id:'c',name:'Strom',parent_id:'b'},{id:'d',name:'Sonstiges',parent_id:null}];
+assert.deepEqual([...descendants(folders,'a')],['a','b','c']);assert.equal(folderPath(folders,'c'),'Wohnen / Versorgung / Strom');assert.equal(folderPath(folders,'d'),'Sonstiges');
+assert.doesNotThrow(()=>folderPath([{id:'a',name:'Loop',parent_id:'a'}],'a'));
+console.log('PASS: all optional templates, meter field, custom validation, descendants, nested paths and cycle-safe path display.');

@@ -19,6 +19,9 @@ try{
  for(let i=0;i<2;i++){
   const own=users[i],other=users[1-i],path=`${own.id}/${randomUUID()}.pdf`;paths.push({path,user:own});const original=pdf('original'),replacement=pdf('replacement');
   assert.ok((await object(path,own.token,original)).ok,'own upload');await equalFile(path,own.token,original);
+  const ownList=await call('/storage/v1/object/list/dock-documents',{token:own.token,method:'POST',type:'application/json',body:JSON.stringify({prefix:own.id,limit:100})});assert.ok(ownList.ok,'own list');assert.ok((await ownList.json()).some(item=>item.name===path.split('/')[1]),'own file listed');
+  for(const token of [other.token,undefined]){const listing=await call('/storage/v1/object/list/dock-documents',{token,method:'POST',type:'application/json',body:JSON.stringify({prefix:own.id,limit:100})});if(listing.ok)assert.equal((await listing.json()).length,0,'foreign/anonymous listing empty');}
+  const imagePath=`${own.id}/${randomUUID()}.png`,image=new Blob([Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a7WQAAAAASUVORK5CYII=','base64')],{type:'image/png'});paths.push({path:imagePath,user:own});assert.ok((await object(imagePath,own.token,image)).ok,'own PNG upload');await equalFile(imagePath,own.token,image);
   assert.ok((await object(path,own.token,replacement)).ok,'own overwrite');await equalFile(path,own.token,replacement);
   assert.ok(!(await download(path,other.token)).ok,'foreign download denied');assert.ok(!(await download(path)).ok,'anonymous download denied');
   assert.ok(!(await call('/storage/v1/object/public/dock-documents/'+path)).ok,'public URL denied');

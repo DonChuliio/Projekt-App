@@ -11,7 +11,7 @@ async function request(path,options={},expectedUser=user()) {
  if(!response.ok)throw new Error(response.status===401||response.status===403?'Zugriff verweigert. Bitte Anmeldung prüfen.':`Dokumentvorgang fehlgeschlagen (${response.status}).`);
  return response;
 }
-export async function rows(table,query='order=created_at.desc'){
+export async function rows(table,query='order=created_at.desc,id.desc'){
  const owner=user(),out=[];let start=0;
  for(;;){const r=await request(`/rest/v1/${table}?select=*&${query}`,{headers:{Range:`${start}-${start+499}`}},owner);const page=await r.json();out.push(...page);if(page.length<500)break;start+=500;}
  return out;
@@ -22,6 +22,15 @@ export async function writeRow(table,id,data,method=id?'PATCH':'POST') {
  const results=await r.json();if(!results.length)throw new Error('Eintrag wurde geändert oder ist nicht zugänglich. Bitte neu laden.');return results[0];
 }
 export const loadDocuments=()=>rows('documents');
+export async function loadDocumentLibrary(){
+ await request('/rest/v1/rpc/ensure_document_folders',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+ const [documents,folders,collections]=await Promise.all([loadDocuments(),rows('document_folders','order=name.asc,id.asc'),rows('document_collections','order=name.asc,id.asc')]);
+ return {documents,folders,collections};
+}
+export const saveFolder=(id,data)=>writeRow('document_folders',id,data);
+export const saveCollection=(id,data)=>writeRow('document_collections',id,data);
+export const deleteFolder=id=>writeRow('document_folders',id,null,'DELETE');
+export const deleteCollection=id=>writeRow('document_collections',id,null,'DELETE');
 export async function downloadDocument(doc){const r=await request(`/storage/v1/object/authenticated/dock-documents/${objectPath(doc.storage_path)}`);return r.blob();}
 async function removeObject(doc){await request('/storage/v1/object/dock-documents',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({prefixes:[objectPath(doc.storage_path)]})});}
 export async function createDocument(file,{name,date}){
