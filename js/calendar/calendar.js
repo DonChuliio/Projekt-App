@@ -14,7 +14,7 @@ import {
 } from "../data/calendar-data.js?v=0.94";
 import { loadCalendarSettings, saveMonthEndSavingsReminder, saveMonthStartBalanceReminder } from "../data/calendar-settings-data.js?v=1.30";
 
-const WEEK_TASKS = [
+export const WEEK_TASKS = [
     { id: "plants", name: "Pflanzen gießen", shortName: "Pflanzen" },
     { id: "orchids", name: "Orchideen wässern", shortName: "Orchideen" },
     { id: "aquarium-small", name: "Aquarium kleiner Wasserwechsel", shortName: "Aqua klein" },
@@ -51,7 +51,7 @@ export function initCalendar() {
     });
 }
 
-async function renderCurrentWeek() {
+export async function renderCurrentWeek() {
     const weekElement = document.getElementById("calendar-current-week");
     const tasksElement = document.getElementById("calendar-week-tasks");
 

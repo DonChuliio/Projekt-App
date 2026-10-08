@@ -60,6 +60,7 @@ export function initAuth() {
                 status.textContent = "";
 
                 updateVisibility();
+                document.dispatchEvent(new CustomEvent("dock:auth-changed"));
             } catch (error) {
                 console.error(
                     "Anmeldung fehlgeschlagen:",
@@ -77,6 +78,7 @@ export function initAuth() {
         () => {
             signOut();
             updateVisibility();
+            document.dispatchEvent(new CustomEvent("dock:auth-changed"));
         }
     );
 

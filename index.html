@@ -17,10 +17,10 @@
 
     <link
         rel="manifest"
-        href="manifest.json?v=1.56"
+        href="manifest.json?v=1.57"
     >
 
-    <link rel="apple-touch-icon" sizes="180x180" href="dock-icon-180.png?v=1.56">
+    <link rel="apple-touch-icon" sizes="180x180" href="dock-icon-180.png?v=1.57">
 
     <meta
         name="theme-color"
@@ -34,13 +34,13 @@
 
     <link
         rel="stylesheet"
-        href="style.css?v=1.56"
+        href="style.css?v=1.57"
     >
 
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=1.56"
+        src="js/app.js?v=1.57"
     ></script>
 
     <title>Dock</title>
@@ -191,6 +191,24 @@
     <!-- ==================================================
          ROTER ORDNER
          ================================================== -->
+
+    <div data-view="good-morning" class="hidden">
+        <header class="morning-header">
+            <h2>Guten Morgen ☀️</h2>
+            <p id="morning-date"></p>
+        </header>
+        <section class="morning-section" aria-labelledby="morning-calendar-title">
+            <h3 id="morning-calendar-title">Offene KW-Aufgaben</h3>
+            <div id="morning-calendar-list" aria-live="polite"></div>
+            <button id="morning-calendar-open" type="button">Zum Kalender</button>
+        </section>
+        <section class="morning-section" aria-labelledby="morning-todo-title">
+            <h3 id="morning-todo-title">Wichtige To-dos</h3>
+            <div id="morning-todo-list" aria-live="polite"></div>
+            <button id="morning-todo-open" type="button">Zu den To-dos</button>
+        </section>
+        <button id="morning-dashboard" type="button">Weiter zum Dashboard</button>
+    </div>
 
     <div data-view="red-folder" class="hidden">
         <button class="back-button" data-view-back="notes">Zurück</button>

@@ -1,8 +1,10 @@
 // js/app.js
 
+import { initMorning } from "./morning/morning.js?v=1.57";
+
 import { initDashboard } from "./dashboard.js?v=1.54";
 import { initNotes } from "./notes/notes.js?v=1.54";
-import { initCalendar } from "./calendar/calendar.js?v=1.54";
+import { initCalendar } from "./calendar/calendar.js?v=1.57";
 import { showView, goToDashboard } from "./router.js";
 import { initTodo } from "./todo/todo.js?v=1.54";
 import { initPacklists } from "./packlists/packlists.js?v=1.54";
@@ -10,7 +12,7 @@ import { initPacklistEditor } from "./packlists/packlist-editor.js?v=1.54";
 import { initPacklistRun } from "./packlists/packlist-run.js?v=1.54";
 import { initWatertest } from "./watertest/watertest.js?v=1.54";
 import { initPush } from "./push/push.js?v=1.54";
-import { initAuth } from "./auth/auth-view.js";
+import { initAuth } from "./auth/auth-view.js?v=1.57";
 import { initPlannerTexts } from "./planner-texts/planner-texts.js?v=1.54";
 import { initHouseCalculator } from "./finances/house-calculator.js?v=1.54";
 import { initSavingsCalculator } from "./finances/savings-calculator.js?v=1.54";
@@ -82,6 +84,7 @@ initRecipes();
 
     // Startansicht
     showView("dashboard");
+    initMorning();
 });
 /*
  Neue Zurück-Navigation für
