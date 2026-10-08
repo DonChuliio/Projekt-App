@@ -9,8 +9,11 @@ const SESSION_KEY = "dock-auth-session";
 const REFRESH_MARGIN_SECONDS = 60;
 
 let refreshPromise = null;
+let sessionGeneration = 0;
 
 function saveSession(session) {
+    sessionGeneration++;
+    if (!session.expires_at && session.expires_in) session.expires_at = Math.floor(Date.now()/1000) + Number(session.expires_in);
     localStorage.setItem(
         SESSION_KEY,
         JSON.stringify(session)
@@ -24,10 +27,6 @@ function tokenExpiresAt(session) {
         return Number(session.expires_at);
     }
 
-    if (session.expires_in) {
-        return Math.floor(Date.now() / 1000) + Number(session.expires_in);
-    }
-
     return 0;
 }
 
@@ -36,7 +35,9 @@ export function getSession() {
     if (!raw) return null;
 
     try {
-        return JSON.parse(raw);
+        const session = JSON.parse(raw);
+        if (!session || typeof session !== "object" || !session.access_token || !session.user?.id) return null;
+        return session;
     } catch {
         localStorage.removeItem(SESSION_KEY);
         return null;
@@ -48,7 +49,9 @@ export function getAccessToken() {
 }
 
 export function isLoggedIn() {
-    return Boolean(getSession()?.refresh_token || getAccessToken());
+    const session = getSession();
+    return Boolean(session?.refresh_token ||
+        (session?.access_token && tokenExpiresAt(session) > Date.now()/1000));
 }
 
 export async function refreshSession(force = false) {
@@ -77,6 +80,7 @@ export async function refreshSession(force = false) {
         return refreshPromise;
     }
 
+    const generation = sessionGeneration;
     refreshPromise = (async () => {
         const response = await fetch(
             `${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`,
@@ -95,6 +99,11 @@ export async function refreshSession(force = false) {
         const data = await response.json();
 
         if (!response.ok) {
+            if ((response.status === 400 || response.status === 401) && generation === sessionGeneration) {
+                localStorage.removeItem(SESSION_KEY);
+                sessionGeneration++;
+                document.dispatchEvent(new CustomEvent("dock:auth-changed"));
+            }
             throw new Error(
                 data.error_description ||
                 data.msg ||
@@ -102,6 +111,7 @@ export async function refreshSession(force = false) {
             );
         }
 
+        if (generation !== sessionGeneration) return null;
         saveSession(data);
         return data;
     })();
@@ -153,6 +163,24 @@ export async function signIn(email, password) {
     return data;
 }
 
-export function signOut() {
+export async function signOut() {
+    const token = getAccessToken();
+    sessionGeneration++;
     localStorage.removeItem(SESSION_KEY);
+    refreshPromise = null;
+    if (!token) return true;
+    try {
+        const response = await fetch(SUPABASE_URL + "/auth/v1/logout?scope=local", {
+            method: "POST",
+            headers: { apikey: SUPABASE_KEY, Authorization: "Bearer " + token }
+        });
+        return response.ok;
+    } catch { return false; }
 }
+
+window.addEventListener("storage", event => {
+    if (event.key !== SESSION_KEY) return;
+    sessionGeneration++;
+    refreshPromise = null;
+    document.dispatchEvent(new CustomEvent("dock:auth-changed"));
+});

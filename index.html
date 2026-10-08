@@ -5,6 +5,8 @@
 <head>
 
     <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://osmmjfuzuxhwtfcttdxp.supabase.co; object-src 'none'; base-uri 'none'; form-action 'self'; worker-src 'self'; frame-src 'none'">
 
     <meta
         name="viewport"
@@ -17,10 +19,10 @@
 
     <link
         rel="manifest"
-        href="manifest.json?v=1.60"
+        href="manifest.json?v=1.61"
     >
 
-    <link rel="apple-touch-icon" sizes="180x180" href="dock-icon-180.png?v=1.60">
+    <link rel="apple-touch-icon" sizes="180x180" href="dock-icon-180.png?v=1.61">
 
     <meta
         name="theme-color"
@@ -34,13 +36,13 @@
 
     <link
         rel="stylesheet"
-        href="style.css?v=1.60"
+        href="style.css?v=1.61"
     >
 
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=1.60"
+        src="js/app.js?v=1.61"
     ></script>
 
     <title>Dock</title>
@@ -91,7 +93,7 @@
      APP
      ====================================================== -->
 
-<div id="app">
+<div id="app" class="hidden">
 
 
     <!-- ==================================================

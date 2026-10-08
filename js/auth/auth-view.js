@@ -75,12 +75,15 @@ export function initAuth() {
 
     logoutButton?.addEventListener(
         "click",
-        () => {
-            signOut();
+        async () => {
+            const revoked = signOut();
             updateVisibility();
             document.dispatchEvent(new CustomEvent("dock:auth-changed"));
+            if (!await revoked) console.warn("Sitzung lokal beendet; serverseitige Abmeldung konnte nicht bestätigt werden.");
+            window.location.reload();
         }
     );
 
+    document.addEventListener("dock:auth-changed", updateVisibility);
     updateVisibility();
 }

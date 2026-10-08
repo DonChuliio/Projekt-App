@@ -14,7 +14,10 @@ function escapeHtml(value = "") {
 export default async function handler(req, res) {
   const id = typeof req.query.id === "string" ? req.query.id : "";
 
-  if (!id) {
+  res.setHeader("Referrer-Policy", "no-referrer");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Robots-Tag", "noindex, noarchive");
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
     res.statusCode = 400;
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.end("Export-ID fehlt.");

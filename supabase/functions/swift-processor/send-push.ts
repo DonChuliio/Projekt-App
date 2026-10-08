@@ -5,6 +5,13 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 Deno.serve(async (req) => {
 
     try {
+        if (req.method !== "POST") return Response.json({ error: "method_not_allowed" }, { status: 405 });
+        const cronToken = req.headers.get("x-dock-cron-token");
+        if (!cronToken || cronToken.length !== 64) return Response.json({ error: "unauthorized" }, { status: 401 });
+        const authSecrets = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") || "{}");
+        const authDb = createClient(Deno.env.get("SUPABASE_URL")!, authSecrets.default);
+        const { data: validCron, error: cronError } = await authDb.rpc("verify_push_cron_token", { p_token: cronToken });
+        if (cronError || validCron !== true) return Response.json({ error: "unauthorized" }, { status: 401 });
 
         /* =================================================
            DEUTSCHE UHRZEIT
@@ -231,11 +238,7 @@ Deno.serve(async (req) => {
         }
 
 
-        const supabase =
-            createClient(
-                supabaseUrl,
-                supabaseSecretKey
-            );
+        const supabase = authDb;
 
 const {
     data: reminderSettings,
@@ -470,6 +473,10 @@ const payload =
                 if (claimError?.code === "23505") continue;
                 if (claimError) throw claimError;
 
+                const endpoint = new URL(row.endpoint);
+                const host = endpoint.hostname;
+                const allowedHost = ["web.push.apple.com","fcm.googleapis.com","updates.push.services.mozilla.com"].includes(host) || (host.endsWith(".notify.windows.com") && !host.slice(0,-".notify.windows.com".length).includes("."));
+                if (endpoint.protocol !== "https:" || endpoint.username || endpoint.password || (endpoint.port && endpoint.port !== "443") || !allowedHost) continue;
                 const subscription = {
 
                     endpoint:
@@ -578,9 +585,7 @@ const payload =
                 success: false,
 
                 error:
-                    error instanceof Error
-                        ? error.message
-                        : String(error)
+                    "internal_error"
             },
             {
                 status: 500

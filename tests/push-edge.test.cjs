@@ -8,16 +8,23 @@ class Query {
  insert(value){this.mode='insert';this.value=value;return this;}
  update(value){this.mode='update';this.value=value;return this;}delete(){this.mode='delete';return this;}
  then(resolve,reject){let result={error:null};if(this.table==='calendar_settings')result.data=[{user_id:'u',month_start_balance_reminder:finance,month_end_savings_reminder:finance}];
- if(this.table==='push_subscriptions')result.data=[{id:1,user_id:'u',endpoint:'https://provider.test',p256dh:'key',auth:'key'}];
+ if(this.table==='push_subscriptions')result.data=[{id:1,user_id:'u',endpoint:'https://web.push.apple.com/test',p256dh:'key',auth:'key'}];
  if(this.table==='todos')result.count=open;
  if(this.table==='push_deliveries'&&this.mode==='insert'){const k=this.value.subscription_id+':'+this.value.local_date;if(claims.has(k))result.error={code:'23505'};else claims.add(k);}
  return Promise.resolve(result).then(resolve,reject);}
 }
-const ctx={Date:Clock,Intl,Set,Map,JSON,Response,console,webpush:{setVapidDetails(){},async sendNotification(sub,payload){sends.push(JSON.parse(payload));}},createClient:()=>({from:t=>new Query(t),rpc:async()=>{syncs++;open+=syncAdds;syncAdds=0;return {error:null};}}),Deno:{env:{get:key=>key==='SUPABASE_SECRET_KEYS'?'{"default":"secret"}':'configured'},serve:fn=>handler=fn}};
+const ctx={Date:Clock,Intl,Set,Map,JSON,Response,Headers,URL,console,webpush:{setVapidDetails(){},async sendNotification(sub,payload){sends.push(JSON.parse(payload));}},createClient:()=>({from:t=>new Query(t),rpc:async(name)=>{if(name==='verify_push_cron_token')return {data:true,error:null};syncs++;open+=syncAdds;syncAdds=0;return {error:null};}}),Deno:{env:{get:key=>key==='SUPABASE_SECRET_KEYS'?'{"default":"secret"}':'configured'},serve:fn=>handler=fn}};
 vm.createContext(ctx);vm.runInContext(source,ctx);
-async function run(time){now=time;return (await handler({})).json();}
+async function run(time){now=time;return (await handler({method:'POST',headers:new Headers({'x-dock-cron-token':'a'.repeat(64)})})).json();}
 function reset(){sends=[];claims=new Set();open=2;finance=false;syncAdds=0;queries=[];}
 (async()=>{
+a.equal((await handler({method:'GET'})).status,405);
+a.equal((await handler({method:'POST',headers:new Headers()})).status,401);
+a.equal((await handler({method:'POST',headers:new Headers({'x-dock-cron-token':'short'})})).status,401);
+const originalCreateClient=ctx.createClient;
+ctx.createClient=()=>({rpc:async()=>({data:false,error:null})});
+a.equal((await handler({method:'POST',headers:new Headers({'x-dock-cron-token':'b'.repeat(64)})})).status,401);
+ctx.createClient=originalCreateClient;
 for(const [time,sent] of [['2026-07-01T07:00:00Z',1],['2026-07-01T08:00:00Z',0],['2026-01-01T08:00:00Z',1],['2026-01-01T07:00:00Z',0],['2026-03-29T07:00:00Z',1],['2026-10-25T08:00:00Z',1]]){
  reset();const result=await run(time);a.equal(result.sent,sent,time);if(sent){a.equal(sends[0].target,'todo');a.ok(queries.some(q=>q[0]==='completed_at'&&q[1]===null));}
 }
