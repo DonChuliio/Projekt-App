@@ -1,0 +1,24 @@
+begin;
+select set_config('request.jwt.claim.sub',(select id::text from auth.users order by id limit 1),true);
+set local role authenticated;
+do $$ declare other_id uuid;housing_id uuid;a uuid;b uuid;n integer;begin
+ perform public.ensure_document_folders();perform public.ensure_document_folders();
+ select id into other_id from public.document_folders where default_key='other';
+ select id into housing_id from public.document_folders where default_key='housing';
+ select count(*) into n from public.document_folders where default_key is not null;if n<>7 then raise exception 'Standard folders duplicated or missing';end if;
+ begin insert into public.document_folders(name) values('Synthetic forbidden root');raise exception 'Root folder allowed';exception when check_violation then null;end;
+ begin insert into public.document_folders(name,parent_id) values('Synthetic forbidden child',housing_id);raise exception 'Child outside Sonstiges allowed';exception when check_violation then null;end;
+ insert into public.document_folders(name,parent_id) values('Synthetic allowed folder',other_id) returning id into a;
+ insert into public.document_folders(name,parent_id) values('Synthetic allowed nested',a) returning id into b;
+ update public.document_folders set name='Synthetic renamed' where id=b;get diagnostics n=row_count;if n<>1 then raise exception 'Rename failed';end if;
+ begin update public.document_folders set parent_id=housing_id where id=b;raise exception 'Move outside Sonstiges allowed';exception when check_violation then null;end;
+ begin update public.document_folders set parent_id=null where id=b;raise exception 'Move to root allowed';exception when check_violation then null;end;
+ begin update public.document_folders set name='Changed' where id=housing_id;raise exception 'Standard rename allowed';exception when check_violation then null;end;
+ begin update public.document_folders set parent_id=other_id where id=housing_id;raise exception 'Standard move allowed';exception when check_violation then null;end;
+ begin delete from public.document_folders where id=other_id;raise exception 'Standard delete allowed';exception when check_violation then null;end;
+ update public.document_folders set parent_id=other_id where id=b;get diagnostics n=row_count;if n<>1 then raise exception 'Move inside Sonstiges failed';end if;
+ delete from public.document_folders where id=b;delete from public.document_folders where id=a;
+ insert into public.document_collections(name,folder_id) values('Synthetic standard collection',housing_id);
+end $$;
+reset role;
+rollback;

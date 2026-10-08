@@ -8,7 +8,7 @@ begin
  perform public.ensure_document_folders();select count(*) into first_count from public.document_folders where default_key is not null;
  perform public.ensure_document_folders();select count(*) into second_count from public.document_folders where default_key is not null;
  if first_count<>7 or second_count<>7 then raise exception 'Default folders are missing or duplicated';end if;
- insert into public.document_folders(name) values('Synthetic parent') returning id into a;
+ insert into public.document_folders(name,parent_id) values('Synthetic parent',(select id from public.document_folders where default_key='other')) returning id into a;
  insert into public.document_folders(name,parent_id) values('Synthetic child',a) returning id into b;
  begin update public.document_folders set parent_id=b where id=a;raise exception 'Folder cycle allowed';exception when check_violation then null;end;
  insert into public.document_collections(name,folder_id,template,fields,custom_fields)
@@ -37,3 +37,4 @@ do $$ begin
  begin perform id from public.document_collections;raise exception 'Anonymous collections readable';exception when insufficient_privilege then null;end;
 end $$;
 rollback;
+

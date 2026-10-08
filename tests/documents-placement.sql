@@ -6,7 +6,7 @@ set local role authenticated;
 do $$
 declare a uuid;b uuid;c uuid;d uuid:=gen_random_uuid();n integer;path text;original_name text:='Synthetic UI10 letter';
 begin
- insert into public.document_folders(name) values('Synthetic UI10 folder') returning id into a;
+ insert into public.document_folders(name,parent_id) values('Synthetic UI10 folder',(select id from public.document_folders where default_key='other')) returning id into a;
  insert into public.document_collections(name,folder_id) values('Synthetic UI10 collection A',a) returning id into b;
  insert into public.document_collections(name,folder_id) values('Synthetic UI10 collection B',a) returning id into c;
  path:=auth.uid()||'/'||d||'.pdf';

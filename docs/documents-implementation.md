@@ -1,3 +1,24 @@
+# Aktueller Ordnerstand: v1.67, 08.10.2026
+
+Nach der anschließenden Präzisierung des Benutzers bleiben die sieben Standardordner fest. Der Posteingang bietet keine Ordnererstellung mehr; nur Sonstiges und dessen Unterordner bieten „Unterordner erstellen“. Andere Standardordner bieten weiterhin Ablagen, jedoch keine Unterordner. Standardordner lassen sich in der App nicht umbenennen, verschieben oder löschen. Der Parent-Dialog für eigene Ordner zeigt ausschließlich zulässige Ziele innerhalb von Sonstiges und schließt die eigenen Nachfahren aus.
+
+Der Benutzer autorisierte ausdrücklich das Entfernen bestehender Unterordner außerhalb von Sonstiges. Die atomare Supabase-Migration `limit_document_subfolders_to_other` überführt zuerst enthaltene Ablagen und direkt zugeordnete Dokumente zum jeweiligen Standardordner und löscht anschließend die leeren Unterordner von unten nach oben. Eigene Ordner auf der ersten Ebene würden unter Sonstiges erhalten. Der bestehende Unterordner „Betriebliche Altersvorsorge“ wurde entfernt; seine Ablage liegt jetzt direkt unter Altersvorsorge. Danach bestehen genau sieben Standardordner. Vier Dokumente, drei Ablagen und vier Storage-Objekte blieben erhalten. Fingerprints der Dokument- und Ablageinhalte inklusive IDs stimmen vor/nach der Migration überein; ausschließlich Ortsverweise und Änderungszeitpunkte dürfen sich ändern.
+
+Ein privater SECURITY-INVOKER-Trigger sichert die Ordnerregel zusätzlich serverseitig: keine eigenen Wurzelordner, keine Unterordner außerhalb von Sonstiges, keine Änderungen/Löschungen der Standardordner durch App-Benutzer. Neue Konten erhalten weiterhin genau sieben Standardordner über das unveränderte idempotente RPC. Vertrauenswürdige Administration und Kontolöschungen bleiben möglich. Bestehende RLS-/Storage-Regeln, Authentifizierung und Dateiinhalte bleiben unverändert.
+
+Prüfungen erfolgreich:
+
+- Migration einschließlich Regeltests zunächst in einer vollständig zurückgerollten Transaktion geprüft, dann über den Supabase-Migrationsconnector angewendet.
+- `tests/document-folder-layout.sql` nach der Migration gegen die echte Datenbank: Wurzel-/Standard-Unterordner abgewiesen, Sonstiges und tiefere Ebenen erlaubt, Standardordner unveränderbar, gültiges Umbenennen/Verschieben/Löschen eigener Unterordner, Ablagen in Standardordnern und wiederholte Standardanlage funktionieren; zurückgerollt.
+- Angepasste `tests/documents-phase2.sql` und `tests/documents-placement.sql`: echte DB-Regressionen bestanden, zurückgerollt. Test-Unterordner werden jetzt passend zum neuen Vertrag unter Sonstiges angelegt.
+- `tests/document-folder-rules.test.mjs`: stabile Schlüssel, tiefe Hierarchie, unzulässige Eltern, gleichnamige fremde Ordner, Zyklen und Ausschluss eigener Nachfahren bestanden.
+- DOM-Test: kein „Neuer Ordner“ im Eingang; alle sechs übrigen Standardordner ohne Unterordner-/Bearbeitungsaktion, aber mit Ablagen; Sonstiges-Unterordner sowie sämtliche Import-/Zuordnungsabläufe bestehen.
+- Insgesamt zwölf lokale Testsuiten bestanden, einschließlich Auth, Push, Routinen und Bring-Export. Security Advisors: keine neue Warnung, ausschließlich der bereits bekannte deaktivierte Passwort-Leak-Schutz ([Hinweis](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection)).
+
+Die früher dokumentierten iPhone-Gerätetests bleiben offen. Die folgenden Berichte beschreiben den früheren Stand; die neue Einschränkung der Ordnerhierarchie hat Vorrang vor früheren Aussagen über frei anlegbare Ordner außerhalb von Sonstiges.
+
+---
+
 # Aktueller UI-Prüfstand: v1.66, 08.10.2026
 
 Der allgemeine Speicher-Prüfhinweis wurde nach den unten dokumentierten echten Zwei-Konten-Storage-Tests entfernt. Direkter Import in Ablagen/Ordner, Inbox-Mehrfachauswahl und der navigierbare Zuordnungsdialog sind implementiert. Die Einzelnachweise zu allen zehn Anforderungen und die noch offenen iPhone-Tests stehen in [documents-ui-acceptance-2026-10-08.md](documents-ui-acceptance-2026-10-08.md). Der Testschlüssel wurde laut Benutzer nach Abschluss des echten Testlaufs entfernt. Die Sicherheitsgrenzen bleiben unverändert; dies ist keine uneingeschränkte Sicherheitsgarantie.
