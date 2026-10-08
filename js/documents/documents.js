@@ -1,5 +1,5 @@
 import { getSession } from '../auth/auth.js';
-import { loadDocumentLibrary, createDocument, updateDocument, downloadDocument, permanentlyDeleteDocument, saveFolder, saveCollection, deleteFolder, deleteCollection } from '../data/documents-data.js?v=1.63';
+import { loadDocumentLibrary, createDocument, updateDocument, downloadDocument, permanentlyDeleteDocument, saveFolder, saveCollection, deleteFolder, deleteCollection } from '../data/documents-data.js?v=1.64';
 import { prepareFile, jpegPage, localDate, filterNames } from './files.js';
 import { createScanPdf } from './scan-pdf.js';
 import { TEMPLATES, descendants, folderPath, validateCollection } from './templates.js';

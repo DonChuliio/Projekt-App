@@ -31,13 +31,13 @@ export const saveFolder=(id,data)=>writeRow('document_folders',id,data);
 export const saveCollection=(id,data)=>writeRow('document_collections',id,data);
 export const deleteFolder=id=>writeRow('document_folders',id,null,'DELETE');
 export const deleteCollection=id=>writeRow('document_collections',id,null,'DELETE');
-export async function downloadDocument(doc){const r=await request(`/storage/v1/object/authenticated/dock-documents/${objectPath(doc.storage_path)}`);return r.blob();}
+export async function downloadDocument(doc){const r=await request(`/storage/v1/object/authenticated/dock-documents/${objectPath(doc.storage_path)}?cacheNonce=${crypto.randomUUID()}`);return r.blob();}
 async function removeObject(doc){await request('/storage/v1/object/dock-documents',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({prefixes:[objectPath(doc.storage_path)]})});}
 export async function createDocument(file,{name,date}){
  const mime=validateFile(file),owner=user(),id=crypto.randomUUID(),path=`${owner}/${id}.${TYPES[mime]}`;
  const doc=await writeRow('documents',null,{id,name:name.trim(),document_date:date||null,storage_path:path,mime_type:mime,size_bytes:file.size});
  try {
-  await request(`/storage/v1/object/dock-documents/${objectPath(path)}`,{method:'POST',headers:{'Content-Type':mime,'x-upsert':'false','cache-control':'0'},body:file},owner);
+  await request(`/storage/v1/object/dock-documents/${objectPath(path)}`,{method:'POST',headers:{'Content-Type':mime,'x-upsert':'false','cache-control':'no-store'},body:file},owner);
   return await writeRow('documents',id,{state:'ready',updated_at:new Date().toISOString()});
  } catch(error){
   // An interrupted upload has an explicit recoverable metadata row; don't hide cleanup errors.

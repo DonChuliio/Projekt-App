@@ -5,11 +5,11 @@ const base=process.env.SUPABASE_URL,admin=process.env.SUPABASE_TEST_ADMIN_KEY,ke
 if(base!=='https://osmmjfuzuxhwtfcttdxp.supabase.co'||!admin||!key){console.error('Test nicht ausgeführt: Projekt-URL, Publishable Key und temporärer Admin-Zugang fehlen. Keine Zugangsdaten in Dateien speichern.');process.exit(2);}
 const users=[],paths=[],checks=[],cleanupErrors=[];
 const pdf=label=>new Blob([`%PDF-1.4\n% synthetic Dock test ${label}\n1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n2 0 obj << /Type /Pages /Kids [] /Count 0 >> endobj\ntrailer << /Root 1 0 R >>\n%%EOF`],{type:'application/pdf'});
-async function call(path,{token,method='GET',body,type}={}){return fetch(base+path,{method,signal:AbortSignal.timeout(30000),cache:'no-store',headers:{apikey:token===admin?admin:key,...(token?{Authorization:'Bearer '+token}:{}),...(type?{'Content-Type':type}:{}),...(body instanceof Blob?{'x-upsert':'true','cache-control':'0'}:{})},body});}
+async function call(path,{token,method='GET',body,type}={}){return fetch(base+path,{method,signal:AbortSignal.timeout(30000),cache:'no-store',headers:{apikey:token===admin?admin:key,...(token?{Authorization:'Bearer '+token}:{}),...(type?{'Content-Type':type}:{}),...(body instanceof Blob?{'x-upsert':'true','cache-control':'no-store'}:{})},body});}
 const object=(path,token,body)=>call('/storage/v1/object/dock-documents/'+path,{token,method:'POST',body,type:body.type});
-const download=(path,token)=>call('/storage/v1/object/authenticated/dock-documents/'+path,{token});
+const download=(path,token)=>call('/storage/v1/object/authenticated/dock-documents/'+path+'?cacheNonce='+randomUUID(),{token});
 const remove=(path,token)=>call('/storage/v1/object/dock-documents',{token,method:'DELETE',type:'application/json',body:JSON.stringify({prefixes:[path]})});
-async function equalFile(path,token,blob){const r=await download(path,token);assert.ok(r.ok,'own download');assert.deepEqual(Buffer.from(await r.arrayBuffer()),Buffer.from(await blob.arrayBuffer()));}
+async function equalFile(path,token,blob){const r=await download(path,token);assert.ok(r.ok,'own download');assert.ok(Buffer.from(await r.arrayBuffer()).equals(Buffer.from(await blob.arrayBuffer())),'own download must match uploaded bytes');}
 console.log('Testlauf startet. Bitte bis zur Bereinigung nicht abbrechen.');
 try{
  for(let i=0;i<2;i++){
@@ -41,3 +41,4 @@ try{
  if(cleanupErrors.length){console.error(cleanupErrors.join('\n'));process.exitCode=1;}else console.log('Bereinigung abgeschlossen: ausschließlich synthetische Testobjekte und temporäre Testkonten entfernt.');
 }
 checks.forEach(check=>console.log('PASS: '+check));
+

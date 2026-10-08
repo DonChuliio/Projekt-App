@@ -74,3 +74,14 @@ Die Migration database/fix_document_storage_upload_preflight.sql korrigiert beid
 Der lokale Test zeigt jetzt Fortschritt, meldet beim eigenen Upload den HTTP-Status und begrenzt einzelne Requests auf 30 Sekunden. Die erneute echte API-Prüfung steht noch aus; die Freigabe für vertrauliche Dokumente bleibt ausstehend. Kein privilegierter öffentlicher Testendpunkt wurde erstellt.
 
 Quellen: https://github.com/supabase/storage/blob/master/src/storage/uploader.ts und https://supabase.com/docs/guides/storage/buckets/creating-buckets
+
+## Nachtrag: zweiter echter Storage-Test (v1.64)
+
+Der lokale Lauf erreichte eigene PDF-Uploads/Downloads, eigene bzw. fremde/anonyme List-Abfragen und einen eigenen PNG-Upload/Download. Die Overwrite-API antwortete erfolgreich, aber der unmittelbar folgende Download enthielt noch die ursprünglichen Bytes. Der Lauf ist daher weiterhin nicht bestanden. Ein verzögerter Storage-/CDN-Cache ist die naheliegende Ursache; das wird durch einen frischen Origin-Download geprüft und nicht durch Abschwächen des Bytevergleichs übergangen.
+
+Authentifizierte Dokument-Downloads in App und Test verwenden jetzt einen zufälligen cacheNonce-Queryparameter zusätzlich zu cache:no-store. Raw-Uploads setzen einen gültigen Cache-Control-Wert no-store anstelle der ungültigen Zeichenfolge 0. Der Test prüft weiterhin exakt dieselben erwarteten Bytes und verweigerten Zugriffe. Fehlgeschlagene Bytevergleiche geben keine Dateiinhalte mehr aus. Die lokalen Daten- und DOM-Tests bestehen nach der Anpassung. Supabase empfiehlt für einen Origin-Abruf einen neuen cacheNonce; häufige Änderungen sollten generell neue Speicherpfade bekommen. Dock vergibt ohnehin bei jedem Import eine neue UUID und überschreibt vorhandene Dokumente nicht automatisch.
+
+Bereinigung des zweiten Laufs: keine temporären Testkonten und keine Dokumentobjekte ohne bestehendes Eigentümerkonto gefunden. Ein reguläres JPEG des vorhandenen App-Benutzers bleibt erhalten. Die Freigabe bleibt bis zum vollständig erfolgreichen erneuten API-Test offen.
+
+Quelle: https://supabase.com/docs/guides/storage/cdn/smart-cdn
+

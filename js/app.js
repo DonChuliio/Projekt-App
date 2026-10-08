@@ -1,4 +1,4 @@
-import { initDocuments } from "./documents/documents.js?v=1.63";
+import { initDocuments } from "./documents/documents.js?v=1.64";
 // js/app.js
 import { initPushRouting } from "./push/push-routing.js?v=1.60";
 import { initRoutineTodos } from "./data/routine-todos-data.js?v=1.59";

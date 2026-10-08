@@ -6,7 +6,7 @@ vm.createContext(ctx);vm.runInContext(fs.readFileSync('js/data/documents-data.js
  const blob=new Blob(['%PDF original bytes'],{type:'application/pdf'});ctx.input=blob;
  const doc=await vm.runInContext("createDocument(input,{name:'Test',date:'2026-10-08'})",ctx);a.equal(doc.state,'ready');
  const upload=requests.find(r=>r.url.includes('/storage/')&&r.options.method==='POST');a.equal(upload.options.body,blob);a.equal(upload.options.headers['x-upsert'],'false');a.equal(upload.options.headers.Authorization,'Bearer user-jwt');a.ok(requests.every(r=>r.options.cache==='no-store'));
- ctx.doc=doc;await vm.runInContext('downloadDocument(doc)',ctx);a.ok(requests.at(-1).url.includes('/object/authenticated/'));a.ok(!requests.some(r=>r.url.includes('/object/public/')));
+ ctx.doc=doc;await vm.runInContext('downloadDocument(doc)',ctx);a.ok(requests.at(-1).url.includes('/object/authenticated/'));a.ok(requests.at(-1).url.includes('?cacheNonce='));a.equal(upload.options.headers['cache-control'],'no-store');a.ok(!requests.some(r=>r.url.includes('/object/public/')));
  await a.rejects(vm.runInContext('permanentlyDeleteDocument(doc)',ctx));
  ctx.doc={...doc,trashed_at:'2026-10-08'};await vm.runInContext('permanentlyDeleteDocument(doc)',ctx);a.equal(requests.at(-2).options.method,'DELETE');a.ok(requests.at(-2).url.includes('/storage/'));a.ok(requests.at(-1).url.includes('/rest/'));
  ctx.doc={storage_path:'99999999-9999-4999-8999-999999999999/'+id+'.pdf'};await a.rejects(vm.runInContext('downloadDocument(doc)',ctx));
