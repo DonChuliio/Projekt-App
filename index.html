@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
     <meta name="referrer" content="no-referrer">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://osmmjfuzuxhwtfcttdxp.supabase.co; object-src 'none'; base-uri 'none'; form-action 'self'; worker-src 'self'; frame-src 'none'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://osmmjfuzuxhwtfcttdxp.supabase.co; object-src 'none'; base-uri 'none'; form-action 'self'; worker-src 'self'; frame-src blob:">
 
     <meta
         name="viewport"
@@ -19,10 +19,10 @@
 
     <link
         rel="manifest"
-        href="manifest.json?v=1.61"
+        href="manifest.json?v=1.62"
     >
 
-    <link rel="apple-touch-icon" sizes="180x180" href="dock-icon-180.png?v=1.61">
+    <link rel="apple-touch-icon" sizes="180x180" href="dock-icon-180.png?v=1.62">
 
     <meta
         name="theme-color"
@@ -36,15 +36,16 @@
 
     <link
         rel="stylesheet"
-        href="style.css?v=1.61"
+        href="style.css?v=1.62"
     >
 
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=1.61"
+        src="js/app.js?v=1.62"
     ></script>
 
+    <link rel="stylesheet" href="js/documents/documents.css?v=1.62">
     <title>Dock</title>
 
 </head>
@@ -99,6 +100,12 @@
     <!-- ==================================================
          DASHBOARD
          ================================================== -->
+
+    <section data-view="documents" class="hidden documents-module">
+        <button class="back-button" data-view-back="dashboard">Zurück zum Dashboard</button>
+        <h1>Dokumente</h1>
+        <div id="documents-content" aria-live="polite"></div>
+    </section>
 
     <div data-view="dashboard">
 
@@ -160,6 +167,11 @@
             >
                 Finanzen
             </div>
+
+            <button type="button" class="tile" data-tile="documents">
+                <svg class="documents-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>
+                Dokumente
+            </button>
 
             <div
                 class="tile"

@@ -1,0 +1,25 @@
+.documents-module {max-width:760px;margin:0 auto;}
+.documents-heading {display:flex;align-items:center;gap:12px;margin:20px 0;}
+.documents-heading h2 {margin:0;overflow-wrap:anywhere;}
+.documents-module button,.documents-download {min-height:44px;}
+.documents-actions {display:flex;flex-wrap:wrap;gap:8px;margin:16px 0;}
+.documents-choice {display:block;width:100%;text-align:left;margin:12px 0;padding:18px;}
+.documents-file-input {position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;}
+.documents-form {display:grid;gap:16px;}
+.documents-field {display:grid;gap:7px;}
+.documents-field input,.documents-field textarea,.documents-field select {width:100%;min-height:44px;}
+.documents-list {display:grid;gap:10px;margin-top:16px;}
+.documents-row {display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--border);padding:16px;overflow-wrap:anywhere;}
+.documents-row small {display:block;color:var(--text-muted);margin-top:6px;font-weight:normal;}
+.documents-card {border:1px solid var(--border);border-radius:14px;background:var(--surface);padding:16px;margin:12px 0;}
+.documents-muted,.documents-status {color:var(--text-muted);line-height:1.5;}
+.documents-error {color:var(--danger);}
+.documents-security-note {font-size:13px;line-height:1.5;border-left:3px solid var(--petrol);padding:10px 12px;background:var(--surface);}
+.documents-module .secondary {background:var(--surface);border:1px solid var(--border);color:var(--text);}
+.documents-module .documents-danger {background:var(--surface);border:1px solid var(--danger);color:var(--danger);}
+.documents-preview img,.documents-scan img {display:block;max-width:100%;max-height:65vh;object-fit:contain;margin:16px auto;}
+.documents-preview iframe {width:100%;height:65vh;border:1px solid var(--border);margin-top:16px;background:white;}
+.documents-download {display:inline-flex;align-items:center;padding:10px 16px;color:var(--petrol);border:1px solid var(--petrol);border-radius:8px;}
+.documents-icon {display:block;margin:0 auto 8px;width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+.documents-module button:disabled {opacity:.5;cursor:wait;}
+.documents-module input[type=search] {width:100%;}
