@@ -1690,3 +1690,13 @@ html, body {
 .week-task-toggle.active::after{content:"";display:block;width:10px;height:6px;border-left:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);margin:auto}
 #routine-sync-status{color:var(--text-muted);font-size:14px;line-height:1.5}
 #routine-sync-status:empty,#morning-sync-status:empty{display:none}
+
+
+/* Hauptdashboard: einheitliches SVG-Muster auch für künftige Kacheln. */
+[data-view="dashboard"] .tile { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; color:var(--text); font-family:inherit; min-height:112px; }
+.dashboard-icon { width:30px; height:30px; flex-shrink:0; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+.saving-plan { border:1px solid var(--border); border-radius:14px; background:var(--surface); margin:12px 0; }
+.saving-plan summary { cursor:pointer; min-height:44px; padding:14px 16px; color:var(--text); font-weight:600; overflow-wrap:anywhere; }
+.saving-plan summary:focus-visible { outline:2px solid var(--petrol); outline-offset:2px; border-radius:14px; }
+.saving-plan-summary { display:block; margin-top:6px; font-size:14px; font-weight:400; line-height:1.5; color:var(--text); }
+.saving-plan-fields { padding:0 16px 16px; }

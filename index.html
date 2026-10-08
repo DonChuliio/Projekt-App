@@ -19,10 +19,10 @@
 
     <link
         rel="manifest"
-        href="manifest.json?v=1.68"
+        href="manifest.json?v=1.69"
     >
 
-    <link rel="apple-touch-icon" sizes="180x180" href="dock-icon-180.png?v=1.68">
+    <link rel="apple-touch-icon" sizes="180x180" href="dock-icon-180.png?v=1.69">
 
     <meta
         name="theme-color"
@@ -36,16 +36,16 @@
 
     <link
         rel="stylesheet"
-        href="style.css?v=1.68"
+        href="style.css?v=1.69"
     >
 
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=1.68"
+        src="js/app.js?v=1.69"
     ></script>
 
-    <link rel="stylesheet" href="js/documents/documents.css?v=1.68">
+    <link rel="stylesheet" href="js/documents/documents.css?v=1.69">
     <title>Dock</title>
 
 </head>
@@ -138,50 +138,31 @@
 </div>
 
         <div class="tiles">
-
-            <div
-                class="tile"
-                data-tile="notes"
-            >
-                Notizen
-            </div>
-
-
-            <div
-                class="tile"
-                data-tile="planner"
-            >
-                Planer
-            </div>
-
-            <div
-                class="tile"
-                data-tile="packlists"
-            >
-                Packlisten
-            </div>
-
-            <div
-                class="tile"
-                data-tile="finances"
-            >
-                Finanzen
-            </div>
-
-            <button type="button" class="tile" data-tile="documents">
-                <svg class="documents-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>
-                Dokumente
+            <button type="button" class="tile" data-tile="notes">
+                <svg class="dashboard-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3M16 3l5 5M9 15l-1 4 4-1L22 8l-5-5z"/></svg>
+                <span>Notizen</span>
             </button>
-
-            <div
-                class="tile"
-                data-tile="hobby"
-            >
-                Hobby
-            </div>
-
+            <button type="button" class="tile" data-tile="planner">
+                <svg class="dashboard-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14a2 2 0 0 1 2 2v13H3V7a2 2 0 0 1 2-2zM7 2v6M17 2v6M3 11h18M7 15h3M14 15h3"/></svg>
+                <span>Planer</span>
+            </button>
+            <button type="button" class="tile" data-tile="packlists">
+                <svg class="dashboard-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6v4H9zM9 5H5v16h14V5h-4M7 12l2 2 3-3M14 12h3M7 18h10"/></svg>
+                <span>Packlisten</span>
+            </button>
+            <button type="button" class="tile" data-tile="finances">
+                <svg class="dashboard-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7H5a2 2 0 0 1 0-4h13v4M3 5v14a2 2 0 0 0 2 2h15V7M20 11h-5v6h5M17 14h.01"/></svg>
+                <span>Finanzen</span>
+            </button>
+            <button type="button" class="tile" data-tile="documents">
+                <svg class="dashboard-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>
+                <span>Dokumente</span>
+            </button>
+            <button type="button" class="tile" data-tile="hobby">
+                <svg class="dashboard-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zM16 8l-3 5-5 3 3-5z"/></svg>
+                <span>Hobby</span>
+            </button>
         </div>
-
     </div>
 
 
@@ -337,17 +318,28 @@
         <button class="back-button" data-view-back="finances">Zurück</button>
         <h2>Sparen</h2>
         <div class="loan-calculator">
-            <h3>Trade Republic</h3>
-            <label for="saving-trade-start">Startkapital</label><div class="loan-input-unit"><input id="saving-trade-start" type="number" min="0" step="100" inputmode="decimal" placeholder="0"><span>€</span></div>
-            <label for="saving-trade-monthly">Monatliche Sparrate</label><div class="loan-input-unit"><input id="saving-trade-monthly" type="number" min="0" step="10" inputmode="decimal" placeholder="0"><span>€</span></div>
-
-            <h3>Taures</h3>
-            <label for="saving-taures-start">Startkapital</label><div class="loan-input-unit"><input id="saving-taures-start" type="number" min="0" step="100" inputmode="decimal" placeholder="0"><span>€</span></div>
-            <label for="saving-taures-monthly">Monatliche Sparrate</label><div class="loan-input-unit"><input id="saving-taures-monthly" type="number" min="0" step="10" inputmode="decimal" placeholder="0"><span>€</span></div>
-
-            <h3>Lissy</h3>
-            <label for="saving-lissy-start">Startkapital</label><div class="loan-input-unit"><input id="saving-lissy-start" type="number" min="0" step="100" inputmode="decimal" placeholder="0"><span>€</span></div>
-            <label for="saving-lissy-monthly">Monatliche Sparrate</label><div class="loan-input-unit"><input id="saving-lissy-monthly" type="number" min="0" step="10" inputmode="decimal" placeholder="0"><span>€</span></div>
+            <details class="saving-plan">
+                <summary>Trade Republic<span id="saving-trade-summary" class="saving-plan-summary">Start: 0,00 € · Rate: 0,00 €/Monat</span></summary>
+                <div class="saving-plan-fields"><label for="saving-trade-start">Startkapital</label><div class="loan-input-unit"><input id="saving-trade-start" type="number" min="0" step="100" inputmode="decimal" placeholder="0"><span>€</span></div>
+            <label for="saving-trade-monthly">Monatliche Sparrate</label><div class="loan-input-unit"><input id="saving-trade-monthly" type="number" min="0" step="10" inputmode="decimal" placeholder="0"><span>€</span></div></div>
+            </details>
+            <details class="saving-plan">
+                <summary>Taures<span id="saving-taures-summary" class="saving-plan-summary">Start: 0,00 € · Rate: 0,00 €/Monat</span></summary>
+                <div class="saving-plan-fields"><label for="saving-taures-start">Startkapital</label><div class="loan-input-unit"><input id="saving-taures-start" type="number" min="0" step="100" inputmode="decimal" placeholder="0"><span>€</span></div>
+            <label for="saving-taures-monthly">Monatliche Sparrate</label><div class="loan-input-unit"><input id="saving-taures-monthly" type="number" min="0" step="10" inputmode="decimal" placeholder="0"><span>€</span></div></div>
+            </details>
+            <details class="saving-plan">
+                <summary>Lissy<span id="saving-lissy-summary" class="saving-plan-summary">Start: 0,00 € · Rate: 0,00 €/Monat</span></summary>
+                <div class="saving-plan-fields"><label for="saving-lissy-start">Startkapital</label><div class="loan-input-unit"><input id="saving-lissy-start" type="number" min="0" step="100" inputmode="decimal" placeholder="0"><span>€</span></div>
+            <label for="saving-lissy-monthly">Monatliche Sparrate</label><div class="loan-input-unit"><input id="saving-lissy-monthly" type="number" min="0" step="10" inputmode="decimal" placeholder="0"><span>€</span></div></div>
+            </details>
+            <details class="saving-plan">
+                <summary>Notgroschen<span id="saving-reserve-summary" class="saving-plan-summary">Start: 0,00 € · Rate: 0,00 €/Monat</span></summary>
+                <div class="saving-plan-fields"><p>Ohne Wertentwicklung</p>
+<label for="saving-reserve-start">Startkapital</label><div class="loan-input-unit"><input id="saving-reserve-start" type="number" min="0" step="100" inputmode="decimal" placeholder="0"><span>€</span></div>
+<label for="saving-reserve-monthly">Monatliche Sparrate</label><div class="loan-input-unit"><input id="saving-reserve-monthly" type="number" min="0" step="10" inputmode="decimal" placeholder="0"><span>€</span></div>
+</div>
+            </details>
 
             <h3>Berechnung</h3>
             <label for="saving-return">Wertentwicklung pro Jahr</label><div class="loan-input-unit"><input id="saving-return" type="number" min="0" step="0.1" inputmode="decimal" placeholder="6"><span>%</span></div>
@@ -358,6 +350,7 @@
                 <div class="loan-result-row"><span>Trade Republic</span><strong id="saving-trade-result">–</strong></div>
                 <div class="loan-result-row"><span>Taures</span><strong id="saving-taures-result">–</strong></div>
                 <div class="loan-result-row"><span>Lissy</span><strong id="saving-lissy-result">–</strong></div>
+                <div class="loan-result-row"><span>Notgroschen</span><strong id="saving-reserve-result">–</strong></div>
                 <div class="loan-main-result"><span>Gesamtkapital</span><strong id="saving-total-result">–</strong></div>
             </div>
         </div>
