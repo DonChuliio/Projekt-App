@@ -1579,3 +1579,80 @@ html, body {
     color:#000;
     transform:scale(.98);
 }
+
+
+/* =====================================================
+   v1.54 – ROTER ORDNER / REZEPTE
+   ===================================================== */
+.recipes-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:16px;
+}
+.recipes-header h2{margin:0}
+.recipes-header button{width:auto}
+.recipes-empty{color:var(--text-muted)}
+#recipes-list{display:grid;gap:10px}
+.recipe-card{
+    min-height:68px;
+    padding:16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    cursor:pointer;
+    transition:background .15s ease,transform .1s ease,border-color .15s ease;
+}
+.recipe-card:active{
+    background:var(--petrol);
+    border-color:var(--petrol);
+    color:#000;
+    transform:scale(.98);
+}
+.recipe-card strong{display:block;font-size:18px}
+.recipe-card small{display:block;margin-top:4px;color:var(--text-muted)}
+.recipe-card:active small{color:#000}
+.recipe-dialog{
+    max-width:440px;
+    max-height:min(86vh,760px);
+    overflow:auto;
+}
+.recipe-dialog label{
+    display:block;
+    margin:12px 0 6px;
+    color:var(--text-muted);
+}
+.recipe-dialog input,.recipe-dialog textarea{margin:0}
+.recipe-ingredients-input{min-height:170px}
+.recipe-description-input{min-height:220px}
+.recipe-view-section{margin:16px 0}
+.recipe-view-section h4{margin:0 0 8px}
+.recipe-view-list{
+    margin:0;
+    padding-left:20px;
+    list-style:disc;
+}
+.recipe-view-list li{
+    display:list-item;
+    margin:0 0 6px;
+    padding:0;
+    background:none;
+    border:0;
+}
+.recipe-view-description{
+    margin:0;
+    white-space:pre-wrap;
+    color:var(--text);
+    text-align:left;
+}
+.recipe-dialog .recipe-delete{
+    background:transparent;
+    color:var(--danger);
+    border:1px solid var(--danger);
+}
+.recipe-export-list{margin-bottom:12px}

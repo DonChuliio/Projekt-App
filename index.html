@@ -17,10 +17,10 @@
 
     <link
         rel="manifest"
-        href="manifest.json?v=1.53"
+        href="manifest.json?v=1.54"
     >
 
-    <link rel="apple-touch-icon" sizes="180x180" href="dock-icon-180.png?v=1.53">
+    <link rel="apple-touch-icon" sizes="180x180" href="dock-icon-180.png?v=1.54">
 
     <meta
         name="theme-color"
@@ -34,13 +34,13 @@
 
     <link
         rel="stylesheet"
-        href="style.css?v=1.53"
+        href="style.css?v=1.54"
     >
 
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=1.53"
+        src="js/app.js?v=1.54"
     ></script>
 
     <title>Dock</title>
@@ -194,8 +194,11 @@
 
     <div data-view="red-folder" class="hidden">
         <button class="back-button" data-view-back="notes">Zurück</button>
-        <h2>Roter Ordner</h2>
-        <textarea class="simple-note-field" data-text-key="red-folder" placeholder="Hier schreiben..."></textarea>
+        <div class="recipes-header">
+            <h2>Roter Ordner</h2>
+            <button id="recipe-add" type="button">Neues Rezept</button>
+        </div>
+        <div id="recipes-list"></div>
     </div>
 
     <!-- ==================================================
