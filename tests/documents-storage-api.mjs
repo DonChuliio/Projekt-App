@@ -5,20 +5,22 @@ const base=process.env.SUPABASE_URL,admin=process.env.SUPABASE_TEST_ADMIN_KEY,ke
 if(base!=='https://osmmjfuzuxhwtfcttdxp.supabase.co'||!admin||!key){console.error('Test nicht ausgeführt: Projekt-URL, Publishable Key und temporärer Admin-Zugang fehlen. Keine Zugangsdaten in Dateien speichern.');process.exit(2);}
 const users=[],paths=[],checks=[],cleanupErrors=[];
 const pdf=label=>new Blob([`%PDF-1.4\n% synthetic Dock test ${label}\n1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n2 0 obj << /Type /Pages /Kids [] /Count 0 >> endobj\ntrailer << /Root 1 0 R >>\n%%EOF`],{type:'application/pdf'});
-async function call(path,{token,method='GET',body,type}={}){return fetch(base+path,{method,cache:'no-store',headers:{apikey:token===admin?admin:key,...(token?{Authorization:'Bearer '+token}:{}),...(type?{'Content-Type':type}:{}),...(body instanceof Blob?{'x-upsert':'true','cache-control':'0'}:{})},body});}
+async function call(path,{token,method='GET',body,type}={}){return fetch(base+path,{method,signal:AbortSignal.timeout(30000),cache:'no-store',headers:{apikey:token===admin?admin:key,...(token?{Authorization:'Bearer '+token}:{}),...(type?{'Content-Type':type}:{}),...(body instanceof Blob?{'x-upsert':'true','cache-control':'0'}:{})},body});}
 const object=(path,token,body)=>call('/storage/v1/object/dock-documents/'+path,{token,method:'POST',body,type:body.type});
 const download=(path,token)=>call('/storage/v1/object/authenticated/dock-documents/'+path,{token});
 const remove=(path,token)=>call('/storage/v1/object/dock-documents',{token,method:'DELETE',type:'application/json',body:JSON.stringify({prefixes:[path]})});
 async function equalFile(path,token,blob){const r=await download(path,token);assert.ok(r.ok,'own download');assert.deepEqual(Buffer.from(await r.arrayBuffer()),Buffer.from(await blob.arrayBuffer()));}
+console.log('Testlauf startet. Bitte bis zur Bereinigung nicht abbrechen.');
 try{
  for(let i=0;i<2;i++){
   const email=`dock-storage-test-${randomUUID()}@example.invalid`,password=randomUUID()+'Aa9!';
   const r=await call('/auth/v1/admin/users',{token:admin,method:'POST',type:'application/json',body:JSON.stringify({email,password,email_confirm:true})});assert.ok(r.ok,'test user creation');const created=await r.json();users.push({id:created.id,token:null});
   const signed=await call('/auth/v1/token?grant_type=password',{method:'POST',type:'application/json',body:JSON.stringify({email,password})});assert.ok(signed.ok,'test sign-in');users[i].token=(await signed.json()).access_token;
  }
+ console.log('Zwei Testkonten bereit. Storage-API-Prüfung läuft.');
  for(let i=0;i<2;i++){
   const own=users[i],other=users[1-i],path=`${own.id}/${randomUUID()}.pdf`;paths.push({path,user:own});const original=pdf('original'),replacement=pdf('replacement');
-  assert.ok((await object(path,own.token,original)).ok,'own upload');await equalFile(path,own.token,original);
+  const upload=await object(path,own.token,original);assert.ok(upload.ok,'own upload (HTTP '+upload.status+')');await equalFile(path,own.token,original);
   const ownList=await call('/storage/v1/object/list/dock-documents',{token:own.token,method:'POST',type:'application/json',body:JSON.stringify({prefix:own.id,limit:100})});assert.ok(ownList.ok,'own list');assert.ok((await ownList.json()).some(item=>item.name===path.split('/')[1]),'own file listed');
   for(const token of [other.token,undefined]){const listing=await call('/storage/v1/object/list/dock-documents',{token,method:'POST',type:'application/json',body:JSON.stringify({prefix:own.id,limit:100})});if(listing.ok)assert.equal((await listing.json()).length,0,'foreign/anonymous listing empty');}
   const imagePath=`${own.id}/${randomUUID()}.png`,image=new Blob([Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a7WQAAAAASUVORK5CYII=','base64')],{type:'image/png'});paths.push({path:imagePath,user:own});assert.ok((await object(imagePath,own.token,image)).ok,'own PNG upload');await equalFile(imagePath,own.token,image);

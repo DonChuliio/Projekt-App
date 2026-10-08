@@ -62,3 +62,15 @@ node tests/export-security.test.cjs
 ```
 
 SQL-Dateien nur als überprüfte Tests mit Transaktions-Rollback im richtigen Projekt ausführen. Die Schema-Dateien unter database/ dokumentieren bereits angewendete einmalige Migrationen.
+
+## Nachtrag: erster echter Storage-Test am 08.10.2026
+
+Der Benutzer führte den lokalen Test unter Windows/Node 24 mit einem getrennten Testschlüssel aus. Zwei temporäre Testkonten wurden erstellt; der erste eigene PDF-Upload scheiterte an RLS (Logmeldung: new row violates row-level security policy). Das Skript lief durch die Bereinigung; die anschließende Live-Abfrage bestätigte null Testkonten und null Dokumentobjekte. Dies war kein erfolgreicher Sicherheits-Testlauf.
+
+Ursache: Die bisherigen INSERT/UPDATE-Policies verlangten metadata.size. Supabase prüft Upload-Rechte vor Abschluss des Uploads, wobei die vorläufigen Metadaten diese endgültige Größenangabe nicht besitzen. Die SQL-Metadatentests hatten diesen echten API-Ablauf nicht nachgebildet.
+
+Die Migration database/fix_document_storage_upload_preflight.sql korrigiert beide WITH CHECK-Regeln auf eigenen Benutzerpfad, gültige UUID/Endung und den privaten Bucket. SELECT-/DELETE- und UPDATE-USING-Eigentümerregeln bleiben bestehen. Die serverseitigen Bucket-Limits (10 MiB; PDF/JPEG/PNG/WebP/HEIC/HEIF) bleiben unverändert und werden vor der Migration zusätzlich geprüft. Dateityp/Größe sind API-/Bucket-Prüfungen und dürfen nicht als reine RLS-Metadatengarantien bezeichnet werden. Der korrigierte SQL-Regressionstest prüft zusätzlich Upload-Vorprüfungen ohne finale Metadaten und weiterhin die Sperre fremder/anonymer Benutzer und ungültiger Pfade. Größe/MIME müssen im echten API-Test bestätigt werden.
+
+Der lokale Test zeigt jetzt Fortschritt, meldet beim eigenen Upload den HTTP-Status und begrenzt einzelne Requests auf 30 Sekunden. Die erneute echte API-Prüfung steht noch aus; die Freigabe für vertrauliche Dokumente bleibt ausstehend. Kein privilegierter öffentlicher Testendpunkt wurde erstellt.
+
+Quellen: https://github.com/supabase/storage/blob/master/src/storage/uploader.ts und https://supabase.com/docs/guides/storage/buckets/creating-buckets

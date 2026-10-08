@@ -1,4 +1,10 @@
 begin;
+do $bucket$
+begin
+ if not exists(select 1 from storage.buckets where id='dock-documents' and public=false and file_size_limit=10485760
+ and allowed_mime_types=array['application/pdf','image/jpeg','image/png','image/webp','image/heic','image/heif'])
+ then raise exception 'Document bucket limits missing';end if;
+end $bucket$;
 select set_config('dock.test.uid',(select user_id::text from public.todos limit 1),true);
 select set_config('dock.test.other',gen_random_uuid()::text,true);
 select set_config('request.jwt.claim.sub',current_setting('dock.test.uid'),true);
@@ -25,10 +31,8 @@ begin
   insert into storage.objects(bucket_id,name,metadata) values('dock-documents',auth.uid()||'/'||gen_random_uuid()||'.html','{"size":100,"mimetype":"text/html"}');
   raise exception 'HTML accepted';
  exception when insufficient_privilege then null;end;
- begin
-  insert into storage.objects(bucket_id,name,metadata) values('dock-documents',auth.uid()||'/'||gen_random_uuid()||'.pdf','{"size":10485761,"mimetype":"application/pdf"}');
-  raise exception 'Oversize accepted';
- exception when insufficient_privilege then null;end;
+ -- Storage permission probes do not yet contain final size metadata.
+ insert into storage.objects(bucket_id,name,metadata) values('dock-documents',auth.uid()||'/'||gen_random_uuid()||'.pdf','{}');
  begin
   update storage.objects set name=other where bucket_id='dock-documents' and name=path;
   raise exception 'foreign move allowed';
