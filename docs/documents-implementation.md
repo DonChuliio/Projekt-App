@@ -1,3 +1,9 @@
+# Aktueller Bedienstand: v1.68, 08.10.2026
+
+Die offenen Dokumenten-Bugs #16–#24 wurden einzeln geprüft und die fehlenden Änderungen umgesetzt: Ablageerstellung nur in Ordnern, Upload nur in Posteingang/Ablagen, „Neues Dokument“, zugängliche Reload-/Papierkorb-Piktogramme und bereinigte Papierkorb-Ansicht mit korrektem Zurück-Ziel. Einzelstatus, Tests und noch offene Geräteabnahmen: [document-issues-2026-10-08.md](document-issues-2026-10-08.md). Die frühere direkte Upload-Möglichkeit innerhalb normaler Ordner wurde durch die neue Anforderung #24 abgelöst; Zuordnung vorhandener Dateien zu Ordnern bleibt möglich. Keine Änderung an Auth, RLS oder Storage.
+
+---
+
 # Aktueller Ordnerstand: v1.67, 08.10.2026
 
 Nach der anschließenden Präzisierung des Benutzers bleiben die sieben Standardordner fest. Der Posteingang bietet keine Ordnererstellung mehr; nur Sonstiges und dessen Unterordner bieten „Unterordner erstellen“. Andere Standardordner bieten weiterhin Ablagen, jedoch keine Unterordner. Standardordner lassen sich in der App nicht umbenennen, verschieben oder löschen. Der Parent-Dialog für eigene Ordner zeigt ausschließlich zulässige Ziele innerhalb von Sonstiges und schließt die eigenen Nachfahren aus.

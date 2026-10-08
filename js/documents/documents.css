@@ -41,3 +41,6 @@
 .documents-selection input[type=checkbox] {width:20px;min-height:20px;accent-color:var(--petrol);}
 .documents-selection small {grid-column:2;}
 .documents-selection.is-selected {border-color:var(--petrol);background:var(--surface);}
+
+.documents-icon-action {display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:10px;}
+.documents-icon-action .documents-icon {width:22px;height:22px;margin:0;}
