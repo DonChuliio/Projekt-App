@@ -9,7 +9,7 @@ import { TEMPLATES, descendants, folderPath, validateCollection } from './templa
 export function initDocuments(){
  const root=document.getElementById('documents-content'),view=document.querySelector('[data-view="documents"]');
  if(!root||!view)return;
- let docs=[],folders=[],collections=[],folderId=null,collectionId=null,editingFolder=null,editingCollection=null,importTarget={},importPage='add',origin='home',backAction=null,dialog=null,pickOrigin='add',inboxSelection=new Set(),page='home',selected=null,pendingFile=null,scan=[],query='',trash=false,busy=false,epoch=0,urls=[],loadedUser=null;
+ let docs=[],folders=[],collections=[],folderId=null,collectionId=null,editingFolder=null,editingCollection=null,importTarget={},importPage='add',origin='home',backAction=null,dialog=null,pickOrigin='add',inboxSelection=new Set(),page='home',selected=null,pendingFile=null,scan=[],query='',trash=false,busy=false,epoch=0,urls=[],loadedUser=null,contextMenu=null;
  const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
  const clearUrls=()=>{urls.forEach(url=>URL.revokeObjectURL(url));urls=[];};
  const blobUrl=blob=>{const url=URL.createObjectURL(blob);urls.push(url);return url;};
@@ -21,7 +21,16 @@ export function initDocuments(){
  async function reload(){const owner=getSession()?.user?.id;if(!owner)throw new Error('Bitte zuerst anmelden.');const data=await loadDocumentLibrary();if(getSession()?.user?.id!==owner)return;docs=data.documents;folders=data.folders;collections=data.collections;loadedUser=owner;}
  function go(next){clearUrls();if(next==='document'&&page!=='document'&&!['edit','trash','delete','imported'].includes(page))origin=page;page=next;render();}
  function docList(list){const box=el('div',undefined,'documents-list');if(!list.length)box.append(el('p','Hier sind noch keine Dokumente.','documents-muted'));for(const doc of list){const b=button(doc.name,()=>{selected=doc;go('document');},'documents-row');b.append(el('small',`${doc.document_date||'Ohne Datum'} · ${doc.state==='pending'?'Unvollständiger Import':(doc.size_bytes/1024/1024).toFixed(1)+' MiB'}`));box.append(b);}return box;}
- function heading(title,back=()=>go(origin)){backAction=back;const h=el('div',undefined,'documents-heading');h.append(el('h2',title));root.append(h);}
+ function heading(title,back=()=>go(origin)){backAction=back;const h=el('div',undefined,'documents-heading');h.append(el('h2',title));root.append(h);return h;}
+ function actionMenu(actions){
+  const menu=el('details',undefined,'documents-context-menu'),trigger=el('summary',undefined,'documents-context-trigger');
+  trigger.setAttribute('aria-label','Aktionen');trigger.title='Aktionen';
+  const icon=iconButton('Aktionen','M9.5 3h5l.5 2.5 2 1.2 2.4-.8 2.5 4.2-1.9 1.7v2.4l1.9 1.7-2.5 4.2-2.4-.8-2 1.2-.5 2.5h-5L9 20.5l-2-1.2-2.4.8-2.5-4.2L4 14.2v-2.4l-1.9-1.7 2.5-4.2 2.4.8 2-1.2z M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6',()=>{});
+  trigger.append(icon.children[0]);actions.className='documents-context-actions';
+  actions.addEventListener('click',()=>{menu.open=false;});
+  menu.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();menu.open=false;trigger.focus();}});
+  menu.append(trigger,actions);contextMenu=menu;return menu;
+ }
  function startImport(){if(trash||(page!=='home'&&page!=='collection'))return;origin=page==='collection'?'collection':'home';importTarget={collection_id:origin==='collection'?collectionId:null,folder_id:null};go('add');}
  function picker(label,{accept,capture,multiple=false,scanMode=false}={}){
   const input=el('input');input.type='file';input.accept=accept;input.multiple=multiple;if(capture)input.setAttribute('capture',capture);input.className='documents-file-input';input.setAttribute('aria-label',label);
@@ -50,15 +59,15 @@ export function initDocuments(){
  }
  function renderImported(){heading('Dokument gespeichert');const placed=selected.collection_id||selected.folder_id;root.append(el('p',placed?'Dein Dokument wurde direkt am ausgewählten Zielort gespeichert.':'Dein Dokument liegt jetzt im Posteingang.'));root.append(button(placed?'Zum Zielort':'Im Posteingang behalten',()=>go(origin)),button('Dokument zuordnen',openAssignment,'secondary'),button('Dokument anzeigen',()=>go('document'),'secondary'));}
  function renderDocument(){
-  const doc=selected;heading(doc.name);root.append(el('p',doc.document_date||'Ohne Dokumentdatum','documents-muted'));
+  const doc=selected,head=heading(doc.name);root.append(el('p',doc.document_date||'Ohne Dokumentdatum','documents-muted'));
   const location=doc.collection_id?collections.find(c=>c.id===doc.collection_id)?.name:doc.folder_id?folderPath(folders,doc.folder_id):'Posteingang';root.append(el('p','Ablage: '+(location||'Nicht verfügbar'),'documents-muted'));
   const actions=el('div',undefined,'documents-actions');actions.append(button('Umbenennen / Datum',()=>go('edit'),'secondary'),button('Dokument zuordnen',openAssignment,'secondary'));
   if(doc.trashed_at)actions.append(button('Wiederherstellen',()=>run(async()=>{await updateDocument(doc.id,{trashed_at:null});await reload();go('home');})),button('Endgültig löschen',()=>go('delete'),'documents-danger'));
-  else actions.append(button('In den Papierkorb',()=>go('trash'),'documents-danger'));root.append(actions);
+  else actions.append(button('In den Papierkorb',()=>go('trash'),'documents-danger'));head.append(actionMenu(actions));
   if(doc.state==='pending'){root.append(el('p','Dieser Import wurde nicht vollständig abgeschlossen. Bitte erneut importieren und diesen Eintrag über den Papierkorb bereinigen.','documents-error'));return;}
   const preview=el('div',undefined,'documents-preview');preview.append(el('p','Datei wird authentifiziert geladen …','documents-muted'));root.append(preview);const generation=epoch;
-  downloadDocument(doc).then(blob=>{if(generation!==epoch)return;const url=blobUrl(blob);preview.replaceChildren();const link=el('a','Datei öffnen / speichern','documents-download');link.href=url;link.target='_blank';link.rel='noopener';preview.append(link);const save=el('a','Datei herunterladen','documents-download');save.href=url;save.download=doc.name+'.'+doc.storage_path.split('.').pop();preview.append(save);
-   if(doc.mime_type.startsWith('image/')){const image=el('img');image.src=url;image.alt=doc.name;preview.append(image);}else{const frame=el('iframe');frame.src=url;frame.title=doc.name;frame.setAttribute('sandbox','');preview.append(el('p','Falls die Vorschau auf dem iPhone nicht erscheint, die Datei oben öffnen.','documents-muted'),frame);}
+  downloadDocument(doc).then(blob=>{if(generation!==epoch)return;const url=blobUrl(blob);preview.replaceChildren();const link=el('a','Datei öffnen / speichern','documents-download');link.href=url;link.target='_blank';link.rel='noopener';actions.append(link);const save=el('a','Datei herunterladen','documents-download');save.href=url;save.download=doc.name+'.'+doc.storage_path.split('.').pop();actions.append(save);
+   if(doc.mime_type.startsWith('image/')){const image=el('img');image.src=url;image.alt=doc.name;preview.append(image);}else{const frame=el('iframe');frame.src=url;frame.title=doc.name;frame.setAttribute('sandbox','');preview.append(el('p','Falls die Vorschau auf dem iPhone nicht erscheint, die Datei über das Zahnrad öffnen.','documents-muted'),frame);}
   }).catch(error=>{if(generation===epoch)preview.replaceChildren(el('p',error.message,'documents-error'));});
  }
  function renderEdit(){heading('Dokument bearbeiten',()=>go('document'));const form=el('form',undefined,'documents-form');const name=field(form,'Dokumentname',{value:selected.name,required:true});const date=field(form,'Dokumentdatum',{value:selected.document_date||'',type:'date'});const save=el('button','Speichern');save.type='submit';form.append(save);form.addEventListener('submit',e=>{e.preventDefault();if(!name.value.trim())return;run(async()=>{selected=await updateDocument(selected.id,{name:name.value.trim(),document_date:date.value||null});await reload();go('document');});});root.append(form);}
@@ -72,9 +81,9 @@ export function initDocuments(){
  function renderFolderEdit(){const f=editingFolder;if(f?.default_key||(!f&&!allowsSubfolders(folders,folderId))){go(folderId?'folder':'home');return;}heading(f?'Ordner bearbeiten':'Neuer Unterordner',()=>go(folderId?'folder':'home'));const form=el('form',undefined,'documents-form'),name=field(form,'Ordnername',{value:f?.name||'',required:true});const parent=selectField(form,'Übergeordneter Ordner',subfolderParents(folders,f?descendants(folders,f.id):new Set()).map(parent=>[parent.id,folderPath(folders,parent.id)]),f?.parent_id||(!f?folderId:''));const save=el('button','Speichern');save.type='submit';form.append(save);form.addEventListener('submit',e=>{e.preventDefault();if(!name.value.trim())return;run(async()=>{if(!allowsSubfolders(folders,parent.value))throw new Error('Unterordner können nur unter Sonstiges angelegt oder verschoben werden.');const result=await saveFolder(f?.id,{name:name.value.trim(),parent_id:parent.value});await reload();folderId=result.id;go('folder');});});root.append(form);
   if(f)root.append(button('Leeren Ordner löschen',()=>{const occupied=folders.some(x=>x.parent_id===f.id)||collections.some(c=>c.folder_id===f.id)||docs.some(d=>d.folder_id===f.id);if(occupied){status('Dieser Ordner enthält noch Unterordner, Ablagen oder Dokumente. Bitte zuerst verschieben.',true);return;}go('folder-delete');},'documents-danger'));
  }
- function renderCollection(){const c=collections.find(c=>c.id===collectionId);if(!c){go('home');return;}folderId=c.folder_id;heading(c.name,()=>go(folderId?'folder':'home'));const header=el('div',undefined,'documents-card');header.append(el('p',TEMPLATES[c.template]?.name||'Allgemein','documents-muted'));const detail=el('dl',undefined,'documents-details'),known=new Set();for(const [key,label] of TEMPLATES[c.template]?.fields||[]){known.add(key);if(c.fields[key])detail.append(el('dt',label),el('dd',c.fields[key]));}
+ function renderCollection(){const c=collections.find(c=>c.id===collectionId);if(!c){go('home');return;}folderId=c.folder_id;const head=heading(c.name,()=>go(folderId?'folder':'home'));const header=el('div',undefined,'documents-card');header.append(el('p',TEMPLATES[c.template]?.name||'Allgemein','documents-muted'));const detail=el('dl',undefined,'documents-details'),known=new Set();for(const [key,label] of TEMPLATES[c.template]?.fields||[]){known.add(key);if(c.fields[key])detail.append(el('dt',label),el('dd',c.fields[key]));}
   for(const [key,value] of Object.entries(c.fields)){if(value&&!known.has(key))detail.append(el('dt',key),el('dd',String(value)));}for(const f of c.custom_fields||[])detail.append(el('dt',f.label),el('dd',f.value||'—'));if(!detail.childNodes.length)header.append(el('p','Noch keine Stammdaten eingetragen.','documents-muted'));header.append(detail);root.append(header);
-  const actions=el('div',undefined,'documents-actions');actions.append(button('Stammdaten / Ablage bearbeiten',()=>{editingCollection=c;go('collection-edit');},'secondary'),button('Neues Dokument',startImport),button('Aus Posteingang auswählen',()=>{pickOrigin=page;inboxSelection.clear();go('pick-document');},'secondary'));root.append(actions,el('h3','Zugehörige Dokumente'),docList(docs.filter(d=>d.collection_id===c.id&&!d.trashed_at)));
+  const actions=el('div',undefined,'documents-actions');actions.append(button('Stammdaten / Ablage bearbeiten',()=>{editingCollection=c;go('collection-edit');},'secondary'),button('Neues Dokument',startImport),button('Aus Posteingang auswählen',()=>{pickOrigin=page;inboxSelection.clear();go('pick-document');},'secondary'));head.append(actionMenu(actions));root.append(el('h3','Zugehörige Dokumente'),docList(docs.filter(d=>d.collection_id===c.id&&!d.trashed_at)));
  }
  function renderCollectionEdit(){
   const c=editingCollection;if(!c&&!folderId){go('home');return;}heading(c?'Ablage bearbeiten':'Neue Ablage',()=>go(c?'collection':folderId?'folder':'home'));
@@ -134,15 +143,16 @@ export function initDocuments(){
   if(!available.length)list.append(el('p','Keine unsortierten Dokumente im Posteingang.','documents-muted'));root.append(count,list,confirm);update();
  }
  function renderStructureDelete(kind){const item=kind==='folder'?editingFolder:editingCollection;heading('Leeren Eintrag löschen',()=>go(kind==='folder'?'folder-edit':'collection-edit'));root.append(el('p',`„${item.name}“ löschen? Enthaltene Dokumente werden niemals automatisch mitgelöscht.`));root.append(button('Löschen bestätigen',()=>run(async()=>{if(kind==='folder'){await deleteFolder(item.id);folderId=null;}else{await deleteCollection(item.id);collectionId=null;}await reload();go('home');}),'documents-danger'));}
- function render(){if(!active()){reset();return;}epoch++;clearUrls();root.replaceChildren();backAction=()=>{if(page==='home')goToDashboard();else go(origin);};
+ function render(){if(!active()){reset();return;}epoch++;contextMenu=null;clearUrls();root.replaceChildren();backAction=()=>{if(page==='home')goToDashboard();else go(origin);};
   if(!getSession()){root.append(el('p','Bitte zuerst anmelden.'));return;}
   ({home:renderHome,add:renderAdd,import:renderImport,scan:renderScan,imported:renderImported,document:renderDocument,edit:renderEdit,trash:()=>renderDelete(false),delete:()=>renderDelete(true),folder:renderFolder,'folder-edit':renderFolderEdit,collection:renderCollection,'collection-edit':renderCollectionEdit,'pick-document':renderPickDocument,'folder-delete':()=>renderStructureDelete('folder'),'collection-delete':()=>renderStructureDelete('collection')}[page]||renderHome)();
  }
- function reset(){epoch++;closeAssignment();clearUrls();inboxSelection.clear();importTarget={};importPage='add';origin='home';backAction=null;docs=[];folders=[];collections=[];selected=null;pendingFile=null;scan=[];query='';folderId=null;collectionId=null;editingFolder=null;editingCollection=null;page='home';trash=false;loadedUser=null;root.replaceChildren();}
+ function reset(){contextMenu=null;epoch++;closeAssignment();clearUrls();inboxSelection.clear();importTarget={};importPage='add';origin='home';backAction=null;docs=[];folders=[];collections=[];selected=null;pendingFile=null;scan=[];query='';folderId=null;collectionId=null;editingFolder=null;editingCollection=null;page='home';trash=false;loadedUser=null;root.replaceChildren();}
  document.getElementById('documents-back')?.addEventListener('click',()=>{if(!busy&&!dialog)backAction?.();});
  const active=()=>!view.classList.contains('hidden');
  new MutationObserver(()=>{if(active())run(async()=>{await reload();render();});else reset();}).observe(view,{attributes:true,attributeFilter:['class']});
  document.addEventListener('dock:auth-changed',()=>{if(loadedUser!==getSession()?.user?.id)reset();if(active()&&getSession())run(async()=>{await reload();render();});});
+ document.addEventListener('click',event=>{if(contextMenu?.open&&!contextMenu.contains(event.target))contextMenu.open=false;});
  window.addEventListener('pagehide',reset);
 }
 

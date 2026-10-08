@@ -44,3 +44,16 @@
 
 .documents-icon-action {display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:10px;}
 .documents-icon-action .documents-icon {width:22px;height:22px;margin:0;}
+
+/* Context actions in collection/document headings; navigation stays separate. */
+.documents-heading {display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.documents-heading h2 {min-width:0;overflow-wrap:anywhere;}
+.documents-context-menu {position:relative;flex-shrink:0;}
+.documents-context-trigger {display:flex;align-items:center;justify-content:center;list-style:none;width:44px;height:44px;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);cursor:pointer;}
+.documents-context-trigger::-webkit-details-marker {display:none;}
+.documents-context-trigger .documents-icon {width:22px;height:22px;margin:0;}
+.documents-context-trigger:focus-visible {outline:2px solid var(--petrol);outline-offset:2px;}
+.documents-context-menu[open] .documents-context-trigger {border-color:var(--petrol);}
+.documents-context-actions {position:absolute;right:0;top:calc(100% + 8px);z-index:10;display:flex;flex-direction:column;gap:8px;width:min(300px,calc(100vw - 48px));max-height:60dvh;overflow:auto;padding:12px;border:1px solid var(--border);border-radius:14px;background:var(--surface);box-shadow:0 8px 24px #0008;}
+.documents-context-actions button,.documents-context-actions a {width:100%;min-height:44px;margin:0;white-space:normal;text-align:left;overflow-wrap:anywhere;}
+.documents-context-menu:not([open]) > .documents-context-actions {display:none;}
