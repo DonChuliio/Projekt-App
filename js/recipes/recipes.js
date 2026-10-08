@@ -68,24 +68,29 @@ async function createBringExport(name, items) {
     return row.id;
 }
 
-export async function renderRecipes() {
+function renderRecipeList() {
     const list = document.getElementById("recipes-list");
     if (!list) return;
-
     list.innerHTML = "";
+    const query = (document.getElementById("recipe-search")?.value || "")
+        .trim().toLocaleLowerCase("de");
+    const filtered = recipes.filter(recipe => [
+        recipe.name,
+        ...(Array.isArray(recipe.ingredients) ? recipe.ingredients : []),
+        recipe.description
+    ].join("\n").toLocaleLowerCase("de").includes(query));
 
-    try {
-        recipes = await loadRecipes();
-
-        if (!recipes.length) {
+        if (!filtered.length) {
             const empty = document.createElement("p");
             empty.className = "recipes-empty";
-            empty.textContent = "Noch keine Rezepte.";
+            empty.textContent = recipes.length
+                ? "Keine passenden Rezepte gefunden."
+                : "Noch keine Rezepte.";
             list.appendChild(empty);
             return;
         }
 
-        for (const recipe of recipes) {
+        for (const recipe of filtered) {
             const card = document.createElement("div");
             card.className = "recipe-card";
             card.tabIndex = 0;
@@ -115,6 +120,19 @@ export async function renderRecipes() {
 
             list.appendChild(card);
         }
+
+}
+
+export async function renderRecipes() {
+    const list = document.getElementById("recipes-list");
+    if (!list) return;
+
+    list.innerHTML = "";
+
+    try {
+        recipes = await loadRecipes();
+
+        renderRecipeList();
     } catch (error) {
         console.error("Rezepte konnten nicht geladen werden:", error);
         const message = document.createElement("p");
@@ -417,6 +435,10 @@ function openRecipeExport(recipe) {
 export function initRecipes() {
     if (initialized) return;
     initialized = true;
+
+    document
+        .getElementById("recipe-search")
+        ?.addEventListener("input", renderRecipeList);
 
     document
         .getElementById("recipe-add")

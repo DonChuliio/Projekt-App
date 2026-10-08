@@ -1656,3 +1656,7 @@ html, body {
     border:1px solid var(--danger);
 }
 .recipe-export-list{margin-bottom:12px}
+
+
+/* Rezeptsuche */
+#recipe-search{width:100%;margin:0 0 16px}
