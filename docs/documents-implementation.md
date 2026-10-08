@@ -1,3 +1,13 @@
+# Aktueller Prüfstand: 08.10.2026, 13:46 Uhr Europe/Berlin
+
+Der lokale echte Storage-API-Test der Version 01dff4a63f32d051de7aaa180251b6b309cd7c33 wurde unter Windows/Node 24 vollständig durchgeführt. Beide getrennten Testkonten bestanden Upload, bytegleichen Download, Überschreiben mit bytegleicher Prüfung, Löschung, Fremd-/Anonym-/Public-Zugriffe sowie unzulässige Dateien und Größen. Der Benutzer übermittelte beide PASS-Zeilen und die Bereinigungsmeldung. Die anschließende Supabase-Kontrolle bestätigte null temporäre Testkonten und null Dokumentobjekte ohne bestehendes Eigentümerkonto. Vorhandene App-Dokumente blieben erhalten.
+
+Damit ist die zuvor offene echte Storage-API-Zugriffsprüfung abgeschlossen. Die nachfolgenden Abschnitte dokumentieren auch frühere Prüfstände und fehlgeschlagene Anläufe; ihre Aussagen über noch ausstehende API-Tests sind historisch.
+
+v1.65 aktualisiert den Modulhinweis entsprechend. Noch offen: iPhone-PWA-Gerätetest für Kamera, mehrseitigen Scan, HEIC und PDF-Vorschau; Entfernen des temporären Testschlüssels nach dem Test. Die im Sicherheitsbericht beschriebenen Grenzen (localStorage-Sitzungen, JWT-Laufzeit, kein Virenscanner/Inhaltsscan, keine Ende-zu-Ende-Verschlüsselung, deaktivierter Leaked Password Protection) bleiben bestehen. Ein erfolgreicher Zugriffstest ist keine uneingeschränkte Sicherheitsgarantie für jede Art vertraulicher Dokumente. Es wurde kein privilegierter öffentlicher Testendpunkt eingerichtet.
+
+---
+
 # Dock Dokumente: Umsetzung und Prüfung
 
 ## Phase 1 (v1.62)
