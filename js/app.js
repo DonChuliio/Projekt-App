@@ -1,5 +1,5 @@
-import { initImposter } from "./games/admin.js?v=1.85";
-import { initNavigation } from './navigation.js?v=1.85';
+import { initImposter } from "./games/admin.js?v=1.86";
+import { initNavigation } from './navigation.js?v=1.86';
 import { initDocuments } from "./documents/documents.js?v=1.71";
 // js/app.js
 import { initPushRouting } from "./push/push-routing.js?v=1.60";

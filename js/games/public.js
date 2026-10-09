@@ -1,15 +1,15 @@
-import { bindHold } from './hold.js?v=1.85';
-import { gameRpc } from './api.js?v=1.85';
-import { createPublicGame } from './public-controller.js?v=1.85';
+import { bindHold } from './hold.js?v=1.86';
+import { gameRpc } from './api.js?v=1.86';
+import { createPublicGame } from './public-controller.js?v=1.86';
 const root=document.getElementById('public-game'),token=new URL(location.href).searchParams.get('game');
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,action)=>{const b=el('button',text);b.type='button';b.addEventListener('click',action);return b;};
 const roleArea=document.getElementById('public-role'),roleContent=document.getElementById('public-role-content'),holdButton=document.getElementById('public-role-hold'),outcomeArea=document.getElementById('public-outcomes'),roleControls=document.getElementById('public-role-controls');
 function paintRole(s){
- roleArea.hidden=!s.claimed||!s.status?.round_id||s.status.state==='unavailable';
+ roleArea.hidden=!s.claimed||!s.status?.round_id||s.status.state==='unavailable'||(s.playerId===s.status.host_id&&s.status.state==='choosing');
  const choosing=s.status?.state==='choosing';roleControls.hidden=choosing;
  const available=s.claimed&&s.status?.state==='live'&&!s.busy&&!s.error;holdButton.disabled=!available;roleContent.replaceChildren();
- if(choosing){roleContent.append(el('p',s.playerId===s.status.host_id?'Lege das Wort und optional einen Hinweis fest.':'Die Rundenleitung legt das Wort und optional einen Hinweis fest.','game-waiting'));}
+ if(choosing){roleContent.append(el('p','Der Rundenleiter legt das Wort fest.','game-waiting'));}
  else if(available&&s.result&&['host','player','imposter'].includes(s.result.role)){const r=s.result;if(r.role!=='host')roleContent.append(el('h2',r.role==='imposter'?'Du bist Imposter':'Kein Imposter')); if(r.role==='host')roleContent.append(el('p','Imposter: '+(r.imposters?.join(', ')||'Keine Imposter verfügbar')));if(r.role!=='imposter')roleContent.append(el('p',r.word,'game-secret-word'));if(r.role==='host'||r.role==='imposter')roleContent.append(el('p',r.hint||'Kein Hinweis'));if(r.role==='imposter'&&r.teammates)roleContent.append(el('p',r.teammates.length?'Weitere Imposter: '+r.teammates.join(', '):'Kein weiterer Imposter'));}
  else{const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('class','game-eye-off');svg.setAttribute('aria-hidden','true');const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d','M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.8 5.2A12 12 0 0 1 12 5c5.5 0 9 7 9 7a17 17 0 0 1-4 4.7M6.2 6.2C3.5 8.1 2 12 2 12s3.5 7 10 7a12 12 0 0 0 4.2-.8');svg.append(path);roleContent.append(svg,el('p','Rolle und Wort verborgen'));}
 }

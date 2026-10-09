@@ -49,3 +49,5 @@
 .game-role-controls[hidden] {display:flex;visibility:hidden;}
 #public-role {font-size:1.2rem;}
 #public-role h2,#public-role p,#public-role button {font-size:inherit;font-weight:400;}
+#public-role-controls .game-muted {font-size:.9rem;}
+.game-module .host-word-form textarea {min-height:44px;height:44px;resize:vertical;}
