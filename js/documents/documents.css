@@ -57,3 +57,11 @@
 .documents-context-actions {position:absolute;right:0;top:calc(100% + 8px);z-index:10;display:flex;flex-direction:column;gap:8px;width:min(300px,calc(100vw - 48px));max-height:60dvh;overflow:auto;padding:12px;border:1px solid var(--border);border-radius:14px;background:var(--surface);box-shadow:0 8px 24px #0008;}
 .documents-context-actions button,.documents-context-actions a {width:100%;min-height:44px;margin:0;white-space:normal;text-align:left;overflow-wrap:anywhere;}
 .documents-context-menu:not([open]) > .documents-context-actions {display:none;}
+
+/* All context actions are neutral; danger styling remains on confirmation pages. */
+.documents-module .documents-context-actions button,
+.documents-module .documents-context-actions a {background:var(--surface);color:var(--text);border:1px solid var(--border);text-decoration:none;}
+.documents-module .documents-context-actions button:hover,
+.documents-module .documents-context-actions button:active,
+.documents-module .documents-context-actions a:hover,
+.documents-module .documents-context-actions a:active {background:var(--border);color:var(--text);border-color:var(--border);}

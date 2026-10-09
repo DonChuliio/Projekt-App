@@ -27,6 +27,8 @@ export function initDocuments(){
   trigger.setAttribute('aria-label','Aktionen');trigger.title='Aktionen';
   const icon=iconButton('Aktionen','M9.5 3h5l.5 2.5 2 1.2 2.4-.8 2.5 4.2-1.9 1.7v2.4l1.9 1.7-2.5 4.2-2.4-.8-2 1.2-.5 2.5h-5L9 20.5l-2-1.2-2.4.8-2.5-4.2L4 14.2v-2.4l-1.9-1.7 2.5-4.2 2.4.8 2-1.2z M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6',()=>{});
   trigger.append(icon.children[0]);actions.className='documents-context-actions';
+  // Handle SVG taps explicitly instead of depending on browser-specific summary activation.
+  trigger.addEventListener('click',event=>{event.preventDefault();menu.open=!menu.open;});
   actions.addEventListener('click',()=>{menu.open=false;});
   menu.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();menu.open=false;trigger.focus();}});
   menu.append(trigger,actions);contextMenu=menu;return menu;
@@ -83,7 +85,7 @@ export function initDocuments(){
  }
  function renderCollection(){const c=collections.find(c=>c.id===collectionId);if(!c){go('home');return;}folderId=c.folder_id;const head=heading(c.name,()=>go(folderId?'folder':'home'));const header=el('div',undefined,'documents-card');header.append(el('p',TEMPLATES[c.template]?.name||'Allgemein','documents-muted'));const detail=el('dl',undefined,'documents-details'),known=new Set();for(const [key,label] of TEMPLATES[c.template]?.fields||[]){known.add(key);if(c.fields[key])detail.append(el('dt',label),el('dd',c.fields[key]));}
   for(const [key,value] of Object.entries(c.fields)){if(value&&!known.has(key))detail.append(el('dt',key),el('dd',String(value)));}for(const f of c.custom_fields||[])detail.append(el('dt',f.label),el('dd',f.value||'—'));if(!detail.childNodes.length)header.append(el('p','Noch keine Stammdaten eingetragen.','documents-muted'));header.append(detail);root.append(header);
-  const actions=el('div',undefined,'documents-actions');actions.append(button('Stammdaten / Ablage bearbeiten',()=>{editingCollection=c;go('collection-edit');},'secondary'),button('Neues Dokument',startImport),button('Aus Posteingang auswählen',()=>{pickOrigin=page;inboxSelection.clear();go('pick-document');},'secondary'));head.append(actionMenu(actions));root.append(el('h3','Zugehörige Dokumente'),docList(docs.filter(d=>d.collection_id===c.id&&!d.trashed_at)));
+  const actions=el('div',undefined,'documents-actions');actions.append(button('Neues Dokument',startImport),button('Stammdaten / Ablage bearbeiten',()=>{editingCollection=c;go('collection-edit');},'secondary'),button('Aus Posteingang auswählen',()=>{pickOrigin=page;inboxSelection.clear();go('pick-document');},'secondary'));head.append(actionMenu(actions));root.append(el('h3','Zugehörige Dokumente'),docList(docs.filter(d=>d.collection_id===c.id&&!d.trashed_at)));
  }
  function renderCollectionEdit(){
   const c=editingCollection;if(!c&&!folderId){go('home');return;}heading(c?'Ablage bearbeiten':'Neue Ablage',()=>go(c?'collection':folderId?'folder':'home'));
