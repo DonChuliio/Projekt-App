@@ -1,6 +1,6 @@
-import { bindHold } from './hold.js?v=1.90';
-import { gameRpc } from './api.js?v=1.90';
-import { createPublicGame } from './public-controller.js?v=1.90';
+import { bindHold } from './hold.js?v=1.91';
+import { gameRpc } from './api.js?v=1.91';
+import { createPublicGame } from './public-controller.js?v=1.91';
 const root=document.getElementById('public-game'),token=new URL(location.href).searchParams.get('game');
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,action)=>{const b=el('button',text);b.type='button';b.addEventListener('click',action);return b;};
@@ -27,7 +27,7 @@ function render(s){
  const names=s.status.players,hostName=names.find(p=>p.id===s.status.host_id)?.name||'Rundenleitung';
  root.append(el('h2',`Runde ${s.status.number}`),el('p','Dein Name: '+(names.find(p=>p.id===s.playerId)?.name||'Noch nicht ausgewählt'),'game-person-line'),el('p','Rundenleitung: '+hostName,'game-person-line'));
  if(s.notice&&!s.notice.startsWith('Neue Runde'))root.append(el('p',s.notice));
- if(!s.claimed){const form=el('form',undefined,'game-name-form'),picker=el('select');picker.required=true;picker.setAttribute('aria-label','Deinen Namen auswählen');const empty=el('option','Deinen Namen auswählen');empty.value='';picker.append(empty);for(const p of names){const o=el('option',p.name+(p.claimed?' – belegt':''));o.value=p.id;o.disabled=p.claimed;picker.append(o);}if(names.some(p=>p.id===draftSelection&&!p.claimed))picker.value=draftSelection;const submit=el('button','Namen bestätigen');submit.type='submit';form.append(picker,submit);form.addEventListener('submit',e=>{e.preventDefault();if(picker.value)controller.select(picker.value);});root.append(form,el('p','Deine Auswahl bleibt für dieses Spiel auf diesem Gerät gespeichert. Wähle nur deinen eigenen Namen. Öffne den Link nicht in einem privaten Tab: Dort bleibt deine Namensauswahl nach dem Schließen möglicherweise nicht gespeichert.','game-muted'));}
+ if(!s.claimed){const form=el('form',undefined,'game-name-form'),picker=el('select');picker.required=true;picker.setAttribute('aria-label','Deinen Namen auswählen');const empty=el('option','Deinen Namen auswählen');empty.value='';picker.append(empty);for(const p of names){const o=el('option',p.name+(p.claimed?' – belegt':''));o.value=p.id;o.disabled=p.claimed;picker.append(o);}if(names.some(p=>p.id===draftSelection&&!p.claimed))picker.value=draftSelection;const submit=el('button','Namen bestätigen');submit.type='submit';form.append(picker,submit);form.addEventListener('submit',e=>{e.preventDefault();if(picker.value)controller.select(picker.value);});root.append(form,el('p','Wähle nur deinen eigenen Namen. Deine Auswahl bleibt für dieses Spiel auf dem Gerät gespeichert. Nutze deshalb keinen privaten Tab für den Link.','game-muted'));}
  else{
   if(s.playerId===s.status.host_id){root.append(el('h2','Du bist Rundenleiter/in'));
    if(s.status.state==='choosing'){const form=el('form',undefined,'host-word-form'),label=el('label','Geheimes Wort'),word=el('input'),hintLabel=el('label','Hinweis für Imposter (optional)'),hint=el('textarea');word.required=true;word.maxLength=200;word.value=draftWord;hint.maxLength=500;hint.value=draftHint;label.append(word);hintLabel.append(hint);const start=el('button','Wort freigeben');start.type='submit';form.append(label,hintLabel,start);form.addEventListener('submit',e=>{e.preventDefault();if(word.value.trim())controller.host('prepare',{word:word.value.trim(),hint:hint.value});});root.append(form);}
