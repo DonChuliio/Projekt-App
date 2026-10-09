@@ -1,5 +1,5 @@
-import { imposterStats } from './stats.js?v=1.86';
-import { manageGame } from './admin-data.js?v=1.86';
+import { imposterStats } from './stats.js?v=1.87';
+import { manageGame } from './admin-data.js?v=1.87';
 import { showView } from '../router.js';
 import { getSession } from '../auth/auth.js';
 export function initImposter(){
