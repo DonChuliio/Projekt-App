@@ -1717,3 +1717,12 @@ html, body {
 .routine-week-choice {display:flex;align-items:center;gap:8px;min-height:44px;padding:8px;text-align:left;white-space:normal;}
 .routine-week-choice input {width:22px;min-width:22px;height:22px;accent-color:var(--petrol);}
 .routine-week-choice span {min-width:100px;overflow-wrap:anywhere;}
+
+/* Recurring entries: full names and one fixed edit control on the right. */
+.recurring-row {display:grid;grid-template-columns:minmax(0,1fr) 44px;align-items:start;}
+.recurring-row > .recurring-row-actions {width:44px;min-width:44px;justify-self:end;}
+.recurring-row strong,.recurring-row span {white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;}
+.recurring-edit {flex-shrink:0;}
+.recurring-delete-confirmation {padding:12px;border:1px solid var(--danger);border-radius:10px;}
+.recurring-delete-confirmation button,.recurring-remove-entry {min-height:44px;margin:4px;}
+.recurring-form .recurring-month-field[hidden] {display:none;}
