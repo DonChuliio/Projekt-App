@@ -1,5 +1,5 @@
-import { imposterStats } from './stats.js?v=1.82';
-import { manageGame } from './admin-data.js?v=1.82';
+import { imposterStats } from './stats.js?v=1.83';
+import { manageGame } from './admin-data.js?v=1.83';
 import { showView } from '../router.js';
 import { getSession } from '../auth/auth.js';
 export function initImposter(){
@@ -26,14 +26,14 @@ export function initImposter(){
   }
   const next=await manageGame('view',gameId);if(!active()||generation!==epoch||serial!==loadSerial||owner!==getSession()?.user?.id)return;data=next;if(screen==='open')screen='game';redraw();
  }
- function drawPlayers(){
-  root.append(el('h3',`${data.players.filter(p=>p.active!==false).length} Teilnehmer`),el('p','Die Namen sind nach Spielstart fest. Belegungen können in Dock zurückgesetzt werden.','game-muted'),...(data.game.state==='draft'?[button('Spieler hinzufügen',()=>playerForm())]:[]));const list=el('div',undefined,'game-player-list');for(const p of data.players.filter(p=>p.active!==false)){const row=el('div',undefined,'game-player-row');row.append(el('span',p.name));if(data.game.state==='draft')row.append(button('Bearbeiten',()=>playerForm(p)),button('Entfernen',()=>confirm(`„${p.name}“ entfernen?`,()=>manageGame('delete_player',gameId,{id:p.id}))));if(p.claimed&&data.game.state==='active')row.append(button('Belegung zurücksetzen',()=>confirm(`Belegung für „${p.name}“ zurücksetzen?`,()=>manageGame('reset',gameId,{id:p.id}))));list.append(row);}root.append(list);
-  if(data.game.state!=='draft')root.append(button('Zurück zum Spiel',()=>{if(busy)return;screen='game';redraw();}));
+ function drawPlayers(target=root){
+  target.append(el('h3',`${data.players.filter(p=>p.active!==false).length} Teilnehmer`),el('p','Die Namen sind nach Spielstart fest. Belegungen können in Dock zurückgesetzt werden.','game-muted'),...(data.game.state==='draft'?[button('Spieler hinzufügen',()=>playerForm())]:[]));const list=el('div',undefined,'game-player-list');for(const p of data.players.filter(p=>p.active!==false)){const row=el('div',undefined,'game-player-row');row.append(el('span',p.name));if(data.game.state==='draft')row.append(button('Bearbeiten',()=>playerForm(p)),button('Entfernen',()=>confirm(`„${p.name}“ entfernen?`,()=>manageGame('delete_player',gameId,{id:p.id}))));if(p.claimed&&data.game.state==='active')row.append(button('Belegung zurücksetzen',()=>confirm(`Belegung für „${p.name}“ zurücksetzen?`,()=>manageGame('reset',gameId,{id:p.id}))));list.append(row);}target.append(list);
+  if(target===root&&data.game.state!=='draft')target.append(button('Zurück zum Spiel',()=>{if(busy)return;screen='game';redraw();}));
  }
  function drawGame(){
-  const g=data.game,r=data.round,people=data.players.filter(p=>p.active!==false);root.append(el('h3',g.name));
-  if(g.state==='active'&&g.token){const url=new URL('imposter.html',location.href);url.searchParams.set('game',g.token);const link=el('input');link.readOnly=true;link.value=url.href;link.setAttribute('aria-label','Gruppenlink');root.append(link);const share=el('div',undefined,'game-actions');share.append(button('Link kopieren',async()=>{try{await navigator.clipboard.writeText(url.href);status('Link kopiert.');}catch{link.focus();link.select();status('Bitte markierten Link kopieren.');}}));const whatsapp=el('a','Über WhatsApp teilen');whatsapp.href='https://wa.me/?text='+encodeURIComponent('Dock Imposter: '+url.href);whatsapp.target='_blank';whatsapp.rel='noopener noreferrer';share.append(whatsapp);root.append(share,el('p','Namen bleiben pro Gerät für dieses Spiel gespeichert. Der Link prüft keine Identität.','game-muted'));}
-  if(g.state!=='draft')root.append(button('Spieler anzeigen',()=>{if(busy)return;screen='players';playersReturn='game';run(async()=>{});}));
+  const g=data.game,r=data.round,people=data.players.filter(p=>p.active!==false);root.append(el('h3',g.name),button('Spiel löschen',()=>confirm('Spiel einschließlich aller Spieler, Runden und Statistiken dauerhaft löschen? Der Link wird ungültig.',async()=>{await manageGame('delete',gameId);gameId=null;data=null;screen='list';expanded.clear();})));
+  if(g.state==='active'&&g.token){const url=new URL('imposter.html',location.href);url.searchParams.set('game',g.token);const link=el('input');link.readOnly=true;link.value=url.href;link.setAttribute('aria-label','Gruppenlink');root.append(link);const share=el('div',undefined,'game-actions');share.append(button('Link kopieren',async()=>{try{await navigator.clipboard.writeText(url.href);status('Link kopiert.');}catch{link.focus();link.select();status('Bitte markierten Link kopieren.');}}));root.append(share);}
+  if(g.state!=='draft'){const players=fold(`Spieler (${people.length})`,'players');drawPlayers(players);root.append(players);}
   if(g.state==='draft'){
    drawPlayers();root.append(el('p','Link und zufällige Rundenleitung entstehen erst beim Spielstart.'));
    const form=el('form',undefined,'game-setup-form'),group=el('div',undefined,'game-imposter-choice');group.setAttribute('role','group');group.setAttribute('aria-label','Imposter pro Runde');form.append(el('h3','Imposter pro Runde'));
@@ -45,7 +45,7 @@ export function initImposter(){
   root.append(el('h3',g.state==='ended'?'Spiel beendet':r?`Runde ${r.number}`:'Spiel läuft'));
   if(r){const current=fold('Aktuelle Runde','current'),host=people.find(p=>p.id===r.host_id);current.append(el('p','Rundenleitung: '+(host?.name||'Teilnehmer')),el('p',r.phase==='choosing'?'Wort wird von der Rundenleitung festgelegt.':r.phase==='live'?'Runde läuft – Ergebnis steht noch aus.':r.winner==='imposter'?'Imposter haben gewonnen.':r.winner==='players'?'Die anderen haben gewonnen.':'Runde ohne Ergebnis beendet.'));if(r.word)current.append(el('p','Wort: '+r.word),el('p','Hinweis: '+(r.hint||'Kein Hinweis')));root.append(current);}
   root.append(el('p',`${people.filter(p=>p.claimed).length} von ${people.length} Namen belegt`));
-  if(g.state==='active')root.append(button('Spiel beenden',()=>confirm('Spiel dauerhaft beenden? Der Link wird deaktiviert. Statistiken bleiben erhalten.',()=>manageGame('end',gameId))));
+  if(g.state==='active')root.append(button('Spiel beenden',()=>run(()=>manageGame('end',gameId))));
   else root.append(el('p','Der Gruppenlink ist dauerhaft deaktiviert.'));
   const history=fold(`Rundenhistorie (${(data.history||[]).length})`,'history');history.className='game-history game-section';for(const round of data.history||[]){const row=fold(`Runde ${round.number} · ${round.winner==='imposter'?'Imposter gewonnen':round.winner==='players'?'Die anderen gewonnen':'Ohne Ergebnis'}`,'round-'+round.number);row.append(el('p','Rundenleitung: '+round.host),el('p','Imposter: '+round.imposters.join(', ')));history.append(row);}if(!(data.history||[]).length)history.append(el('p','Noch keine abgeschlossene Runde.'));
   const scores=fold('Siege als Imposter','scores'),table=el('table',undefined,'game-stats-table'),head=el('thead'),header=el('tr');header.append(el('th','Name'),el('th','Siege'));head.append(header);table.append(head);const body=el('tbody');for(const p of imposterStats(data.players,data.history||[])){const row=el('tr');row.append(el('td',p.name),el('td',String(p.wins)));body.append(row);}table.append(body);scores.append(table);root.append(history,scores);
