@@ -12,3 +12,5 @@
 .game-muted {color:var(--text-muted);line-height:1.5;}
 .public-game-page {padding:24px 16px;}
 .game-role h2 {overflow-wrap:anywhere;}
+.game-list {display:grid;gap:8px;margin:16px 0;}
+.game-list button {text-align:left;overflow-wrap:anywhere;}

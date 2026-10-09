@@ -9,6 +9,7 @@ for(let i=0;i<matches.length;i++){
  const attributes=Object.fromEntries([...tag[0].matchAll(/(data-[a-z-]+)(?:="([^"]*)")?/g)].map(m=>[m[1],m[2]||'']));
  const back=node({viewBack:attributes['data-view-back']});back.attributes=attributes;back.view=name;buttons.push(back);
  if(name==='watertest-entry')back.addEventListener('click',()=>ctx.showView('watertest'));
+ if(name==='imposter')back.addEventListener('click',()=>ctx.showView('games'));
  if(name==='documents')back.addEventListener('click',()=>ctx.showView('documents'));
 }
 const ctx={document:{querySelectorAll:s=>s==='[data-view]'?views:buttons,createElement:()=>node()}};vm.createContext(ctx);vm.runInContext(source.replace(/export /g,''),ctx);ctx.initNavigation();ctx.initNavigation();
