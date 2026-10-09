@@ -14,3 +14,6 @@
 .game-role h2 {overflow-wrap:anywhere;}
 .game-list {display:grid;gap:8px;margin:16px 0;}
 .game-list button {text-align:left;overflow-wrap:anywhere;}
+.game-ended {color:var(--text-muted);background:var(--border);opacity:.7;}
+.game-history section {border-bottom:1px solid var(--border);padding:8px 0;}
+.game-module textarea {width:100%;min-height:88px;font-size:16px;}
