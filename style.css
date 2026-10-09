@@ -1700,3 +1700,9 @@ html, body {
 .saving-plan summary:focus-visible { outline:2px solid var(--petrol); outline-offset:2px; border-radius:14px; }
 .saving-plan-summary { display:block; margin-top:6px; font-size:14px; font-weight:400; line-height:1.5; color:var(--text); }
 .saving-plan-fields { padding:0 16px 16px; }
+
+.recurring-row > .recurring-row-actions {flex:0;display:flex;gap:8px;}
+.recurring-row > div:first-child {min-width:0;overflow-wrap:anywhere;}
+.recurring-edit {display:flex;align-items:center;justify-content:center;width:44px;height:44px;padding:10px;background:var(--surface);color:var(--text);border:1px solid var(--border);}
+.recurring-edit svg {width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+.recurring-form input,.recurring-form select {font-size:16px;}

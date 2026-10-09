@@ -40,3 +40,16 @@ export async function deleteRecurringTransaction(id) {
     });
     if (!response.ok) throw new Error(`Eintrag konnte nicht gelöscht werden (${response.status}): ${await response.text()}`);
 }
+
+export async function updateRecurringTransaction(id, entry) {
+    const response = await fetch(`${TABLE_URL}?id=eq.${encodeURIComponent(id)}&select=id,name,amount,transaction_type,frequency,start_date`, {
+        method: "PATCH",
+        headers: await headers("return=representation"),
+        body: JSON.stringify({ name: entry.name, amount: entry.amount, transaction_type: entry.transaction_type, frequency: entry.frequency, start_date: entry.start_date })
+    });
+    if (!response.ok) throw new Error("Eintrag konnte nicht geändert werden. Bitte erneut versuchen.");
+    const rows = await response.json();
+    if (rows.length !== 1) throw new Error("Eintrag ist nicht mehr verfügbar oder darf nicht geändert werden. Bitte neu laden.");
+    return rows[0];
+}
+
