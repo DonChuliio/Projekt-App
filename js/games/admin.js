@@ -1,4 +1,5 @@
-import { manageGame } from './admin-data.js?v=1.78';
+import { imposterStats } from './stats.js?v=1.79';
+import { manageGame } from './admin-data.js?v=1.79';
 import { showView } from '../router.js';
 import { getSession } from '../auth/auth.js';
 export function initImposter(){
@@ -7,6 +8,8 @@ export function initImposter(){
  const button=(text,action)=>{const b=el('button',text);b.type='button';b.addEventListener('click',action);return b;};
  let gameId=null,data=null,screen='list',playersReturn='list',busy=false,epoch=0,loadSerial=0;
  const back=view.querySelector('.back-button');
+ const expanded=new Set();
+ const fold=(label,key)=>{const box=el('details',undefined,'game-section'),id=gameId+':'+key;box.open=expanded.has(id);box.append(el('summary',label));box.addEventListener('toggle',()=>{if(box.open)expanded.add(id);else expanded.delete(id);});return box;};
  const redraw=()=>{root.replaceChildren();if(screen==='players')drawPlayers();else drawGame();};
  const goBack=()=>{if(busy)return;if(screen==='players'&&playersReturn==='game'){screen='game';redraw();}else if(screen!=='list'){gameId=null;screen='list';load().catch(e=>status(e.message));}else showView('games');};
  back?.addEventListener('click',goBack);
@@ -41,13 +44,15 @@ export function initImposter(){
    form.addEventListener('submit',e=>{e.preventDefault();configure(true);});root.append(form);return;
   }
   root.append(el('h3',g.state==='ended'?'Spiel beendet':r?`Runde ${r.number}`:'Spiel läuft'));
-  if(r){const host=people.find(p=>p.id===r.host_id);root.append(el('p','Spielleitung: '+(host?.name||'Teilnehmer')),el('p',r.phase==='choosing'?'Wort wird von der Spielleitung festgelegt.':r.phase==='live'?'Runde läuft – Ergebnis steht noch aus.':r.winner==='imposter'?'Imposter haben gewonnen.':r.winner==='players'?'Die anderen haben gewonnen.':'Runde ohne Ergebnis beendet.'));if(r.word)root.append(el('p','Wort: '+r.word),el('p','Hinweis: '+(r.hint||'Kein Hinweis')));}
+  if(r){const current=fold('Aktuelle Runde','current'),host=people.find(p=>p.id===r.host_id);current.append(el('p','Spielleitung: '+(host?.name||'Teilnehmer')),el('p',r.phase==='choosing'?'Wort wird von der Spielleitung festgelegt.':r.phase==='live'?'Runde läuft – Ergebnis steht noch aus.':r.winner==='imposter'?'Imposter haben gewonnen.':r.winner==='players'?'Die anderen haben gewonnen.':'Runde ohne Ergebnis beendet.'));if(r.word)current.append(el('p','Wort: '+r.word),el('p','Hinweis: '+(r.hint||'Kein Hinweis')));root.append(current);}
   root.append(el('p',`${people.filter(p=>p.claimed).length} von ${people.length} Namen belegt`));
   if(g.state==='active')root.append(button('Aktualisieren',()=>run(async()=>{})),button('Spiel beenden',()=>confirm('Spiel dauerhaft beenden? Der Link wird deaktiviert. Statistiken bleiben erhalten.',()=>manageGame('end',gameId))));
   else root.append(el('p','Der Gruppenlink ist dauerhaft deaktiviert.'));
-  root.append(el('h3','Auswertung'));const history=el('div',undefined,'game-history');for(const round of data.history||[]){const row=el('section');row.append(el('h4',`Runde ${round.number}`),el('p','Spielleitung: '+round.host),el('p','Imposter: '+round.imposters.join(', ')),el('p',round.winner==='imposter'?'Gewinner: Imposter':round.winner==='players'?'Gewinner: Die anderen':'Kein Ergebnis'));history.append(row);}if(!history.children.length)history.append(el('p','Noch keine abgeschlossene Runde.'));root.append(history,el('h3','Siege pro Person'));for(const p of data.stats||[])root.append(el('p',`${p.name}: ${p.wins} Siege · ${p.played} gewertete Runden`));
+  const history=fold(`Rundenhistorie (${(data.history||[]).length})`,'history');history.className='game-history game-section';for(const round of data.history||[]){const row=fold(`Runde ${round.number} · ${round.winner==='imposter'?'Imposter gewonnen':round.winner==='players'?'Die anderen gewonnen':'Ohne Ergebnis'}`,'round-'+round.number);row.append(el('p','Spielleitung: '+round.host),el('p','Imposter: '+round.imposters.join(', ')));history.append(row);}if(!(data.history||[]).length)history.append(el('p','Noch keine abgeschlossene Runde.'));
+  const scores=fold('Siege als Imposter','scores'),table=el('table',undefined,'game-stats-table'),head=el('thead'),header=el('tr');header.append(el('th','Name'),el('th','Siege'));head.append(header);table.append(head);const body=el('tbody');for(const p of imposterStats(data.players,data.history||[])){const row=el('tr');row.append(el('td',p.name),el('td',String(p.wins)));body.append(row);}table.append(body);scores.append(table);root.append(history,scores);
+
  }
- function reset(){epoch++;gameId=null;data=null;screen='list';playersReturn='list';root.replaceChildren();}
+ function reset(){epoch++;gameId=null;data=null;screen='list';playersReturn='list';expanded.clear();root.replaceChildren();}
  const tick=()=>{if(active()&&!busy&&screen==='game'&&data?.game.state==='active'&&!root.querySelector('.game-confirm')&&document.visibilityState!=='hidden')load().catch(e=>status(e.message));};let timer=setInterval(tick,5000);
  window.addEventListener('pagehide',()=>clearInterval(timer));window.addEventListener('pageshow',()=>{clearInterval(timer);timer=setInterval(tick,5000);});
  new MutationObserver(()=>{if(active())load().catch(e=>status(e.message));else reset();}).observe(view,{attributes:true,attributeFilter:['class']});

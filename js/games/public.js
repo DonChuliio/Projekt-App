@@ -1,5 +1,5 @@
-import { gameRpc } from './api.js?v=1.78';
-import { createPublicGame } from './public-controller.js?v=1.78';
+import { gameRpc } from './api.js?v=1.79';
+import { createPublicGame } from './public-controller.js?v=1.79';
 const root=document.getElementById('public-game'),token=new URL(location.href).searchParams.get('game');
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,action)=>{const b=el('button',text);b.type='button';b.addEventListener('click',action);return b;};
@@ -24,7 +24,7 @@ function render(s){
     const choose=winner=>{pendingWinner=winner;render(s);};if(pendingWinner){const winner=pendingWinner,box=el('section',undefined,'game-confirm');box.append(el('p',winner==='imposter'?'Imposter haben gewonnen?':'Die anderen haben gewonnen?'),button('Ergebnis bestätigen',()=>{pendingWinner=null;controller.host('finish',{winner});}),button('Abbrechen',()=>{pendingWinner=null;render(s);}));root.append(box);}root.append(button('Imposter gewonnen',()=>choose('imposter')),button('Die anderen gewonnen',()=>choose('players')));}
    else root.append(button('Neue Runde starten',()=>controller.host('next')));
   }else if(s.status.state==='choosing')root.append(el('p','Die Spielleitung legt Wort und Hinweis fest. Danach aktualisieren.'));
-  else if(s.status.state==='live'){if(s.result?.role==='player'||s.result?.role==='imposter'){const panel=el('section',undefined,'game-role');panel.append(el('h2',s.result.role==='imposter'?'Du bist Imposter':s.result.word));if(s.result.role==='imposter')panel.append(el('p',s.result.hint||'Kein Hinweis'));panel.append(button('Rolle verbergen',()=>controller.hide()));root.append(panel);}else root.append(el('p','Deine Rolle ist verborgen.'),button('Rolle anzeigen',()=>controller.show()));}
+  else if(s.status.state==='live'){if(s.result?.role==='player'||s.result?.role==='imposter'){const panel=el('section',undefined,'game-role');panel.append(el('h2',s.result.role==='imposter'?'Du bist Imposter':'Kein Imposter'));if(s.result.role==='player')panel.append(el('p','Das Wort ist '+s.result.word));if(s.result.role==='imposter')panel.append(el('p',s.result.hint||'Kein Hinweis'));panel.append(button('Rolle verbergen',()=>controller.hide()));root.append(panel);}else root.append(el('p','Deine Rolle ist verborgen.'),button('Rolle anzeigen',()=>controller.show()));}
  }
  if(s.status.state==='finished')root.append(el('p',s.status.winner==='imposter'?'Imposter haben gewonnen.':s.status.winner==='players'?'Die anderen haben gewonnen.':'Runde beendet.'),el('p','Warte auf die nächste Runde und aktualisiere.'));
  root.append(button('Aktualisieren',()=>controller.refresh()));root.querySelectorAll('button,input,textarea,select').forEach(n=>n.disabled=s.busy);if(focusField&&!s.busy){const next=root.querySelector('.host-word-form')?.querySelector(focusField);next?.focus();if(Number.isInteger(caret))next?.setSelectionRange?.(caret,caret);}
