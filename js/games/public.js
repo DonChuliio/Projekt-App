@@ -1,6 +1,6 @@
-import { bindHold } from './hold.js?v=1.80';
-import { gameRpc } from './api.js?v=1.80';
-import { createPublicGame } from './public-controller.js?v=1.80';
+import { bindHold } from './hold.js?v=1.81';
+import { gameRpc } from './api.js?v=1.81';
+import { createPublicGame } from './public-controller.js?v=1.81';
 const root=document.getElementById('public-game'),token=new URL(location.href).searchParams.get('game');
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,action)=>{const b=el('button',text);b.type='button';b.addEventListener('click',action);return b;};
@@ -17,8 +17,8 @@ function render(s){
  const select=root.querySelector('select');if(select)draftSelection=select.value;
  if(lastRound!==s.status?.round_id){draftWord='';draftHint='';draftSelection='';lastRound=s.status?.round_id;pendingWinner=null;}
  root.replaceChildren(el('h1',s.status?.name||'Dock Imposter'));
- if(s.error){const p=el('p',s.error,'loan-error');p.setAttribute('role','status');root.append(p);}
- if(!s.status){root.append(el('p','Spiel wird geladen …'),button('Aktualisieren',()=>controller.refresh()));return;}
+ if(s.error){const p=el('p',s.error,'loan-error');p.setAttribute('role','status');root.append(p,button('Erneut versuchen',()=>controller.refresh()));}
+ if(!s.status){root.append(el('p','Spiel wird geladen …'));return;}
  if(s.status.state==='unavailable'){root.append(el('p','Dieses Spiel ist beendet oder der Link ist nicht mehr aktiv.'));return;}
  const names=s.status.players,hostName=names.find(p=>p.id===s.status.host_id)?.name||'Rundenleitung';
  root.append(el('h2',`Runde ${s.status.number}`),el('p','Dein Name: '+(names.find(p=>p.id===s.playerId)?.name||'Noch nicht ausgewählt'),'game-person-line'),el('p','Rundenleitung: '+hostName,'game-person-line'));
@@ -30,11 +30,11 @@ function render(s){
    else if(s.status.state==='live'){
     const choose=winner=>{pendingWinner=winner;render(s);};if(pendingWinner){const winner=pendingWinner,box=el('section',undefined,'game-confirm');box.append(el('p',winner==='imposter'?'Imposter haben gewonnen?':'Die anderen haben gewonnen?'),button('Ergebnis bestätigen',()=>{pendingWinner=null;controller.host('finish',{winner});}),button('Abbrechen',()=>{pendingWinner=null;render(s);}));root.append(box);}root.append(button('Imposter gewonnen',()=>choose('imposter')),button('Die anderen gewonnen',()=>choose('players')));}
    else root.append(button('Neue Runde starten',()=>controller.host('next')));
-  }else if(s.status.state==='choosing')root.append(el('p','Die Rundenleitung legt Wort und Hinweis fest. Danach aktualisieren.'));
+  }else if(s.status.state==='choosing')root.append(el('p','Die Rundenleitung legt Wort und Hinweis fest. Die Anzeige aktualisiert sich automatisch.'));
 
  }
- if(s.status.state==='finished')root.append(el('p',s.status.winner==='imposter'?'Imposter haben gewonnen.':s.status.winner==='players'?'Die anderen haben gewonnen.':'Runde beendet.'),el('p','Warte auf die nächste Runde und aktualisiere.'));
- root.append(button('Aktualisieren',()=>controller.refresh()));root.querySelectorAll('button,input,textarea,select').forEach(n=>n.disabled=s.busy);if(focusField&&!s.busy){const next=root.querySelector('.host-word-form')?.querySelector(focusField);next?.focus();if(Number.isInteger(caret))next?.setSelectionRange?.(caret,caret);}
+ if(s.status.state==='finished')root.append(el('p',s.status.winner==='imposter'?'Imposter haben gewonnen.':s.status.winner==='players'?'Die anderen haben gewonnen.':'Runde beendet.'),el('p','Warte auf die nächste Runde. Die Anzeige aktualisiert sich automatisch.'));
+ root.querySelectorAll('button,input,textarea,select').forEach(n=>n.disabled=s.busy);if(focusField&&!s.busy){const next=root.querySelector('.host-word-form')?.querySelector(focusField);next?.focus();if(Number.isInteger(caret))next?.setSelectionRange?.(caret,caret);}
 }
 async function poll(){if(inFlight||document.visibilityState==='hidden')return;inFlight=true;try{await controller.poll();}finally{inFlight=false;}}
 paintRole({});

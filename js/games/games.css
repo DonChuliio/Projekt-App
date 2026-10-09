@@ -30,3 +30,6 @@
 .game-checkbox {display:flex!important;align-items:center;gap:12px;}
 .game-module .game-checkbox input {width:22px;min-height:22px;flex:none;}
 .game-module .game-checkbox span {margin:0;}
+.game-imposter-choice {display:flex;gap:12px;margin:12px 0;}
+.game-imposter-choice button {flex:1;}
+.game-imposter-choice button[aria-pressed="true"] {background:var(--petrol);color:var(--bg);border-color:var(--petrol);}
