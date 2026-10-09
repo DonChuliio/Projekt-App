@@ -23,3 +23,10 @@
 .game-stats-table {width:100%;border-collapse:collapse;margin:8px 0;}
 .game-stats-table th,.game-stats-table td {padding:10px 4px;text-align:left;border-bottom:1px solid var(--border);}
 .game-stats-table th:last-child,.game-stats-table td:last-child {text-align:right;}
+.game-person-line {font-size:1rem;font-weight:400;line-height:1.5;margin:8px 0;}
+.game-eye-off {width:40px;height:40px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+#public-role-content {min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.game-hold {touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;min-width:180px;}
+.game-checkbox {display:flex!important;align-items:center;gap:12px;}
+.game-module .game-checkbox input {width:22px;min-height:22px;flex:none;}
+.game-module .game-checkbox span {margin:0;}
