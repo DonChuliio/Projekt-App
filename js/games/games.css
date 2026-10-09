@@ -25,7 +25,12 @@
 .game-stats-table th:last-child,.game-stats-table td:last-child {text-align:right;}
 .game-person-line {font-size:1rem;font-weight:400;line-height:1.5;margin:8px 0;}
 .game-eye-off {width:40px;height:40px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
-#public-role-content {min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+#public-role[hidden] {display:none;}
+#public-role-content {height:320px;overflow-y:auto;overflow-wrap:anywhere;display:flex;flex-direction:column;align-items:center;justify-content:safe center;scrollbar-gutter:stable;}
+#public-role-content > * {flex-shrink:0;max-width:100%;}
+.game-secret-word {font-size:1.4rem;font-weight:600;}
+.game-outcome-buttons {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:16px;}
+.game-outcome-buttons button {margin:0;min-width:0;width:100%;}
 .game-hold {touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;min-width:180px;}
 .game-checkbox {display:flex!important;align-items:center;gap:12px;}
 .game-module .game-checkbox input {width:22px;min-height:22px;flex:none;}

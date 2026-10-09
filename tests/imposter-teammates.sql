@@ -15,14 +15,14 @@ end $$;
 reset role;
 select set_config('request.jwt.claim.sub','',true);
 set local role anon;
-do $$declare i int;token text;s jsonb;r uuid;host uuid;secret text;p jsonb;answer jsonb;imps text[];seen text[]:='{}';begin
+do $$declare i int;token text;s jsonb;r uuid;host uuid;secret text;p jsonb;answer jsonb;imps text[];hostImps jsonb;seen text[]:='{}';begin
  for i in 1..3 loop
   token=current_setting('dock.team.token'||i);s=public.imposter_status(token);r=(s->>'round_id')::uuid;host=(s->>'host_id')::uuid;
-  if s ? 'teammates' or s ? 'roles' then raise exception 'Public status exposed roles';end if;
+  if s ? 'teammates' or s ? 'roles' or s ? 'imposters' then raise exception 'Public status exposed roles';end if;
   secret=public.imposter_claim(token,r,host)->>'secret';perform public.imposter_host_action(token,r,secret,'prepare','{"word":"Synthetic word","hint":"Synthetic hint"}');
   imps='{}';seen='{}';
   for p in select value from jsonb_array_elements(s->'players') loop
-   if p->>'id'=host::text then answer=public.imposter_role(token,r,secret);if answer ? 'teammates' then raise exception 'Host learns teammates';end if;continue;end if;
+   if p->>'id'=host::text then answer=public.imposter_role(token,r,secret);if answer ? 'teammates' then raise exception 'Host uses wrong field';end if;hostImps=answer->'imposters';if jsonb_array_length(hostImps)<>(case when i=3 then 1 else 2 end) then raise exception 'Host imposter count';end if;continue;end if;
    answer=public.imposter_claim(token,r,(p->>'id')::uuid)->'result';
    if answer->>'role'='imposter' then
     imps=array_append(imps,p->>'name');if answer ? 'word' then raise exception 'Imposter word leak';end if;
@@ -32,8 +32,9 @@ do $$declare i int;token text;s jsonb;r uuid;host uuid;secret text;p jsonb;answe
      if answer->'teammates' ? (p->>'name') then raise exception 'Own name included';end if;
      select seen||coalesce(array_agg(value),'{}') into seen from jsonb_array_elements_text(answer->'teammates');
     end if;
-   elsif answer ? 'teammates' or answer ? 'hint' then raise exception 'Normal player exposed names/hint';end if;
+   elsif answer ? 'teammates' or answer ? 'imposters' or answer ? 'hint' then raise exception 'Normal player exposed names/hint';end if;
   end loop;
+  if not (hostImps @> to_jsonb(imps) and to_jsonb(imps) @> hostImps) then raise exception 'Host wrong imposter identities';end if;
   if i=2 and not (seen @> imps and imps @> seen) then raise exception 'Wrong teammate identities';end if;
  end loop;
 end $$;

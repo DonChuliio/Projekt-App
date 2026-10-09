@@ -1,17 +1,19 @@
-import { bindHold } from './hold.js?v=1.81';
-import { gameRpc } from './api.js?v=1.81';
-import { createPublicGame } from './public-controller.js?v=1.81';
+import { bindHold } from './hold.js?v=1.82';
+import { gameRpc } from './api.js?v=1.82';
+import { createPublicGame } from './public-controller.js?v=1.82';
 const root=document.getElementById('public-game'),token=new URL(location.href).searchParams.get('game');
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,action)=>{const b=el('button',text);b.type='button';b.addEventListener('click',action);return b;};
-const roleArea=document.getElementById('public-role'),roleContent=document.getElementById('public-role-content'),holdButton=document.getElementById('public-role-hold');
+const roleArea=document.getElementById('public-role'),roleContent=document.getElementById('public-role-content'),holdButton=document.getElementById('public-role-hold'),outcomeArea=document.getElementById('public-outcomes');
 function paintRole(s){
+ roleArea.hidden=!s.claimed||!s.status?.round_id||s.status.state==='unavailable';
  const available=s.claimed&&s.status?.state==='live'&&!s.busy&&!s.error;holdButton.disabled=!available;roleContent.replaceChildren();
- if(available&&s.result&&['host','player','imposter'].includes(s.result.role)){const r=s.result;roleContent.append(el('h2',r.role==='host'?'Rundenleitung':r.role==='imposter'?'Du bist Imposter':'Kein Imposter'));if(r.role!=='imposter')roleContent.append(el('p','Das Wort ist '+r.word));if(r.role==='host'||r.role==='imposter')roleContent.append(el('p',r.hint||'Kein Hinweis'));if(r.role==='imposter'&&r.teammates)roleContent.append(el('p',r.teammates.length?'Weitere Imposter: '+r.teammates.join(', '):'Kein weiterer Imposter'));}
+ if(available&&s.result&&['host','player','imposter'].includes(s.result.role)){const r=s.result;roleContent.append(el('h2',r.role==='host'?'Rundenleitung':r.role==='imposter'?'Du bist Imposter':'Kein Imposter'));if(r.role==='host')roleContent.append(el('p','Imposter: '+(r.imposters?.join(', ')||'Keine Imposter verfügbar')));if(r.role!=='imposter')roleContent.append(el('p',r.word,'game-secret-word'));if(r.role==='host'||r.role==='imposter')roleContent.append(el('p',r.hint||'Kein Hinweis'));if(r.role==='imposter'&&r.teammates)roleContent.append(el('p',r.teammates.length?'Weitere Imposter: '+r.teammates.join(', '):'Kein weiterer Imposter'));}
  else{const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('class','game-eye-off');svg.setAttribute('aria-hidden','true');const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d','M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.8 5.2A12 12 0 0 1 12 5c5.5 0 9 7 9 7a17 17 0 0 1-4 4.7M6.2 6.2C3.5 8.1 2 12 2 12s3.5 7 10 7a12 12 0 0 0 4.2-.8');svg.append(path);roleContent.append(svg,el('p','Rolle und Wort verborgen'));}
 }
-let controller,timer,inFlight=false,lastRound=null,draftWord='',draftHint='',draftSelection='',pendingWinner=null;
+let controller,timer,inFlight=false,lastRound=null,lastState=null,draftWord='',draftHint='',draftSelection='',pendingWinner=null;
 function render(s){
+ lastState=s;outcomeArea.replaceChildren();
  paintRole(s);
  const currentForm=root.querySelector('.host-word-form');const focused=document.activeElement,focusField=currentForm&&focused===currentForm.querySelector('input')?'input':currentForm&&focused===currentForm.querySelector('textarea')?'textarea':null,caret=focused?.selectionStart;if(currentForm){draftWord=currentForm.querySelector('input').value;draftHint=currentForm.querySelector('textarea').value;}
  const select=root.querySelector('select');if(select)draftSelection=select.value;
@@ -28,13 +30,13 @@ function render(s){
   if(s.playerId===s.status.host_id){root.append(el('h2','Du bist der Rundenleiter'));
    if(s.status.state==='choosing'){const form=el('form',undefined,'host-word-form'),label=el('label','Geheimes Wort'),word=el('input'),hintLabel=el('label','Hinweis für Imposter (optional)'),hint=el('textarea');word.required=true;word.maxLength=200;word.value=draftWord;hint.maxLength=500;hint.value=draftHint;label.append(word);hintLabel.append(hint);const start=el('button','Wort freigeben');start.type='submit';form.append(label,hintLabel,start);form.addEventListener('submit',e=>{e.preventDefault();if(word.value.trim())controller.host('prepare',{word:word.value.trim(),hint:hint.value});});root.append(form);}
    else if(s.status.state==='live'){
-    const choose=winner=>{pendingWinner=winner;render(s);};if(pendingWinner){const winner=pendingWinner,box=el('section',undefined,'game-confirm');box.append(el('p',winner==='imposter'?'Imposter haben gewonnen?':'Die anderen haben gewonnen?'),button('Ergebnis bestätigen',()=>{pendingWinner=null;controller.host('finish',{winner});}),button('Abbrechen',()=>{pendingWinner=null;render(s);}));root.append(box);}root.append(button('Imposter gewonnen',()=>choose('imposter')),button('Die anderen gewonnen',()=>choose('players')));}
-   else root.append(button('Neue Runde starten',()=>controller.host('next')));
+    const choose=winner=>{pendingWinner=winner;render(lastState);},group=el('div',undefined,'game-outcome-buttons');group.append(button('Imposter gewonnen',()=>choose('imposter')),button('Die anderen gewonnen',()=>choose('players')));outcomeArea.append(group);if(pendingWinner){const winner=pendingWinner,box=el('section',undefined,'game-confirm');box.append(el('p',winner==='imposter'?'Imposter haben gewonnen?':'Die anderen haben gewonnen?'),button('Ergebnis bestätigen',()=>{pendingWinner=null;controller.host('finish',{winner});}),button('Abbrechen',()=>{pendingWinner=null;render(lastState);}));outcomeArea.append(box);}}
+   else outcomeArea.append(button('Neue Runde starten',()=>controller.host('next')));
   }else if(s.status.state==='choosing')root.append(el('p','Die Rundenleitung legt Wort und Hinweis fest. Die Anzeige aktualisiert sich automatisch.'));
 
  }
  if(s.status.state==='finished')root.append(el('p',s.status.winner==='imposter'?'Imposter haben gewonnen.':s.status.winner==='players'?'Die anderen haben gewonnen.':'Runde beendet.'),el('p','Warte auf die nächste Runde. Die Anzeige aktualisiert sich automatisch.'));
- root.querySelectorAll('button,input,textarea,select').forEach(n=>n.disabled=s.busy);if(focusField&&!s.busy){const next=root.querySelector('.host-word-form')?.querySelector(focusField);next?.focus();if(Number.isInteger(caret))next?.setSelectionRange?.(caret,caret);}
+ root.querySelectorAll('button,input,textarea,select').forEach(n=>n.disabled=s.busy);outcomeArea.querySelectorAll('button').forEach(n=>n.disabled=s.busy);if(focusField&&!s.busy){const next=root.querySelector('.host-word-form')?.querySelector(focusField);next?.focus();if(Number.isInteger(caret))next?.setSelectionRange?.(caret,caret);}
 }
 async function poll(){if(inFlight||document.visibilityState==='hidden')return;inFlight=true;try{await controller.poll();}finally{inFlight=false;}}
 paintRole({});
