@@ -1,11 +1,12 @@
-import { imposterStats } from './stats.js?v=1.88';
-import { manageGame } from './admin-data.js?v=1.88';
+import { imposterStats } from './stats.js?v=1.89';
+import { manageGame } from './admin-data.js?v=1.89';
 import { showView } from '../router.js';
 import { getSession } from '../auth/auth.js';
 export function initImposter(){
  const root=document.getElementById('imposter-content'),view=document.querySelector('[data-view="imposter"]');if(!root||!view)return;
  const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
  const button=(text,action)=>{const b=el('button',text);b.type='button';b.addEventListener('click',action);return b;};
+ const iconButton=(label,pathData,action)=>{const b=button(undefined,action);b.className='game-player-action';b.setAttribute('aria-label',label);b.title=label;const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',pathData);svg.append(path);b.append(svg);return b;};
  let gameId=null,data=null,screen='list',playersReturn='list',busy=false,epoch=0,loadSerial=0;
  const back=view.querySelector('.back-button');
  const expanded=new Set();
@@ -17,7 +18,7 @@ export function initImposter(){
  const status=(msg,target=root,retryable=false,success=false)=>{let n=target.querySelector('[role="status"]');if(!n){n=el('p',undefined,'loan-error');n.setAttribute('role','status');target.prepend(n);}n.className=success?'game-status-success':'loan-error';n.textContent=msg;if(retryable&&!root.querySelector('.game-retry')){const retry=button('Erneut versuchen',()=>run(async()=>{}));retry.className='game-retry';target.append(retry);}n.scrollIntoView?.({block:'nearest',behavior:'smooth'});};
  async function run(fn,feedbackTarget=root){if(busy||!active())return;busy=true;const generation=epoch,owner=getSession()?.user?.id,controls=[...root.querySelectorAll('button,input,select')];controls.forEach(n=>n.disabled=true);try{await fn();if(generation!==epoch||owner!==getSession()?.user?.id)return;await load();}catch(e){if(generation===epoch&&owner===getSession()?.user?.id)status(e.message,feedbackTarget,true);}finally{busy=false;controls.forEach(n=>n.disabled=false);}}
  const field=(form,label,value='',type='text')=>{const wrap=el('label'),input=el('input');input.type=type;input.value=value;input.maxLength=type==='text'?200:100;wrap.append(el('span',label),input);form.append(wrap);return input;};
- function playerForm(player=null){root.querySelector('.game-player-form')?.remove();const form=el('form',undefined,'game-player-form'),name=field(form,'Teilnehmername',player?.name||'');name.maxLength=100;name.required=true;const save=el('button','Teilnehmer speichern');save.type='submit';form.append(save,button('Abbrechen',()=>form.remove()));form.addEventListener('submit',e=>{e.preventDefault();if(name.value.trim())run(()=>manageGame('player',gameId,{id:player?.id,name:name.value.trim()}));});root.prepend(form);name.focus();}
+
  function confirm(text,action,target=root){root.querySelector('.game-confirm')?.remove();const box=el('section',undefined,'game-confirm');box.append(el('p',text),button('Bestätigen',()=>run(action,target)),button('Abbrechen',()=>box.remove()));if(target===root)target.prepend(box);else target.append(box);box.scrollIntoView?.({block:'nearest',behavior:'smooth'});}
  async function load(){const generation=epoch,serial=++loadSerial,owner=getSession()?.user?.id;if(!active())return;
   if(!gameId){const games=await manageGame('list');if(!active()||generation!==epoch||serial!==loadSerial||owner!==getSession()?.user?.id)return;screen='list';root.replaceChildren();root.append(el('h3','Spiel erstellen'));
@@ -30,7 +31,7 @@ export function initImposter(){
   const draft=data.game.state==='draft',list=el('div',undefined,'game-player-list');
   let container=target;
   if(draft){const form=el('form',undefined,'game-player-add-form');form.append(el('h3','Spieler'));const row=el('div',undefined,'game-player-add-row'),name=el('input');name.type='text';name.placeholder='Spielername';name.required=true;name.maxLength=100;name.setAttribute('aria-label','Spielername');const add=el('button');add.type='submit';add.setAttribute('aria-label','Spieler hinzufügen');const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d','M12 5v14M5 12h14');svg.append(path);add.append(svg);row.append(name,add);form.append(row);form.addEventListener('submit',e=>{e.preventDefault();if(name.value.trim())run(()=>manageGame('player',gameId,{name:name.value.trim()}),form).then(()=>root.querySelector('.game-player-add-form')?.querySelector('input')?.focus());});target.append(form);container=form;}
-  for(const p of data.players.filter(p=>p.active!==false)){const row=el('div',undefined,'game-player-row'),name=el('span',p.name);row.append(name);if(p.claimed){const check=el('span',undefined,'game-player-joined');check.setAttribute('role','img');check.setAttribute('aria-label','Im Spiel');row.append(check);}if(draft)row.append(button('Bearbeiten',()=>playerForm(p)),button('Entfernen',()=>confirm(`„${p.name}“ entfernen?`,()=>manageGame('delete_player',gameId,{id:p.id}))));if(p.claimed&&data.game.state==='active')row.append(button('Belegung zurücksetzen',()=>confirm(`Belegung für „${p.name}“ zurücksetzen?`,()=>manageGame('reset',gameId,{id:p.id}))));list.append(row);}container.append(list);
+  for(const p of data.players.filter(p=>p.active!==false)){const row=el('div',undefined,'game-player-row'),name=el('span',p.name,'game-player-name');row.append(name);if(p.claimed){const check=el('span',undefined,'game-player-joined');check.setAttribute('role','img');check.setAttribute('aria-label','Im Spiel');row.append(check);}if(draft)row.append(iconButton(`Spieler ${p.name} entfernen`,'M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7',()=>confirm(`„${p.name}“ entfernen?`,()=>manageGame('delete_player',gameId,{id:p.id}))));if(p.claimed&&data.game.state==='active')row.append(iconButton(`Belegung für ${p.name} zurücksetzen`,'M20 7v5h-5M4 17v-5h5M5 8a7 7 0 0 1 12-3l3 3M19 16a7 7 0 0 1-12 3l-3-3',()=>confirm(`Belegung für „${p.name}“ zurücksetzen?`,()=>manageGame('reset',gameId,{id:p.id}))));list.append(row);}container.append(list);
  }
 
  function drawGame(){
@@ -38,7 +39,7 @@ export function initImposter(){
   const removeGame=()=>confirm('Spiel einschließlich aller Spieler, Runden und Statistiken dauerhaft löschen? Der Link wird ungültig.',async()=>{await manageGame('delete',gameId);gameId=null;data=null;screen='list';expanded.clear();});
 
   if(g.state==='active'&&g.token){const url=new URL('imposter.html',location.href);url.searchParams.set('game',g.token);const link=el('input');link.readOnly=true;link.value=url.href;link.setAttribute('aria-label','Gruppenlink');root.append(link);const share=el('div',undefined,'game-actions');share.append(button('Link kopieren',async()=>{try{await navigator.clipboard.writeText(url.href);status('Link kopiert.',root,false,true);}catch{link.focus();link.select();status('Bitte markierten Link kopieren.');}}));root.append(share);}
-  if(g.state!=='draft'){const players=fold(`Spieler (${people.length})`,'players');drawPlayers(players);root.append(players);}
+  if(g.state==='active'){const players=fold(`Spieler (${people.length})`,'players');drawPlayers(players);root.append(players);}
   if(g.state==='draft'){
    drawPlayers();
    const form=el('form',undefined,'game-setup-form'),group=el('div',undefined,'game-imposter-choice');group.setAttribute('role','group');group.setAttribute('aria-label','Imposter pro Runde');form.append(el('h3','Imposter pro Runde'));
