@@ -1,3 +1,4 @@
+import { initImposter } from "./games/admin.js?v=1.75";
 import { initNavigation } from './navigation.js?v=1.68';
 import { initDocuments } from "./documents/documents.js?v=1.71";
 // js/app.js
@@ -49,6 +50,7 @@ if (versionEl) {
 
     // Feature-Module initialisieren
     initDashboard();
+    initImposter();
     initTodo();
     initNotes();
     initCalendar();

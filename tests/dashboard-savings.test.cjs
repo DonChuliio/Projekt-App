@@ -1,10 +1,10 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const path=require('node:path'),root=path.join(__dirname,'..');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
-const html=read('index.html'),dashboard=html.split('data-view="dashboard"')[1].split('data-view="planner"')[0];
-const expected=[['notes','Notizen'],['planner','Planer'],['packlists','Packlisten'],['finances','Finanzen'],['documents','Dokumente'],['hobby','Hobby']];
+const html=read('index.html'),dashboard=html.split('data-view="dashboard"')[1].split('data-view="games"')[0];
+const expected=[['notes','Notizen'],['planner','Planer'],['packlists','Packlisten'],['finances','Finanzen'],['documents','Dokumente'],['hobby','Hobby'],['games','Spiele']];
 const tiles=[...dashboard.matchAll(/<button type="button" class="tile" data-tile="([^"]+)">([\s\S]*?)<\/button>/g)];
-assert.equal(tiles.length,6);
+assert.equal(tiles.length,7);
 const clicks=[],nodes=tiles.map((tile,i)=>{
  assert.equal(tile[1],expected[i][0]);assert.ok(tile[2].includes(`<span>${expected[i][1]}</span>`));
  assert.match(tile[2],/<svg class="dashboard-icon" viewBox="0 0 24 24" aria-hidden="true">/);

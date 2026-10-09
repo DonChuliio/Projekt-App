@@ -19,10 +19,10 @@
 
     <link
         rel="manifest"
-        href="manifest.json?v=1.74"
+        href="manifest.json?v=1.75"
     >
 
-    <link rel="apple-touch-icon" sizes="180x180" href="dock-icon-180.png?v=1.74">
+    <link rel="apple-touch-icon" sizes="180x180" href="dock-icon-180.png?v=1.75">
 
     <meta
         name="theme-color"
@@ -36,18 +36,19 @@
 
     <link
         rel="stylesheet"
-        href="style.css?v=1.74"
+        href="style.css?v=1.75"
     >
 
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=1.74"
+        src="js/app.js?v=1.75"
     ></script>
 
     <link rel="stylesheet" href="js/documents/documents.css?v=1.71">
     <title>Dock</title>
 
+    <link rel="stylesheet" href="js/games/games.css?v=1.75">
 </head>
 
 
@@ -162,6 +163,10 @@
                 <svg class="dashboard-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zM16 8l-3 5-5 3 3-5z"/></svg>
                 <span>Hobby</span>
             </button>
+            <button type="button" class="tile" data-tile="games">
+                <svg class="dashboard-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 6h10l4 12-4 2-4-4h-2l-4 4-4-2zM6 11h6M9 8v6M16 10h.01M18 13h.01"/></svg>
+                <span>Spiele</span>
+            </button>
         </div>
     </div>
 
@@ -169,6 +174,15 @@
     <!-- ==================================================
          PLANER
          ================================================== -->
+
+    <div data-view="games" class="hidden">
+        <button class="back-button" data-view-back="dashboard">Zurück</button><h2>Spiele</h2>
+        <div class="tiles"><button type="button" class="tile" data-tile="imposter">Imposter</button></div>
+    </div>
+    <div data-view="imposter" class="hidden">
+        <button class="back-button" data-view-back="games">Zurück</button><h2>Imposter</h2>
+        <div id="imposter-content" class="game-module"></div>
+    </div>
 
     <div data-view="planner" class="hidden">
         <button class="back-button" data-view-back="dashboard">Zurück</button>
