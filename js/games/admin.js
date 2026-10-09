@@ -1,5 +1,5 @@
-import { imposterStats } from './stats.js?v=1.83';
-import { manageGame } from './admin-data.js?v=1.83';
+import { imposterStats } from './stats.js?v=1.84';
+import { manageGame } from './admin-data.js?v=1.84';
 import { showView } from '../router.js';
 import { getSession } from '../auth/auth.js';
 export function initImposter(){
@@ -14,7 +14,7 @@ export function initImposter(){
  const goBack=()=>{if(busy)return;if(screen==='players'&&playersReturn==='game'){screen='game';redraw();}else if(screen!=='list'){gameId=null;screen='list';load().catch(e=>status(e.message,root,true));}else showView('games');};
  back?.addEventListener('click',goBack);
  const active=()=>!view.classList.contains('hidden')&&Boolean(getSession());
- const status=(msg,target=root,retryable=false)=>{let n=target.querySelector('[role="status"]');if(!n){n=el('p',undefined,'loan-error');n.setAttribute('role','status');target.prepend(n);}n.textContent=msg;if(retryable&&!root.querySelector('.game-retry')){const retry=button('Erneut versuchen',()=>run(async()=>{}));retry.className='game-retry';target.append(retry);}n.scrollIntoView?.({block:'nearest',behavior:'smooth'});};
+ const status=(msg,target=root,retryable=false,success=false)=>{let n=target.querySelector('[role="status"]');if(!n){n=el('p',undefined,'loan-error');n.setAttribute('role','status');target.prepend(n);}n.className=success?'game-status-success':'loan-error';n.textContent=msg;if(retryable&&!root.querySelector('.game-retry')){const retry=button('Erneut versuchen',()=>run(async()=>{}));retry.className='game-retry';target.append(retry);}n.scrollIntoView?.({block:'nearest',behavior:'smooth'});};
  async function run(fn,feedbackTarget=root){if(busy||!active())return;busy=true;const generation=epoch,owner=getSession()?.user?.id,controls=[...root.querySelectorAll('button,input,select')];controls.forEach(n=>n.disabled=true);try{await fn();if(generation!==epoch||owner!==getSession()?.user?.id)return;await load();}catch(e){if(generation===epoch&&owner===getSession()?.user?.id)status(e.message,feedbackTarget,true);}finally{busy=false;controls.forEach(n=>n.disabled=false);}}
  const field=(form,label,value='',type='text')=>{const wrap=el('label'),input=el('input');input.type=type;input.value=value;input.maxLength=type==='text'?200:100;wrap.append(el('span',label),input);form.append(wrap);return input;};
  function playerForm(player=null){root.querySelector('.game-player-form')?.remove();const form=el('form',undefined,'game-player-form'),name=field(form,'Teilnehmername',player?.name||'');name.maxLength=100;name.required=true;const save=el('button','Teilnehmer speichern');save.type='submit';form.append(save,button('Abbrechen',()=>form.remove()));form.addEventListener('submit',e=>{e.preventDefault();if(name.value.trim())run(()=>manageGame('player',gameId,{id:player?.id,name:name.value.trim()}));});root.prepend(form);name.focus();}
@@ -32,7 +32,7 @@ export function initImposter(){
  }
  function drawGame(){
   const g=data.game,r=data.round,people=data.players.filter(p=>p.active!==false);root.append(el('h3',g.name),button('Spiel löschen',()=>confirm('Spiel einschließlich aller Spieler, Runden und Statistiken dauerhaft löschen? Der Link wird ungültig.',async()=>{await manageGame('delete',gameId);gameId=null;data=null;screen='list';expanded.clear();})));
-  if(g.state==='active'&&g.token){const url=new URL('imposter.html',location.href);url.searchParams.set('game',g.token);const link=el('input');link.readOnly=true;link.value=url.href;link.setAttribute('aria-label','Gruppenlink');root.append(link);const share=el('div',undefined,'game-actions');share.append(button('Link kopieren',async()=>{try{await navigator.clipboard.writeText(url.href);status('Link kopiert.');}catch{link.focus();link.select();status('Bitte markierten Link kopieren.');}}));root.append(share);}
+  if(g.state==='active'&&g.token){const url=new URL('imposter.html',location.href);url.searchParams.set('game',g.token);const link=el('input');link.readOnly=true;link.value=url.href;link.setAttribute('aria-label','Gruppenlink');root.append(link);const share=el('div',undefined,'game-actions');share.append(button('Link kopieren',async()=>{try{await navigator.clipboard.writeText(url.href);status('Link kopiert.',root,false,true);}catch{link.focus();link.select();status('Bitte markierten Link kopieren.');}}));root.append(share);}
   if(g.state!=='draft'){const players=fold(`Spieler (${people.length})`,'players');drawPlayers(players);root.append(players);}
   if(g.state==='draft'){
    drawPlayers();root.append(el('p','Link und zufällige Rundenleitung entstehen erst beim Spielstart.'));

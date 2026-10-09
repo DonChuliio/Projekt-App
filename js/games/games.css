@@ -26,9 +26,9 @@
 .game-person-line {font-size:1rem;font-weight:400;line-height:1.5;margin:8px 0;}
 .game-eye-off {width:40px;height:40px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
 #public-role[hidden] {display:none;}
-#public-role-content {height:240px;overflow-y:auto;overflow-wrap:anywhere;display:flex;flex-direction:column;align-items:center;justify-content:safe center;scrollbar-gutter:stable;}
+#public-role-content {height:190px;overflow-y:auto;overflow-wrap:anywhere;display:flex;flex-direction:column;align-items:center;justify-content:safe center;scrollbar-gutter:stable;}
 #public-role-content > * {flex-shrink:0;max-width:100%;}
-.game-secret-word {font-size:1.4rem;font-weight:600;}
+.game-secret-word {font-weight:600;}
 .game-outcome-buttons {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:16px;}
 .game-outcome-buttons button {margin:0;min-width:0;width:100%;}
 .game-hold {touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;min-width:180px;}
@@ -40,4 +40,10 @@
 .game-imposter-choice button[aria-pressed="true"] {background:var(--petrol);color:var(--bg);border-color:var(--petrol);}
 
 #public-role-content h2 {font-size:1.2rem;margin:6px 0;line-height:1.3;}
-#public-role-content p {margin:6px 0;line-height:1.35;}
+#public-role-content p {font-size:1.2rem;margin:6px 0;line-height:1.35;}
+
+.game-name-form select {margin-bottom:16px;}
+.game-status-success {color:var(--petrol);}
+.game-role-controls {height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.game-role-controls p {margin:8px 0;}
+.game-role-controls[hidden] {display:flex;visibility:hidden;}
