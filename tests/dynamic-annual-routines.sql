@@ -1,0 +1,46 @@
+begin;
+select set_config('request.jwt.claim.sub',(select id::text from auth.users order by id limit 1),true);
+set local role authenticated;
+do $$ declare c uuid; other uuid; task text:=gen_random_uuid()::text; sibling text:=gen_random_uuid()::text; n integer;begin
+ perform public.ensure_routine_templates();perform public.ensure_routine_templates();
+ insert into public.routine_columns(name) values('Synthetic column') returning id into c;
+ insert into public.routine_columns(name) values('Synthetic other') returning id into other;
+ insert into public.routine_tasks(task_id,column_id,name,weeks) values(task,c,'Synthetic annual routine',array[1,53]),(sibling,other,'Synthetic sibling',array[1]);
+ perform set_config('dock.test.column',c::text,true);perform set_config('dock.test.task',task,true);
+ perform public.sync_week_routine_todos(2026,1);perform public.sync_week_routine_todos(2026,1);
+ select count(*) into n from public.todos where routine_task_id=task and routine_year=2026 and routine_week=1 and priority='a';if n<>1 then raise exception 'Wrong count/name/priority';end if;
+ update public.todos set completed_at=now() where routine_task_id=task and routine_year=2026;
+ perform public.sync_week_routine_todos(2027,1);
+ select count(*) into n from public.todos where routine_task_id=task and routine_year=2027 and completed_at is null;if n<>1 then raise exception 'Year status inherited';end if;
+ select count(*) into n from public.todos where routine_task_id=task and routine_year=2026 and completed_at is not null;if n<>1 then raise exception 'Previous completion lost';end if;
+ perform public.sync_week_routine_todos(2026,53);
+ select count(*) into n from public.todos where routine_task_id=task and routine_year=2026 and routine_week=53;if n<>1 then raise exception 'KW53 missing';end if;
+ begin perform public.sync_week_routine_todos(2027,53);raise exception 'Invalid KW53 accepted';exception when raise_exception then if sqlerrm='Invalid KW53 accepted' then raise;end if;end;
+ update public.routine_tasks set weeks=array[1,2,53] where task_id=task;
+ update public.routine_tasks set weeks=array[1,3,53] where task_id=task and weeks=array[1,53];get diagnostics n=row_count;if n<>0 then raise exception 'Stale edit overwrote plan';end if;
+ update public.routine_tasks set active=false where task_id=task;
+ perform public.sync_week_routine_todos(2027,2);
+ select count(*) into n from public.todos where routine_task_id=task and routine_year=2027 and routine_week=2;if n<>0 then raise exception 'Removed task generated';end if;
+ select count(*) into n from public.routine_tasks where task_id=sibling and active;if n<>1 then raise exception 'Sibling removed';end if;
+ perform public.archive_routine_column(c);
+ select count(*) into n from public.todos where routine_task_id=task;if n<>3 then raise exception 'History deleted';end if;
+ select count(*) into n from public.routine_columns where id=other and active;if n<>1 then raise exception 'Other column removed';end if;
+ begin delete from public.routine_columns where id=other;raise exception 'Hard delete allowed';exception when insufficient_privilege then null;end;
+end $$;
+reset role;
+select set_config('request.jwt.claim.sub',gen_random_uuid()::text,true);
+set local role authenticated;
+do $$ declare n integer;begin
+ select count(*) into n from public.routine_columns where id=current_setting('dock.test.column')::uuid;if n<>0 then raise exception 'Foreign column read';end if;
+ update public.routine_tasks set active=true where task_id=current_setting('dock.test.task');get diagnostics n=row_count;if n<>0 then raise exception 'Foreign update';end if;
+ begin insert into public.routine_tasks(column_id,name) values(current_setting('dock.test.column')::uuid,'Foreign task');raise exception 'Foreign column assignment';exception when foreign_key_violation then null;end;
+end $$;
+reset role;
+select set_config('request.jwt.claim.sub','',true);
+set local role anon;
+do $$begin
+ begin perform public.ensure_routine_templates();raise exception 'Anonymous seed';exception when insufficient_privilege then null;end;
+ begin perform id from public.routine_columns;raise exception 'Anonymous read';exception when insufficient_privilege then null;end;
+end $$;
+reset role;
+rollback;

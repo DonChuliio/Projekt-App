@@ -1,25 +1,7 @@
 // js/calendar/calendar.js
 
-import { showView } from "../router.js";
-import {
-    getISOWeek,
-    getISOWeekYear,
-    getISOWeeksInYear
-} from "../utils/date.js";
-import {
-    loadCalendarTasks,
-    addCalendarTask,
-    deleteCalendarTask
-} from "../data/calendar-data.js?v=0.94";
+import { initRoutineEditor } from "./routine-editor.js?v=1.73";
 import { loadCalendarSettings, saveMonthEndSavingsReminder, saveMonthStartBalanceReminder } from "../data/calendar-settings-data.js?v=1.30";
-
-export const WEEK_TASKS = [
-    { id: "plants", name: "Pflanzen gießen", shortName: "Pflanzen" },
-    { id: "orchids", name: "Orchideen wässern", shortName: "Orchideen" },
-    { id: "aquarium-small", name: "Aquarium kleiner Wasserwechsel", shortName: "Aqua klein" },
-    { id: "aquarium-large", name: "Aquarium großer Wasserwechsel", shortName: "Aqua groß" },
-    { id: "water-test", name: "Wassertest", shortName: "Wassertest" }
-];
 
 export function initCalendar() {
     document.querySelector('[data-tile="calendar-edit"]')?.addEventListener("click", renderWeekEditor);
@@ -32,19 +14,10 @@ async function renderWeekEditor() {
 
     document.getElementById("week-plan-editor")?.remove();
 
-    const year = getISOWeekYear(new Date());
-    let rows;
-
-    try {
-        rows = await loadCalendarTasks(year);
-    } catch (error) {
-        console.error("Wochenplan konnte nicht geladen werden:", error);
-        return;
-    }
-
-    const numberOfWeeks = getISOWeeksInYear(year);
     const editor = document.createElement("div");
     editor.id = "week-plan-editor";
+    editView.appendChild(editor);
+    await initRoutineEditor(editor);
 
     const reminderTitle = document.createElement("p");
     reminderTitle.className = "week-plan-year";
@@ -107,92 +80,4 @@ async function renderWeekEditor() {
         }
     });
 
-    const yearTitle = document.createElement("p");
-    yearTitle.className = "week-plan-year";
-    yearTitle.textContent = `Wochenplan ${year}`;
-    editor.appendChild(yearTitle);
-
-    const scrollContainer = document.createElement("div");
-    scrollContainer.className = "week-plan-scroll";
-
-    const table = document.createElement("table");
-    table.className = "week-plan-table";
-
-    const thead = document.createElement("thead");
-    const headerRow = document.createElement("tr");
-    const taskHeader = document.createElement("th");
-    taskHeader.textContent = "Aufgabe";
-    headerRow.appendChild(taskHeader);
-
-    for (let week = 1; week <= numberOfWeeks; week++) {
-        const th = document.createElement("th");
-        th.textContent = `KW ${week}`;
-        headerRow.appendChild(th);
-    }
-
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
-
-    const tbody = document.createElement("tbody");
-
-    WEEK_TASKS.forEach(task => {
-        const rowElement = document.createElement("tr");
-        const taskCell = document.createElement("th");
-        taskCell.textContent = task.shortName;
-        taskCell.title = task.name;
-        rowElement.appendChild(taskCell);
-
-        for (let week = 1; week <= numberOfWeeks; week++) {
-            const cell = document.createElement("td");
-            const button = document.createElement("button");
-            button.type = "button";
-            button.className = "week-task-toggle";
-
-            let existingRow = rows.find(
-                item => item.week === week && item.task_id === task.id
-            );
-
-            function updateButton() {
-                button.classList.toggle("active", Boolean(existingRow));
-                button.textContent = "";
-                button.setAttribute("aria-label", `${task.name}, KW ${week}: ${existingRow ? "geplant" : "nicht geplant"}`);
-                button.setAttribute("aria-pressed", String(Boolean(existingRow)));
-            }
-
-            updateButton();
-
-            button.addEventListener("click", async () => {
-                button.disabled = true;
-
-                try {
-                    if (existingRow) {
-                        await deleteCalendarTask(year, week, task.id);
-                        rows = rows.filter(item => item.id !== existingRow.id);
-                        existingRow = null;
-                    } else {
-                        existingRow = await addCalendarTask(year, week, task.id);
-                        if (existingRow) rows.push(existingRow);
-                    }
-
-                    updateButton();
-                    document.dispatchEvent(new CustomEvent("dock:routines-changed"));
-                } catch (error) {
-                    console.error("Wochenplan konnte nicht geändert werden:", error);
-                } finally {
-                    button.disabled = false;
-                    button.blur();
-                }
-            });
-
-            cell.appendChild(button);
-            rowElement.appendChild(cell);
-        }
-
-        tbody.appendChild(rowElement);
-    });
-
-    table.appendChild(tbody);
-    scrollContainer.appendChild(table);
-    editor.appendChild(scrollContainer);
-    editView.appendChild(editor);
 }

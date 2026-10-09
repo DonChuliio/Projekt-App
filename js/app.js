@@ -8,7 +8,7 @@ import { initMorning } from "./morning/morning.js?v=1.59";
 
 import { initDashboard } from "./dashboard.js?v=1.54";
 import { initNotes } from "./notes/notes.js?v=1.54";
-import { initCalendar } from "./calendar/calendar.js?v=1.59";
+import { initCalendar } from "./calendar/calendar.js?v=1.73";
 import { showView } from "./router.js";
 import { initTodo } from "./todo/todo.js?v=1.59";
 import { initPacklists } from "./packlists/packlists.js?v=1.54";
