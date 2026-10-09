@@ -1,5 +1,5 @@
-import { imposterStats } from './stats.js?v=1.89';
-import { manageGame } from './admin-data.js?v=1.89';
+import { imposterStats } from './stats.js?v=1.90';
+import { manageGame } from './admin-data.js?v=1.90';
 import { showView } from '../router.js';
 import { getSession } from '../auth/auth.js';
 export function initImposter(){
@@ -31,12 +31,12 @@ export function initImposter(){
   const draft=data.game.state==='draft',list=el('div',undefined,'game-player-list');
   let container=target;
   if(draft){const form=el('form',undefined,'game-player-add-form');form.append(el('h3','Spieler'));const row=el('div',undefined,'game-player-add-row'),name=el('input');name.type='text';name.placeholder='Spielername';name.required=true;name.maxLength=100;name.setAttribute('aria-label','Spielername');const add=el('button');add.type='submit';add.setAttribute('aria-label','Spieler hinzufügen');const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d','M12 5v14M5 12h14');svg.append(path);add.append(svg);row.append(name,add);form.append(row);form.addEventListener('submit',e=>{e.preventDefault();if(name.value.trim())run(()=>manageGame('player',gameId,{name:name.value.trim()}),form).then(()=>root.querySelector('.game-player-add-form')?.querySelector('input')?.focus());});target.append(form);container=form;}
-  for(const p of data.players.filter(p=>p.active!==false)){const row=el('div',undefined,'game-player-row'),name=el('span',p.name,'game-player-name');row.append(name);if(p.claimed){const check=el('span',undefined,'game-player-joined');check.setAttribute('role','img');check.setAttribute('aria-label','Im Spiel');row.append(check);}if(draft)row.append(iconButton(`Spieler ${p.name} entfernen`,'M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7',()=>confirm(`„${p.name}“ entfernen?`,()=>manageGame('delete_player',gameId,{id:p.id}))));if(p.claimed&&data.game.state==='active')row.append(iconButton(`Belegung für ${p.name} zurücksetzen`,'M20 7v5h-5M4 17v-5h5M5 8a7 7 0 0 1 12-3l3 3M19 16a7 7 0 0 1-12 3l-3-3',()=>confirm(`Belegung für „${p.name}“ zurücksetzen?`,()=>manageGame('reset',gameId,{id:p.id}))));list.append(row);}container.append(list);
+  for(const p of data.players.filter(p=>p.active!==false)){const row=el('div',undefined,'game-player-row'),name=el('span',p.name,'game-player-name');row.append(name);if(p.claimed){const check=el('span',undefined,'game-player-joined');check.setAttribute('role','img');check.setAttribute('aria-label','Im Spiel');row.append(check);}if(draft)row.append(iconButton(`Spieler ${p.name} entfernen`,'M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7',()=>confirm(`„${p.name}“ entfernen?`,()=>manageGame('delete_player',gameId,{id:p.id}))));if(p.claimed&&data.game.state==='active')row.append(iconButton(`Belegung für ${p.name} zurücksetzen`,'M20 7v5h-5M4 17v-5h5M5 8a7 7 0 0 1 12-3l3 3M19 16a7 7 0 0 1-12 3l-3-3',()=>run(()=>manageGame('reset',gameId,{id:p.id}))));list.append(row);}container.append(list);
  }
 
  function drawGame(){
   const g=data.game,people=data.players.filter(p=>p.active!==false);root.append(el('h3',g.name));
-  const removeGame=()=>confirm('Spiel einschließlich aller Spieler, Runden und Statistiken dauerhaft löschen? Der Link wird ungültig.',async()=>{await manageGame('delete',gameId);gameId=null;data=null;screen='list';expanded.clear();});
+  const removeGame=()=>run(async()=>{await manageGame('delete',gameId);gameId=null;data=null;screen='list';expanded.clear();});
 
   if(g.state==='active'&&g.token){const url=new URL('imposter.html',location.href);url.searchParams.set('game',g.token);const link=el('input');link.readOnly=true;link.value=url.href;link.setAttribute('aria-label','Gruppenlink');root.append(link);const share=el('div',undefined,'game-actions');share.append(button('Link kopieren',async()=>{try{await navigator.clipboard.writeText(url.href);status('Link kopiert.',root,false,true);}catch{link.focus();link.select();status('Bitte markierten Link kopieren.');}}));root.append(share);}
   if(g.state==='active'){const players=fold(`Spieler (${people.length})`,'players');drawPlayers(players);root.append(players);}
