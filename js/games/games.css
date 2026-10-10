@@ -63,3 +63,10 @@
 
 .game-module .game-player-action {flex:none;width:44px;height:44px;margin:0;padding:12px;background:var(--surface);color:var(--text);border:1px solid var(--border);}
 .game-player-action svg {width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+#celebrity-reveal[hidden],#celebrity-notes[hidden] {display:none;}
+#celebrity-reveal-content {height:190px;overflow-y:auto;overflow-wrap:anywhere;display:flex;flex-direction:column;align-items:center;justify-content:safe center;scrollbar-gutter:stable;}
+#celebrity-reveal-content > * {flex-shrink:0;max-width:100%;font-size:1.2rem;font-weight:400;margin:6px 0;line-height:1.35;}
+#celebrity-reveal .game-muted {font-size:.9rem;}
+#celebrity-notes {margin-top:16px;}
+#celebrity-notes textarea {min-height:88px;resize:vertical;}
+.celebrity-placements {margin-top:16px;}
