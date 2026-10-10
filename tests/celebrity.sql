@@ -25,7 +25,7 @@ do $$declare s jsonb;p jsonb;own jsonb;answer jsonb;i int:=0;secret text;rid uui
   i=i+1;secret=replace(gen_random_uuid()::text||gen_random_uuid()::text,'-','');perform set_config('celeb.secret.p'||replace(p->>'id','-',''),secret,true);
   perform public.celebrity_claim(token,rid,(p->>'id')::uuid,secret);perform public.celebrity_claim(token,rid,(p->>'id')::uuid,secret);
   begin perform public.celebrity_claim(token,rid,(p->>'id')::uuid,repeat('0',64));raise exception 'Double claim accepted';exception when raise_exception then if sqlerrm='Double claim accepted' then raise;end if;end;
-  own=public.celebrity_player(token,rid,secret);if own is null or own->>'recipient_name'=p->>'name' or own ? 'celebrity' then raise exception 'Invalid own context';end if;
+  own=public.celebrity_player(token,rid,secret);if own is null or own->>'recipient_name'=p->>'name' or own->>'giver_name' is null or own->>'giver_name'=p->>'name' or own ? 'celebrity' then raise exception 'Invalid own context';end if;
   begin perform public.celebrity_action(token,rid,secret,'win');raise exception 'Early win allowed';exception when raise_exception then if sqlerrm='Early win allowed' then raise;end if;end;
   begin perform public.celebrity_others(token,rid,secret);raise exception 'Early others allowed';exception when raise_exception then if sqlerrm='Early others allowed' then raise;end if;end;
   perform public.celebrity_action(token,rid,secret,'submit',jsonb_build_object('celebrity','Synthetic celebrity for '||(own->>'recipient_name')));
@@ -48,6 +48,14 @@ do $$declare s jsonb;p jsonb;own jsonb;answer jsonb;i int:=0;secret text;rid uui
  if public.celebrity_player(token,rid,secret)->>'phase'<>'completed' then raise exception 'Own last placement missing';end if;
 end $$;
 reset role;
+do $$declare rid uuid:=current_setting('celeb.next')::uuid;row record;context jsonb;secret text;begin
+ for row in select assigned.recipient_id,giver.name from dock_celebrity.entries assigned join dock_celebrity.players giver on giver.id=assigned.player_id where assigned.round_id=rid loop
+  secret=current_setting('celeb.secret.p'||replace(row.recipient_id::text,'-',''));
+  context=public.celebrity_player(current_setting('celeb.token'),rid,secret);
+  if context->>'giver_name' is distinct from row.name or context ? 'celebrity' or context::text like '%Synthetic celebrity for%' then raise exception 'Giver name incorrect or own term leaked';end if;
+ end loop;
+ if public.celebrity_player(current_setting('celeb.token'),rid,repeat('0',64)) is not null then raise exception 'Invalid credential leaked giver';end if;
+end $$;
 select set_config('request.jwt.claim.sub',gen_random_uuid()::text,true);
 set local role authenticated;
 do $$begin begin perform public.celebrity_manage('view',current_setting('celeb.game')::uuid);raise exception 'Foreign admin allowed';exception when raise_exception then if sqlerrm='Foreign admin allowed' then raise;end if;end;end $$;

@@ -1,6 +1,6 @@
-import { bindHold } from './hold.js?v=1.99';
-import { gameRpc } from './api.js?v=1.99';
-import { createCelebrityGame } from './celebrity-controller.js?v=1.99';
+import { bindHold } from './hold.js?v=1.100';
+import { gameRpc } from './api.js?v=1.100';
+import { createCelebrityGame } from './celebrity-controller.js?v=1.100';
 const root=document.getElementById('celebrity-public'),area=document.getElementById('celebrity-reveal'),content=document.getElementById('celebrity-reveal-content'),hold=document.getElementById('celebrity-reveal-hold'),notesArea=document.getElementById('celebrity-notes'),notes=document.getElementById('celebrity-note-input'),outcome=document.getElementById('celebrity-outcomes'),token=new URL(location.href).searchParams.get('game');
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,action)=>{const b=el('button',text);b.type='button';b.addEventListener('click',action);return b;};
@@ -19,6 +19,7 @@ function paint(s){
   const choose=el('form',undefined,'game-name-form'),select=el('select');select.required=true;select.setAttribute('aria-label','Deinen Namen auswählen');const empty=el('option','Deinen Namen auswählen');empty.value='';select.append(empty);for(const p of s.status.players){const o=el('option',p.name+(p.claimed?' – belegt':''));o.value=p.id;o.disabled=p.claimed;select.append(o);}if(s.status.players.some(p=>p.id===selection&&!p.claimed))select.value=selection;const confirm=el('button','Namen bestätigen');confirm.type='submit';choose.append(select,confirm);choose.addEventListener('submit',e=>{e.preventDefault();if(select.value)controller.select(select.value);});root.append(choose,el('p','Wähle nur deinen eigenen Namen. Deine Auswahl bleibt für dieses Spiel in diesem Tab gespeichert und wird in die nächste Runde übernommen. Nutze deshalb keinen privaten Tab. Die Namenswahl erfolgt auf Vertrauensbasis.','game-muted'));
  }else{
   const name=s.status.players.find(p=>p.id===s.playerId)?.name;root.append(el('p','Dein Name: '+(name||'Teilnehmer'),'game-person-line'));
+  if(s.context?.giver_name&&['entering','guessing'].includes(s.status.state))root.append(el('p','Deinen Begriff erhältst du von: '+s.context.giver_name,'game-person-line'));
   if(!s.context){root.append(el('p','Belegung wird geprüft …'));}
   else if(s.status.state==='entering'){
    if(!s.context.submitted){const entry=el('form',undefined,'celebrity-entry-form'),label=el('label',`Du legst einen Promi für ${s.context.recipient_name} fest`),input=el('input');input.required=true;input.maxLength=200;input.value=draft;input.setAttribute('aria-label','Promi-Name');label.append(input);const submit=el('button','Promi festlegen');submit.type='submit';entry.append(label,submit);entry.addEventListener('submit',e=>{e.preventDefault();if(input.value.trim())controller.action('submit',{celebrity:input.value.trim()});});root.append(entry);}
