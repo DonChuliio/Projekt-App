@@ -1,0 +1,12 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const ctx={};vm.createContext(ctx);vm.runInContext(fs.readFileSync('js/games/public-controller.js','utf8').replace('export ',''),ctx);
+(async()=>{
+ const memory=new Map([['dock-imposter-player:t',JSON.stringify({player_id:'p',secret:'opaque'})]]),storage={getItem:k=>memory.get(k),setItem:(k,v)=>memory.set(k,v),removeItem:k=>memory.delete(k)};
+ let state,ended=false,deleted=false,failed=false,calls=[];
+ const rpc=async(name,args)=>{calls.push({name,args});if(name==='imposter_status')return ended?{state:'unavailable'}:{state:'live',round_id:'r',host_id:'h'};if(name==='imposter_claim_valid')return true;if(name==='imposter_personal_summary'){assert.equal(args.p_secret,'opaque');if(failed)throw Error('offline');return deleted?null:{name:'Name',imposter_rounds:3,imposter_wins:2};}throw Error('Unexpected '+name);};
+ const make=()=>ctx.createPublicGame({token:'t',storage,rpc,changed:s=>state=s});let game=make();await game.poll();assert.equal(state.summary,null);ended=true;failed=true;await game.poll();assert.equal(state.status.state,'unavailable');assert.equal(state.result,null);assert.match(state.error,/Verbindung/);assert.equal(memory.size,1,'failed summary must retain credential for retry');failed=false;await game.refresh();assert.equal(state.summary.imposter_rounds,3);assert.equal(state.summary.imposter_wins,2);assert.equal(state.error,'');assert.equal(state.result,null);assert.equal(memory.size,1);assert.ok(![...memory.values()][0].includes('imposter_rounds'));
+ const before=calls.length;await game.show();await game.select('other');await game.host('prepare');assert.equal(calls.length,before,'ended game cannot reveal, claim or start');
+ game=make();await game.poll();assert.equal(state.summary.name,'Name','summary survives page reload via saved credential');deleted=true;await game.poll();assert.equal(state.summary,null);assert.equal(state.claimed,false);assert.equal(memory.size,0);
+ let summaryCalls=0;game=ctx.createPublicGame({token:'no-claim',changed:s=>state=s,rpc:async name=>{if(name==='imposter_status')return {state:'unavailable'};summaryCalls++;return null;}});await game.poll();assert.equal(state.summary,null);assert.equal(summaryCalls,0,'link alone does not request personal stats');
+ console.log('PASS: final own summary, closed roles/actions, reload via credential, no summary cache, error/retry, deletion clears stats and link alone has no personal data.');
+})().catch(e=>{console.error(e);process.exitCode=1;});

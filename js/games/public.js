@@ -1,6 +1,6 @@
-import { bindHold } from './hold.js?v=1.91';
-import { gameRpc } from './api.js?v=1.91';
-import { createPublicGame } from './public-controller.js?v=1.91';
+import { bindHold } from './hold.js?v=1.92';
+import { gameRpc } from './api.js?v=1.92';
+import { createPublicGame } from './public-controller.js?v=1.92';
 const root=document.getElementById('public-game'),token=new URL(location.href).searchParams.get('game');
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,action)=>{const b=el('button',text);b.type='button';b.addEventListener('click',action);return b;};
@@ -23,7 +23,7 @@ function render(s){
  root.replaceChildren(el('h1',s.status?.name||'Dock Imposter'));
  if(s.error){const p=el('p',s.error,'loan-error');p.setAttribute('role','status');root.append(p,button('Erneut versuchen',()=>controller.refresh()));}
  if(!s.status){root.append(el('p','Spiel wird geladen …'));return;}
- if(s.status.state==='unavailable'){root.append(el('p','Dieses Spiel ist beendet oder der Link ist nicht mehr aktiv.'));return;}
+ if(s.status.state==='unavailable'){root.append(el('p','Dieses Spiel ist beendet oder der Link ist nicht mehr aktiv.'));if(s.summary)root.append(el('p',`Du warst als ${s.summary.name} ${s.summary.imposter_rounds} Mal Imposter und hast davon ${s.summary.imposter_wins} ${s.summary.imposter_wins===1?'Runde':'Runden'} gewonnen.`));return;}
  const names=s.status.players,hostName=names.find(p=>p.id===s.status.host_id)?.name||'Rundenleitung';
  root.append(el('h2',`Runde ${s.status.number}`),el('p','Dein Name: '+(names.find(p=>p.id===s.playerId)?.name||'Noch nicht ausgewählt'),'game-person-line'),el('p','Rundenleitung: '+hostName,'game-person-line'));
  if(s.notice&&!s.notice.startsWith('Neue Runde'))root.append(el('p',s.notice));
