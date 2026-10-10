@@ -66,6 +66,8 @@
 #celebrity-reveal[hidden],#celebrity-notes[hidden] {display:none;}
 #celebrity-reveal-content {height:190px;overflow-y:auto;overflow-wrap:anywhere;display:flex;flex-direction:column;align-items:center;justify-content:safe center;scrollbar-gutter:stable;}
 #celebrity-reveal-content > * {flex-shrink:0;max-width:100%;font-size:1.2rem;font-weight:400;margin:6px 0;line-height:1.35;}
+#celebrity-reveal-content.celebrity-reveal-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:max-content;align-content:safe center;justify-content:normal;gap:6px 12px;}
+#celebrity-reveal-content.celebrity-reveal-grid > p {min-width:0;margin:0;font-size:1rem;line-height:1.3;}
 #celebrity-reveal .game-muted {font-size:.9rem;}
 #celebrity-notes {margin-top:16px;}
 #celebrity-notes textarea {min-height:88px;resize:vertical;}

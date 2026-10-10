@@ -1,6 +1,6 @@
-import { bindHold } from './hold.js?v=1.93';
-import { gameRpc } from './api.js?v=1.93';
-import { createPublicGame } from './public-controller.js?v=1.93';
+import { bindHold } from './hold.js?v=1.94';
+import { gameRpc } from './api.js?v=1.94';
+import { createPublicGame } from './public-controller.js?v=1.94';
 const root=document.getElementById('public-game'),token=new URL(location.href).searchParams.get('game');
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,action)=>{const b=el('button',text);b.type='button';b.addEventListener('click',action);return b;};

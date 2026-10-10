@@ -1,6 +1,6 @@
-import { initImposter } from "./games/admin.js?v=1.93";
-import { initCelebrity } from "./games/celebrity-admin.js?v=1.93";
-import { initNavigation } from './navigation.js?v=1.93';
+import { initImposter } from "./games/admin.js?v=1.94";
+import { initCelebrity } from "./games/celebrity-admin.js?v=1.94";
+import { initNavigation } from './navigation.js?v=1.94';
 import { initDocuments } from "./documents/documents.js?v=1.71";
 // js/app.js
 import { initPushRouting } from "./push/push-routing.js?v=1.60";

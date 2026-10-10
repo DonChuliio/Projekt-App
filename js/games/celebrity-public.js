@@ -1,6 +1,6 @@
-import { bindHold } from './hold.js?v=1.93';
-import { gameRpc } from './api.js?v=1.93';
-import { createCelebrityGame } from './celebrity-controller.js?v=1.93';
+import { bindHold } from './hold.js?v=1.94';
+import { gameRpc } from './api.js?v=1.94';
+import { createCelebrityGame } from './celebrity-controller.js?v=1.94';
 const root=document.getElementById('celebrity-public'),area=document.getElementById('celebrity-reveal'),content=document.getElementById('celebrity-reveal-content'),hold=document.getElementById('celebrity-reveal-hold'),notesArea=document.getElementById('celebrity-notes'),notes=document.getElementById('celebrity-note-input'),outcome=document.getElementById('celebrity-outcomes'),token=new URL(location.href).searchParams.get('game');
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,action)=>{const b=el('button',text);b.type='button';b.addEventListener('click',action);return b;};
@@ -8,8 +8,8 @@ let controller,draft='',selection='',lastRound=null,polling=false,timer;
 function paint(s){
  const form=root.querySelector('.celebrity-entry-form'),focused=document.activeElement,focusInput=form&&focused===form.querySelector('input'),caret=focused?.selectionStart;if(form)draft=form.querySelector('input').value;const picker=root.querySelector('select');if(picker)selection=picker.value;
  if(lastRound!==s.status?.round_id){draft='';selection='';lastRound=s.status?.round_id;}
- root.replaceChildren(el('h1',s.status?.name||'Dock Promi-Raten'));outcome.replaceChildren();content.replaceChildren();
- const playing=s.claimed&&s.context&&s.status?.state==='guessing';area.hidden=!playing;hold.disabled=!playing||s.busy||Boolean(s.error);notesArea.hidden=!playing||!s.status.notes_enabled;
+ root.replaceChildren(el('h1',s.status?.name||'Dock Promi-Raten'));outcome.replaceChildren();content.replaceChildren();content.className='';
+ const playing=s.claimed&&s.context&&s.status?.state==='guessing';area.hidden=!playing;hold.disabled=!playing||s.busy||Boolean(s.error);notesArea.hidden=!playing||!s.status.notes_enabled||Boolean(s.context.position);
  if(notes.value!==s.notes)notes.value=s.notes;notes.disabled=s.busy;
  if(s.error){const p=el('p',s.error,'loan-error');p.setAttribute('role','status');root.append(p,button('Erneut versuchen',()=>controller.refresh()));}
  if(!s.status){root.append(el('p','Spiel wird geladen …'));return;}
@@ -25,11 +25,11 @@ function paint(s){
    else root.append(el('p','Dein Promi ist festgelegt. Warte, bis alle ihre Eingabe abgeschlossen haben.','game-waiting'));
    root.append(el('p',`${s.status.players.filter(p=>p.submitted).length} von ${s.status.players.length} Promis festgelegt`));
   }else if(s.status.state==='guessing'){
-   if(s.others){for(const p of s.others)content.append(el('p',`${p.name}: ${p.celebrity}`));}
+   if(s.others){if(s.others.length>5)content.className='celebrity-reveal-grid';for(const p of s.others)content.append(el('p',`${p.name}: ${p.celebrity}`));}
    else{const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('class','game-eye-off');svg.setAttribute('aria-hidden','true');const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d','M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.8 5.2A12 12 0 0 1 12 5c5.5 0 9 7 9 7a17 17 0 0 1-4 4.7M6.2 6.2C3.5 8.1 2 12 2 12s3.5 7 10 7a12 12 0 0 0 4.2-.8');svg.append(path);content.append(svg,el('p','Promis der anderen verborgen'));}
    if(s.context.position)root.append(el('h2',`Du bist Platz ${s.context.position} geworden!`));
    else outcome.append(button('Gewonnen',()=>controller.action('win')));
-   const placements=el('section',undefined,'celebrity-placements');placements.append(el('h3','Platzierungen'));for(const p of [...s.status.players].sort((a,b)=>(a.position||Infinity)-(b.position||Infinity))){placements.append(el('p',`${p.name}: ${p.position?'Platz '+p.position:'Rät noch'}`));}outcome.append(placements);
+   if(s.context.position){const placements=el('section',undefined,'celebrity-placements');placements.append(el('h3','Platzierungen'));for(const p of [...s.status.players].sort((a,b)=>(a.position||Infinity)-(b.position||Infinity))){placements.append(el('p',`${p.name}: ${p.position?'Platz '+p.position:'Rät noch'}`));}outcome.append(placements);}
   }
  }
  root.querySelectorAll('button,input,select').forEach(n=>n.disabled=s.busy);outcome.querySelectorAll('button').forEach(n=>n.disabled=s.busy);
