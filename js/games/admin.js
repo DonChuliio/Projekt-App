@@ -1,5 +1,5 @@
-import { imposterStats } from './stats.js?v=1.98';
-import { manageGame } from './admin-data.js?v=1.98';
+import { imposterStats } from './stats.js?v=1.99';
+import { manageGame } from './admin-data.js?v=1.99';
 import { showView } from '../router.js';
 import { getSession } from '../auth/auth.js';
 export function initImposter(){
@@ -46,7 +46,7 @@ export function initImposter(){
    const setting=(n,reveal)=>run(()=>manageGame('configure',gameId,{expected_players:null,imposters:n,reveal_imposters:reveal}),form);
    for(const n of [1,2]){const choice=button(n+' Imposter',()=>setting(n,Boolean(g.reveal_imposters)));choice.setAttribute('aria-pressed',String(g.imposters===n));group.append(choice);}form.append(group);
    const label=el('label',undefined,'game-checkbox'),check=el('input');check.type='checkbox';check.checked=Boolean(g.reveal_imposters);label.append(check,el('span','Imposter sehen sich gegenseitig'));form.append(label);check.addEventListener('change',()=>setting(g.imposters,check.checked).then(()=>check.checked=Boolean(data.game.reveal_imposters)));
-   const start=el('button','Spiel starten');start.type='submit';const footer=el('div',undefined,'game-footer');footer.append(start,button('Abbrechen',()=>{if(busy)return;gameId=null;data=null;screen='list';load().catch(e=>status(e.message,root,true));}));form.append(footer);form.addEventListener('submit',e=>{e.preventDefault();if(people.length<=g.imposters+1){status(`Für ${g.imposters} Imposter mindestens ${g.imposters+2} Personen einschließlich Rundenleitung hinzufügen. Aktuell: ${people.length}.`,form);return;}run(async()=>{await manageGame('configure',gameId,{expected_players:people.length,imposters:g.imposters,reveal_imposters:Boolean(g.reveal_imposters)});await manageGame('start',gameId);},form);});root.append(form);return;
+   const start=el('button','Spiel starten');start.type='submit';const footer=el('div',undefined,'game-footer');footer.append(start,button('Abbrechen',()=>{if(data?.game.state==='draft')removeGame();}));form.append(footer);form.addEventListener('submit',e=>{e.preventDefault();if(people.length<=g.imposters+1){status(`Für ${g.imposters} Imposter mindestens ${g.imposters+2} Personen einschließlich Rundenleitung hinzufügen. Aktuell: ${people.length}.`,form);return;}run(async()=>{await manageGame('configure',gameId,{expected_players:people.length,imposters:g.imposters,reveal_imposters:Boolean(g.reveal_imposters)});await manageGame('start',gameId);},form);});root.append(form);return;
   }
   const scores=el('section',undefined,'game-scores'),table=el('table',undefined,'game-stats-table'),head=el('thead'),header=el('tr');header.append(el('th','Name'),el('th','Siege'));head.append(header);table.append(head);const body=el('tbody');for(const p of imposterStats(data.players,data.history||[])){const row=el('tr');row.append(el('td',p.name),el('td',String(p.wins)));body.append(row);}table.append(body);scores.append(el('h3','Siege als Imposter'),table);root.append(scores);const footer=el('div',undefined,'game-footer');const end=button(g.state==='active'?'Spiel beenden':'Spiel beendet',()=>run(()=>manageGame('end',gameId)));end.disabled=g.state!=='active';footer.append(end,button('Spiel löschen',removeGame));root.append(footer);
 

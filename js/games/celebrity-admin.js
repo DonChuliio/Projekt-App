@@ -1,4 +1,4 @@
-import { manageCelebrity } from './celebrity-data.js?v=1.98';
+import { manageCelebrity } from './celebrity-data.js?v=1.99';
 import { showView } from '../router.js';
 import { getSession } from '../auth/auth.js';
 export function initCelebrity(){
@@ -23,7 +23,7 @@ export function initCelebrity(){
  function draw(){const g=data.game;root.append(el('h3',g.name));
   if(g.state==='draft'){
    const people=el('form',undefined,'celebrity-player-add-form');people.append(el('h3','Spieler'));const row=el('div',undefined,'game-player-add-row'),name=el('input');name.required=true;name.maxLength=100;name.placeholder='Spielername';name.setAttribute('aria-label','Spielername');const add=iconButton('Spieler hinzufügen','M12 5v14M5 12h14',()=>{});add.type='submit';row.append(name,add);people.append(row);people.addEventListener('submit',e=>{e.preventDefault();if(name.value.trim())run(()=>manageCelebrity('player',gameId,{name:name.value.trim()}),people).then(()=>root.querySelector('.celebrity-player-add-form')?.querySelector('input')?.focus());});players(people,true);root.append(people);
-   const config=settings(),footer=el('div',undefined,'game-footer'),start=el('button','Spiel starten');start.type='submit';footer.append(start,button('Abbrechen',back));config.append(footer);config.addEventListener('submit',e=>{e.preventDefault();if(data.players.length<2){message('Mindestens zwei Spieler hinzufügen.',false,config);return;}run(()=>manageCelebrity('start',gameId),config);});root.append(config);return;
+   const config=settings(),footer=el('div',undefined,'game-footer'),start=el('button','Spiel starten');start.type='submit';footer.append(start,button('Abbrechen',()=>{if(data?.game.state!=='draft')return;run(async()=>{await manageCelebrity('delete',gameId);gameId=null;data=null;expanded.clear();});}));config.append(footer);config.addEventListener('submit',e=>{e.preventDefault();if(data.players.length<2){message('Mindestens zwei Spieler hinzufügen.',false,config);return;}run(()=>manageCelebrity('start',gameId),config);});root.append(config);return;
   }
   if(g.state==='active'){
    const url=new URL('celebrity.html',location.href);url.searchParams.set('game',g.token);const input=el('input');input.readOnly=true;input.value=url.href;input.setAttribute('aria-label','Gruppenlink');root.append(input,button('Link kopieren',async()=>{try{await navigator.clipboard.writeText(url.href);message('Link kopiert.',true);}catch{input.focus();input.select();message('Bitte markierten Link kopieren.');}}));
