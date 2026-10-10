@@ -1,7 +1,7 @@
-import { bindHold } from './hold.js?v=1.96';
-import { gameRpc } from './api.js?v=1.96';
-import { createSieveGame } from './sieve-controller.js?v=1.96';
-import { SIEVE_CATEGORIES,appendSieveResults } from './sieve-results.js?v=1.96';
+import { bindHold } from './hold.js?v=1.97';
+import { gameRpc } from './api.js?v=1.97';
+import { createSieveGame } from './sieve-controller.js?v=1.97';
+import { SIEVE_CATEGORIES,appendSieveResults } from './sieve-results.js?v=1.97';
 const root=document.getElementById('sieve-public'),reveal=document.getElementById('sieve-reveal'),content=document.getElementById('sieve-reveal-content'),hold=document.getElementById('sieve-hold'),number=document.getElementById('sieve-word-number'),actions=document.getElementById('sieve-actions'),results=document.getElementById('sieve-results'),token=new URL(location.href).searchParams.get('game');
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,fn)=>{const b=el('button',text);b.type='button';b.addEventListener('click',fn);return b;};
@@ -27,7 +27,7 @@ function render(s){
  if(state.phase==='finished'){appendSieveResults(results,state.categories,{final:true});return;}
  if(!s.claimed){const form=el('form',undefined,'game-name-form'),select=el('select');select.required=true;select.setAttribute('aria-label','Deinen Namen auswählen');const empty=el('option','Deinen Namen auswählen');empty.value='';select.append(empty);for(const p of state.players){const option=el('option',p.name+(p.claimed?' – belegt':''));option.value=p.id;option.disabled=p.claimed;select.append(option);}if(state.players.some(p=>p.id===selected&&!p.claimed))select.value=selected;const confirm=el('button','Namen bestätigen');confirm.type='submit';form.append(select,confirm);form.addEventListener('submit',e=>{e.preventDefault();if(select.value)controller.select(select.value);});root.append(form,el('p','Wähle nur deinen eigenen Namen. Deine Auswahl bleibt in diesem Tab gespeichert. Nutze deshalb keinen privaten Tab. Die Namenswahl erfolgt auf Vertrauensbasis.','game-muted'));}
  else if(!s.player)root.append(el('p','Belegung wird geprüft …'));
- else{root.append(el('p','Dein Name: '+s.player.name,'game-person-line'));
+ else{root.append(el('p','Dein Name: '+s.player.name+(s.player.team?' · Dein Team: '+s.player.team:''),'game-person-line'));
   if(state.phase==='collecting'){
    if(s.player.submitted)root.append(el('p','Deine Wörter sind bestätigt. Warte auf die anderen.','game-waiting'));
    else{const form=el('form',undefined,'sieve-word-form'),progress=el('p'),submit=el('button','Wörter bestätigen');submit.type='submit';const inputs=[];const update=()=>{const complete=inputs.filter(n=>n.value.trim()).length;progress.textContent=`${complete} von ${state.words_per_player} Wörtern`;submit.disabled=s.busy||complete!==state.words_per_player;};for(let i=0;i<state.words_per_player;i++){const label=el('label','Wort '+(i+1)),input=el('input');input.required=true;input.maxLength=120;input.value=wordDraft[i]||'';input.setAttribute('aria-label','Wort '+(i+1));input.addEventListener('input',update);label.append(input);form.append(label);inputs.push(input);}form.append(progress,submit);form.addEventListener('submit',e=>{e.preventDefault();if(inputs.every(n=>n.value.trim()))controller.action('submit',{words:inputs.map(n=>n.value.trim())});});root.append(form);update();}
@@ -37,8 +37,7 @@ function render(s){
  if(state.phase==='category_done'){appendSieveResults(results,state.categories);if(s.player)results.append(button('Nächste Kategorie',()=>controller.action('next_category')));}
  if(state.phase==='playing'&&actualTurn){root.append(el('p',`Team ${actualTurn.team} · ${actualTurn.name} ist dran`,'game-person-line'),el('p',actualTurn.phase==='running'?`${Math.ceil(s.remaining/1000)} Sekunden`:actualTurn.phase==='expired'?'Zeit abgelaufen':'Zug wartet auf Start','sieve-timer'),el('p',`${state.remaining} Wörter offen`));
   const category=state.categories.find(c=>c.number===state.category),jokers=Math.max(0,state.joker_limit-(actualTurn.team==='A'?category?.jokers_a:category?.jokers_b));
-  root.append(el('p',`Team ${actualTurn.team}: ${jokers} Joker übrig`));
-  if(active){if(actualTurn.phase==='pending')root.append(button('Ich bin dran',()=>controller.action('confirm')));else if(actualTurn.phase==='confirmed')root.append(button('Zug starten',()=>controller.action('start')));else if(running){const solve=button('Geschafft / Nächstes Wort',()=>{holdBinding.release();controller.action('solve');}),joker=button(`Joker einlösen (${jokers})`,()=>{holdBinding.release();controller.action('joker');});joker.disabled=s.busy||jokers===0||state.remaining<2;actions.append(solve,joker);}else{actions.append(button('Letztes zählt noch',()=>controller.action('last')),button('Weitergeben',()=>controller.action('pass')));}}
+  if(active){if(actualTurn.phase==='pending'||actualTurn.phase==='confirmed')root.append(button('Ich bin dran',()=>controller.action('start')),el('p','Der Timer startet sofort. Mach dich vor dem Klicken bereit.','game-muted sieve-start-hint'));else if(running){const solve=button('Geschafft / Nächstes Wort',()=>{holdBinding.release();controller.action('solve');}),joker=button(`Joker einlösen (${jokers})`,()=>{holdBinding.release();controller.action('joker');});joker.disabled=s.busy||jokers===0||state.remaining<2;actions.append(solve,joker);}else{actions.append(button('Letztes zählt noch',()=>controller.action('last')),button('Weitergeben',()=>controller.action('pass')));}}
   else root.append(el('p','Warte auf die aktive Person.','game-waiting'));
  }
  root.querySelectorAll('button,input,select').forEach(n=>{if(s.busy||(s.pending&&!n.hasAttribute('data-sieve-recovery')))n.disabled=true;});actions.querySelectorAll('button').forEach(n=>{if(s.busy||s.pending)n.disabled=true;});results.querySelectorAll('button').forEach(n=>n.disabled=s.busy||s.pending);

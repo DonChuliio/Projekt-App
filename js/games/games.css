@@ -80,3 +80,5 @@
 #sieve-actions button {min-width:0;overflow-wrap:anywhere;}
 #sieve-actions button:disabled {background:var(--border);color:var(--text-muted);opacity:.6;cursor:default;}
 .sieve-timer {font-size:1.4rem;font-variant-numeric:tabular-nums;}
+
+.sieve-start-hint {font-size:.85rem;line-height:1.4;}

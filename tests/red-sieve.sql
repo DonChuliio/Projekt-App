@@ -42,8 +42,8 @@ do $$declare token text:=current_setting('sieve.token');v jsonb;t jsonb;secret t
  args=jsonb_build_object('turn_id',t->>'id','word_number',1);
  begin perform public.sieve_word(token,secret,(t->>'id')::uuid,1);raise exception 'Pre-start word leaked';exception when raise_exception then if sqlerrm='Pre-start word leaked' then raise;end if;end;
  begin perform public.sieve_action(token,other_secret,gen_random_uuid(),'confirm',args);raise exception 'Foreign turn control allowed';exception when raise_exception then if sqlerrm='Foreign turn control allowed' then raise;end if;end;
- begin perform public.sieve_action(token,secret,gen_random_uuid(),'start',args);raise exception 'Unconfirmed start allowed';exception when raise_exception then if sqlerrm='Unconfirmed start allowed' then raise;end if;end;
- perform public.sieve_action(token,secret,gen_random_uuid(),'confirm',args);op=gen_random_uuid();perform public.sieve_action(token,secret,op,'start',args);deadline=(public.sieve_status(token)->'turn'->>'deadline')::numeric;perform public.sieve_action(token,secret,op,'start',args);
+ begin perform public.sieve_action(token,other_secret,gen_random_uuid(),'start',args);raise exception 'Foreign start allowed';exception when raise_exception then if sqlerrm='Foreign start allowed' then raise;end if;end;
+ op=gen_random_uuid();perform public.sieve_action(token,secret,op,'start',args);deadline=(public.sieve_status(token)->'turn'->>'deadline')::numeric;perform public.sieve_action(token,secret,op,'start',args);
  if (public.sieve_status(token)->'turn'->>'deadline')::numeric<>deadline then raise exception 'Retry restarted timer';end if;
  v=public.sieve_status(token);if deadline-(v->>'server_now')::numeric not between 59000 and 60000 then raise exception 'Timer not server 60 seconds';end if;
  answer=public.sieve_word(token,secret,(t->>'id')::uuid,1);if answer->>'word' not like 'synthetic-private-%' then raise exception 'Active word missing';end if;

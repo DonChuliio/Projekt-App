@@ -5,20 +5,24 @@ set local role authenticated;
 do $$declare gid uuid;v jsonb;i int;begin
  gid=(public.sieve_manage('create',null,'{"name":"Synthetic odd-team zero-joker game"}')->>'id')::uuid;
  for i in 1..5 loop perform public.sieve_manage('player',gid,jsonb_build_object('name','Synthetic odd player '||i));end loop;
- perform public.sieve_manage('configure',gid,'{"words_per_player":1,"category_count":1,"joker_limit":0}');perform public.sieve_manage('start',gid);v=public.sieve_manage('view',gid);perform set_config('sieve2.game',gid::text,true);perform set_config('sieve2.token',v->'game'->>'token',true);
+ begin perform public.sieve_manage('configure',gid,'{"words_per_player":1,"category_count":1,"joker_limit":0,"turn_seconds":9}');raise exception 'Short duration accepted';exception when check_violation then null;end;
+ begin perform public.sieve_manage('configure',gid,'{"words_per_player":1,"category_count":1,"joker_limit":0,"turn_seconds":301}');raise exception 'Long duration accepted';exception when check_violation then null;end;
+ perform public.sieve_manage('configure',gid,'{"words_per_player":1,"category_count":1,"joker_limit":0,"turn_seconds":90}');perform public.sieve_manage('start',gid);v=public.sieve_manage('view',gid);if (v->'game'->>'turn_seconds')::int<>90 then raise exception 'Owner duration missing';end if;perform set_config('sieve2.game',gid::text,true);perform set_config('sieve2.token',v->'game'->>'token',true);
 end $$;
 reset role;
 select set_config('request.jwt.claim.sub','',true);
 set local role anon;
 do $$declare token text:=current_setting('sieve2.token');v jsonb;p jsonb;t jsonb;secret text;args jsonb;i int;begin
- v=public.sieve_status(token);for p in select value from jsonb_array_elements(v->'players') loop secret=replace(gen_random_uuid()::text||gen_random_uuid()::text,'-','');perform set_config('sieve2.secret.p'||replace(p->>'id','-',''),secret,true);perform public.sieve_claim(token,(p->>'id')::uuid,secret);
+ v=public.sieve_status(token);if (v->>'turn_seconds')::int<>90 then raise exception 'Public duration missing';end if;for p in select value from jsonb_array_elements(v->'players') loop secret=replace(gen_random_uuid()::text||gen_random_uuid()::text,'-','');perform set_config('sieve2.secret.p'||replace(p->>'id','-',''),secret,true);perform public.sieve_claim(token,(p->>'id')::uuid,secret);
   begin perform public.sieve_action(token,secret,gen_random_uuid(),'submit','{"words":["   "]}');raise exception 'Blank accepted';exception when raise_exception then if sqlerrm='Blank accepted' then raise;end if;end;
   begin perform public.sieve_action(token,secret,gen_random_uuid(),'submit','{"words":[42]}');raise exception 'Non-string accepted';exception when raise_exception then if sqlerrm='Non-string accepted' then raise;end if;end;
   begin perform public.sieve_action(token,secret,gen_random_uuid(),'submit',jsonb_build_object('words',jsonb_build_array(repeat('x',121))));raise exception 'Oversized word accepted';exception when raise_exception then if sqlerrm='Oversized word accepted' then raise;end if;end;
   perform public.sieve_action(token,secret,gen_random_uuid(),'submit','{"words":["Synthetic allowed word"]}');
  end loop;
  v=public.sieve_status(token);if abs((select count(*) from jsonb_array_elements(v->'players') member where member->>'team'='A')-(select count(*) from jsonb_array_elements(v->'players') member where member->>'team'='B'))<>1 then raise exception 'Odd teams not balanced';end if;
- t=v->'turn';secret=current_setting('sieve2.secret.p'||replace(t->>'player_id','-',''));args=jsonb_build_object('turn_id',t->>'id','word_number',1);perform public.sieve_action(token,secret,gen_random_uuid(),'confirm',args);perform public.sieve_action(token,secret,gen_random_uuid(),'start',args);
+ t=v->'turn';secret=current_setting('sieve2.secret.p'||replace(t->>'player_id','-',''));args=jsonb_build_object('turn_id',t->>'id','word_number',1);perform public.sieve_action(token,secret,gen_random_uuid(),'start',args);
+ v=public.sieve_status(token);if (v->'turn'->>'deadline')::numeric-(v->>'server_now')::numeric not between 89000 and 90000 then raise exception 'Configured duration not applied';end if;
+ perform public.sieve_action(token,secret,gen_random_uuid(),'start',args);if public.sieve_status(token)->'turn'->>'deadline'<>v->'turn'->>'deadline' then raise exception 'Fresh retry extended deadline';end if;
  begin perform public.sieve_action(token,secret,gen_random_uuid(),'joker',args);raise exception 'Zero joker accepted';exception when raise_exception then if sqlerrm='Zero joker accepted' then raise;end if;end;
  perform set_config('sieve2.actor',t->>'player_id',true);perform set_config('sieve2.old_secret',secret,true);
 end $$;

@@ -1,5 +1,5 @@
-import { manageSieve } from './sieve-data.js?v=1.96';
-import { SIEVE_CATEGORIES,appendSieveResults } from './sieve-results.js?v=1.96';
+import { manageSieve } from './sieve-data.js?v=1.97';
+import { SIEVE_CATEGORIES,appendSieveResults } from './sieve-results.js?v=1.97';
 import { showView } from '../router.js';
 import { getSession } from '../auth/auth.js';
 export function initSieve(){
@@ -21,7 +21,7 @@ export function initSieve(){
  function draw(){const g=data.game;root.append(el('h3',g.name));
   if(g.state==='draft'){
    const form=el('form',undefined,'sieve-player-add-form'),row=el('div',undefined,'game-player-add-row'),name=el('input'),add=icon('Spieler hinzufügen','M12 5v14M5 12h14',()=>{});name.required=true;name.maxLength=100;name.placeholder='Spielername';name.setAttribute('aria-label','Spielername');add.type='submit';row.append(name,add);form.append(el('h3','Spieler'),row);players(form,true);form.addEventListener('submit',e=>{e.preventDefault();if(name.value.trim())run(()=>manageSieve('player',gameId,{name:name.value.trim()}),form);});root.append(form);
-   const config=el('form',undefined,'sieve-config-form'),inputs={};for(const [key,title,min,max] of [['words_per_player','Wörter pro Person',1,20],['category_count','Anzahl Kategorien',1,4],['joker_limit','Joker pro Team und Kategorie',0,20]]){const label=el('label',title),input=el('input');input.type='number';input.min=min;input.max=max;input.step=1;input.required=true;input.value=g[key];label.append(input);config.append(label);inputs[key]=input;}
+   const config=el('form',undefined,'sieve-config-form'),inputs={};for(const [key,title,min,max] of [['words_per_player','Wörter pro Person',1,20],['category_count','Anzahl Kategorien',1,4],['joker_limit','Joker pro Team und Kategorie',0,20],['turn_seconds','Zugdauer in Sekunden (10–300)',10,300]]){const label=el('label',title),input=el('input');input.type='number';input.min=min;input.max=max;input.step=1;input.required=true;input.value=g[key];label.append(input);config.append(label);inputs[key]=input;}
    const order=el('p','Kategorien: '+SIEVE_CATEGORIES.slice(0,g.category_count).join(' → '),'game-muted');inputs.category_count.addEventListener('input',()=>order.textContent='Kategorien: '+SIEVE_CATEGORIES.slice(0,Math.min(4,Math.max(1,Number(inputs.category_count.value)))).join(' → '));config.append(order,el('p','Dock teilt die Spieler zufällig und möglichst gleichmäßig in zwei Teams ein.','game-muted'));
    const footer=el('div',undefined,'game-footer'),start=el('button','Spiel starten');start.type='submit';footer.append(start,button('Abbrechen',back));config.append(footer);config.addEventListener('submit',e=>{e.preventDefault();if(data.players.length<4){message('Mindestens vier Spieler für zwei Teams hinzufügen.',false,config);return;}const values=Object.fromEntries(Object.entries(inputs).map(([key,n])=>[key,Number(n.value)]));if(Object.entries(inputs).some(([key,n])=>!Number.isInteger(values[key])||values[key]<Number(n.min)||values[key]>Number(n.max))){message('Bitte gültige ganze Zahlen eingeben.',false,config);return;}run(async()=>{await manageSieve('configure',gameId,values);await manageSieve('start',gameId);},config);});root.append(config);return;
   }
