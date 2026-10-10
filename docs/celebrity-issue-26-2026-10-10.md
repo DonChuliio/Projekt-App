@@ -1,4 +1,6 @@
-# Issue 26: Promi-Raten · v1.93
+# Issue 26: Promi-Raten · ursprüngliche Abnahme v1.93
+
+Aktueller Stand v1.95: Die nachträglich gewünschten Änderungen an Anzeige, Namensübernahme und vorzeitigem Rundenabschluss ersetzen die ursprüngliche erneute Namenswahl und das Verwerfen per Runden-Reset. Siehe [Anzeige v1.94](celebrity-layout-2026-10-10.md) und [Rundenabschluss v1.95](celebrity-rounds-2026-10-10.md).
 
 Eigenständiges Spiel unter Spiele → Promi-Raten, getrennt von Imposter. Neuer Gruppenlink celebrity.html?game=… bleibt über Runden/Resets unverändert; nach Beenden oder Löschen ist er nicht mehr spielbar. Keine externen Dienste, Kostenmodelle, KI-Auswertung oder Emojis eingeführt.
 

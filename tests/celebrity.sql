@@ -40,7 +40,7 @@ do $$declare s jsonb;p jsonb;own jsonb;answer jsonb;i int:=0;secret text;rid uui
   if i<11 then answer=public.celebrity_action(token,rid,secret,'win');if (answer->>'position')::int<>i then raise exception 'Repeated win changed placement';end if;end if;
  end loop;
  s=public.celebrity_status(token);if s->>'round_id'=rid::text or (s->>'number')::int<>2 or s->>'state'<>'entering' or s->>'round_id' is null then raise exception 'Next round failed';end if;
- if exists(select 1 from jsonb_array_elements(s->'players') x where (x->>'claimed')::boolean or (x->>'submitted')::boolean or x->>'position' is not null) then raise exception 'Old data carried over';end if;
+ if exists(select 1 from jsonb_array_elements(s->'players') x where not (x->>'claimed')::boolean or (x->>'submitted')::boolean or x->>'position' is not null) then raise exception 'Old data carried over';end if;
  perform set_config('celeb.next',s->>'round_id',true);
  if (public.celebrity_action(token,rid,secret,'win')->>'position')::int<>11 then raise exception 'Final win retry changed placement';end if;
  begin perform public.celebrity_action(token,rid,secret,'submit','{"celebrity":"Stale change"}');raise exception 'Stale change accepted';exception when raise_exception then if sqlerrm='Stale change accepted' then raise;end if;end;
@@ -56,16 +56,19 @@ select set_config('request.jwt.claim.sub',current_setting('celeb.owner'),true);
 set local role authenticated;
  do $$declare g uuid:=current_setting('celeb.game')::uuid;v jsonb;begin
  v=public.celebrity_manage('view',g);if jsonb_array_length(v->'history')<>1 or jsonb_array_length(v->'history'->0->'placements')<>11 or jsonb_array_length(v->'stats')<11 then raise exception 'Completed stats missing';end if;
- perform public.celebrity_manage('reset',g);v=public.celebrity_manage('view',g);if v->'round'->>'id'=current_setting('celeb.next') or (v->'round'->>'number')::int<>2 or jsonb_array_length(v->'history')<>1 then raise exception 'Entry reset lost history';end if;
+ perform public.celebrity_manage('finish_round',g,jsonb_build_object('round_id',current_setting('celeb.next')));v=public.celebrity_manage('view',g);if v->'round'->>'id'=current_setting('celeb.next') or (v->'round'->>'number')::int<>3 or jsonb_array_length(v->'history')<>2 then raise exception 'Early entry finish lost history';end if;
+ if exists(select 1 from jsonb_array_elements(v->'history'->1->'placements') x where x->>'position' is not null) then raise exception 'Unplaced entry round gained ranks';end if;
+ begin perform public.celebrity_manage('finish_round',g,jsonb_build_object('round_id',current_setting('celeb.next')));raise exception 'Stale finish accepted';exception when raise_exception then if sqlerrm='Stale finish accepted' then raise;end if;end;
  perform set_config('celeb.reset',v->'round'->>'id',true);
 end $$;
 reset role;
 select set_config('request.jwt.claim.sub','',true);
 set local role anon;
-do $$declare s jsonb;p jsonb;secret text;token text:=current_setting('celeb.token');rid uuid:=current_setting('celeb.reset')::uuid;begin
+do $$declare s jsonb;p jsonb;secret text;token text:=current_setting('celeb.token');rid uuid:=current_setting('celeb.reset')::uuid;i int:=0;begin
  s=public.celebrity_status(token);for p in select value from jsonb_array_elements(s->'players') loop
- secret=replace(gen_random_uuid()::text||gen_random_uuid()::text,'-','');perform set_config('celeb.reset_player',p->>'id',true);perform set_config('celeb.reset_secret',secret,true);perform public.celebrity_claim(token,rid,(p->>'id')::uuid,secret);perform public.celebrity_action(token,rid,secret,'submit','{"celebrity":"Synthetic reset test"}');end loop;
- if public.celebrity_status(token)->>'state'<>'guessing' then raise exception 'Guessing reset fixture failed';end if;
+ secret=current_setting('celeb.secret.p'||replace(p->>'id','-',''));perform set_config('celeb.reset_player',p->>'id',true);perform set_config('celeb.reset_secret',secret,true);perform public.celebrity_claim(token,rid,(p->>'id')::uuid,secret);perform public.celebrity_action(token,rid,secret,'submit','{"celebrity":"Synthetic reset test"}');end loop;
+ if public.celebrity_status(token)->>'state'<>'guessing' then raise exception 'Guessing finish fixture failed';end if;
+ for p in select value from jsonb_array_elements(s->'players') loop i=i+1;secret=current_setting('celeb.secret.p'||replace(p->>'id','-',''));if i<=5 then if (public.celebrity_action(token,rid,secret,'win')->>'position')::int<>i then raise exception 'Wrong early position';end if;elsif i=6 then perform set_config('celeb.unplaced_secret',secret,true);end if;end loop;
 end $$;
 reset role;
 select set_config('request.jwt.claim.sub',current_setting('celeb.owner'),true);
@@ -77,10 +80,25 @@ do $$begin if public.celebrity_player(current_setting('celeb.token'),current_set
 reset role;
 set local role authenticated;
 do $$declare g uuid:=current_setting('celeb.game')::uuid;v jsonb;begin
- perform public.celebrity_manage('reset',g);perform public.celebrity_manage('configure',g,'{"notes_enabled":false}');v=public.celebrity_manage('view',g);
- if v->'round'->>'phase'<>'entering' or v->'round'->>'id'=current_setting('celeb.reset') or jsonb_array_length(v->'history')<>1 or (v->'game'->>'notes_enabled')::boolean then raise exception 'Guessing reset/history/notes failed';end if;
- perform public.celebrity_manage('end',g);perform public.celebrity_manage('delete',g);
+ perform public.celebrity_manage('finish_round',g,jsonb_build_object('round_id',current_setting('celeb.reset')));perform public.celebrity_manage('configure',g,'{"notes_enabled":false}');v=public.celebrity_manage('view',g);
+ if v->'round'->>'phase'<>'entering' or v->'round'->>'id'=current_setting('celeb.reset') or jsonb_array_length(v->'history')<>3 or (v->'round'->>'number')::int<>4 or (v->'game'->>'notes_enabled')::boolean then raise exception 'Early finish/history/notes failed';end if;
+ if (select count(*) from jsonb_array_elements(v->'history'->2->'placements') x where x->>'position' is not null)<>5 or (select count(*) from jsonb_array_elements(v->'history'->2->'placements') x where x->>'position' is null)<>6 then raise exception 'Five ranks / six unplaced not preserved';end if;
+ if (select count(*) from jsonb_array_elements(v->'players') x where (x->>'claimed')::boolean)<>10 then raise exception 'Claims not preserved or revoked claim resurrected';end if;
+ perform set_config('celeb.after_finish',v->'round'->>'id',true);
+ 
 end $$;
+reset role;
+set local role anon;
+do $$declare token text:=current_setting('celeb.token');secret text:=current_setting('celeb.unplaced_secret');old_round uuid:=current_setting('celeb.reset')::uuid;new_round uuid:=current_setting('celeb.after_finish')::uuid;v jsonb;begin
+ v=public.celebrity_player(token,new_round,secret);if v is null or v->>'position' is not null or v->>'recipient_name' is null or jsonb_array_length(v->'previous'->'placements')<>11 or v->'previous'->>'position' is not null or (v->'previous'->>'number')::int<>3 then raise exception 'Unplaced previous results / new identity missing';end if;
+ if v ? 'celebrity' then raise exception 'Own celebrity leak';end if;
+ begin perform public.celebrity_others(token,old_round,secret);raise exception 'Old reveal available';exception when raise_exception then if sqlerrm='Old reveal available' then raise;end if;end;
+ begin perform public.celebrity_action(token,old_round,secret,'submit','{"celebrity":"Stale"}');raise exception 'Old submit available';exception when raise_exception then if sqlerrm='Old submit available' then raise;end if;end;
+ if public.celebrity_action(token,old_round,secret,'win')->>'position' is not null then raise exception 'Unplaced stale win gained rank';end if;
+end $$;
+reset role;
+set local role authenticated;
+select public.celebrity_manage('end',current_setting('celeb.game')::uuid);select public.celebrity_manage('delete',current_setting('celeb.game')::uuid);
 reset role;
 set local role anon;
 do $$begin if public.celebrity_status(current_setting('celeb.token'))->>'state'<>'unavailable' then raise exception 'Deleted link active';end if;end $$;

@@ -9,8 +9,8 @@ export function createCelebrityGame({token,rpc,changed,storage,makeSecret=()=>Ar
   const next=await rpc('celebrity_status',{p_token:token});if(request!==serial||generation!==version)return;
   if(next.state==='unavailable'){version++;clear();status=next;lastPlacement=null;error='';emit();return;}
   if(status?.round_id!==next.round_id||status?.state!==next.state){version++;generation=version;others=null;}
-  if(claim&&claim.round_id!==next.round_id){const old=claim;clear();status=next;emit();const completed=await rpc('celebrity_player',{p_token:token,p_round:old.round_id,p_secret:old.secret});if(request!==serial||generation!==version)return;if(completed?.phase==='completed'&&completed.position)lastPlacement={number:completed.number,position:completed.position,placements:completed.placements||[]};else lastPlacement=null;}
-  if(claim){const own=await rpc('celebrity_player',{p_token:token,p_round:next.round_id,p_secret:claim.secret});if(request!==serial||generation!==version)return;if(!own){version++;clear();}else context=own;}
+  if(claim&&claim.round_id!==next.round_id){const old=claim;const completed=await rpc('celebrity_player',{p_token:token,p_round:old.round_id,p_secret:old.secret});if(request!==serial||generation!==version)return;lastPlacement=completed?.phase==='completed'?{number:completed.number,position:completed.position,placements:completed.placements||[]}:null;claim={...old,round_id:next.round_id};context=null;others=null;notes='';save();}
+  if(claim){const own=await rpc('celebrity_player',{p_token:token,p_round:next.round_id,p_secret:claim.secret});if(request!==serial||generation!==version)return;if(!own){version++;clear();}else{context=own;if(own.previous)lastPlacement=own.previous;}}
   status=next;error='';emit();
  }catch(e){if(request!==serial||generation!==version)return;version++;others=null;error='Verbindung unterbrochen. Bitte erneut versuchen.';emit();}}
  async function select(player){if(busy||claim||!status?.round_id||status.state==='unavailable')return;

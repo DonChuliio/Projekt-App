@@ -1,6 +1,6 @@
-import { bindHold } from './hold.js?v=1.94';
-import { gameRpc } from './api.js?v=1.94';
-import { createCelebrityGame } from './celebrity-controller.js?v=1.94';
+import { bindHold } from './hold.js?v=1.95';
+import { gameRpc } from './api.js?v=1.95';
+import { createCelebrityGame } from './celebrity-controller.js?v=1.95';
 const root=document.getElementById('celebrity-public'),area=document.getElementById('celebrity-reveal'),content=document.getElementById('celebrity-reveal-content'),hold=document.getElementById('celebrity-reveal-hold'),notesArea=document.getElementById('celebrity-notes'),notes=document.getElementById('celebrity-note-input'),outcome=document.getElementById('celebrity-outcomes'),token=new URL(location.href).searchParams.get('game');
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,action)=>{const b=el('button',text);b.type='button';b.addEventListener('click',action);return b;};
@@ -15,8 +15,8 @@ function paint(s){
  if(!s.status){root.append(el('p','Spiel wird geladen …'));return;}
  if(s.status.state==='unavailable'){root.append(el('p','Dieses Spiel ist beendet oder der Link ist nicht mehr aktiv.'));return;}
  root.append(el('h2',`Runde ${s.status.number}`));
- if(!s.claimed){if(s.lastPlacement){root.append(el('h2',`Du bist Platz ${s.lastPlacement.position} geworden!`),el('p',`Runde ${s.lastPlacement.number} ist abgeschlossen.`));if(s.lastPlacement.placements?.length){const ranks=el('section',undefined,'celebrity-placements');ranks.append(el('h3','Platzierungen der vorigen Runde'));for(const p of s.lastPlacement.placements)ranks.append(el('p',`${p.name}: Platz ${p.position}`));root.append(ranks);}}
-  const choose=el('form',undefined,'game-name-form'),select=el('select');select.required=true;select.setAttribute('aria-label','Deinen Namen auswählen');const empty=el('option','Deinen Namen auswählen');empty.value='';select.append(empty);for(const p of s.status.players){const o=el('option',p.name+(p.claimed?' – belegt':''));o.value=p.id;o.disabled=p.claimed;select.append(o);}if(s.status.players.some(p=>p.id===selection&&!p.claimed))select.value=selection;const confirm=el('button','Namen bestätigen');confirm.type='submit';choose.append(select,confirm);choose.addEventListener('submit',e=>{e.preventDefault();if(select.value)controller.select(select.value);});root.append(choose,el('p','Wähle nur deinen eigenen Namen. Wähle ihn in jeder Runde neu. Deine Belegung bleibt beim Neuladen in diesem Tab erhalten. Nutze deshalb keinen privaten Tab. Die Namenswahl erfolgt auf Vertrauensbasis.','game-muted'));
+ if(!s.claimed){
+  const choose=el('form',undefined,'game-name-form'),select=el('select');select.required=true;select.setAttribute('aria-label','Deinen Namen auswählen');const empty=el('option','Deinen Namen auswählen');empty.value='';select.append(empty);for(const p of s.status.players){const o=el('option',p.name+(p.claimed?' – belegt':''));o.value=p.id;o.disabled=p.claimed;select.append(o);}if(s.status.players.some(p=>p.id===selection&&!p.claimed))select.value=selection;const confirm=el('button','Namen bestätigen');confirm.type='submit';choose.append(select,confirm);choose.addEventListener('submit',e=>{e.preventDefault();if(select.value)controller.select(select.value);});root.append(choose,el('p','Wähle nur deinen eigenen Namen. Deine Auswahl bleibt für dieses Spiel in diesem Tab gespeichert und wird in die nächste Runde übernommen. Nutze deshalb keinen privaten Tab. Die Namenswahl erfolgt auf Vertrauensbasis.','game-muted'));
  }else{
   const name=s.status.players.find(p=>p.id===s.playerId)?.name;root.append(el('p','Dein Name: '+(name||'Teilnehmer'),'game-person-line'));
   if(!s.context){root.append(el('p','Belegung wird geprüft …'));}
@@ -32,6 +32,7 @@ function paint(s){
    if(s.context.position){const placements=el('section',undefined,'celebrity-placements');placements.append(el('h3','Platzierungen'));for(const p of [...s.status.players].sort((a,b)=>(a.position||Infinity)-(b.position||Infinity))){placements.append(el('p',`${p.name}: ${p.position?'Platz '+p.position:'Rät noch'}`));}outcome.append(placements);}
   }
  }
+ if(s.lastPlacement&&s.lastPlacement.number<s.status.number){const previous=s.lastPlacement;const ranks=el('section',undefined,'celebrity-placements');ranks.append(el('h3',`Platzierungen · Runde ${previous.number}`),el('p',previous.position?`Du bist Platz ${previous.position} geworden!`:'Du bist unplatziert.'));for(const p of previous.placements||[])ranks.append(el('p',`${p.name}: ${p.position?'Platz '+p.position:'Unplatziert'}`));root.append(ranks);}
  root.querySelectorAll('button,input,select').forEach(n=>n.disabled=s.busy);outcome.querySelectorAll('button').forEach(n=>n.disabled=s.busy);
  if(focusInput&&!s.busy){const next=root.querySelector('.celebrity-entry-form')?.querySelector('input');next?.focus();if(Number.isInteger(caret))next?.setSelectionRange?.(caret,caret);}
 }
