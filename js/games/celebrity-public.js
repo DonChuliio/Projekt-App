@@ -1,6 +1,6 @@
-import { bindHold } from './hold.js?v=1.97';
-import { gameRpc } from './api.js?v=1.97';
-import { createCelebrityGame } from './celebrity-controller.js?v=1.97';
+import { bindHold } from './hold.js?v=1.98';
+import { gameRpc } from './api.js?v=1.98';
+import { createCelebrityGame } from './celebrity-controller.js?v=1.98';
 const root=document.getElementById('celebrity-public'),area=document.getElementById('celebrity-reveal'),content=document.getElementById('celebrity-reveal-content'),hold=document.getElementById('celebrity-reveal-hold'),notesArea=document.getElementById('celebrity-notes'),notes=document.getElementById('celebrity-note-input'),outcome=document.getElementById('celebrity-outcomes'),token=new URL(location.href).searchParams.get('game');
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,action)=>{const b=el('button',text);b.type='button';b.addEventListener('click',action);return b;};

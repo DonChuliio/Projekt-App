@@ -1,7 +1,7 @@
-import { bindHold } from './hold.js?v=1.97';
-import { gameRpc } from './api.js?v=1.97';
-import { createSieveGame } from './sieve-controller.js?v=1.97';
-import { SIEVE_CATEGORIES,appendSieveResults } from './sieve-results.js?v=1.97';
+import { bindHold } from './hold.js?v=1.98';
+import { gameRpc } from './api.js?v=1.98';
+import { createSieveGame } from './sieve-controller.js?v=1.98';
+import { SIEVE_CATEGORIES,appendSieveResults } from './sieve-results.js?v=1.98';
 const root=document.getElementById('sieve-public'),reveal=document.getElementById('sieve-reveal'),content=document.getElementById('sieve-reveal-content'),hold=document.getElementById('sieve-hold'),number=document.getElementById('sieve-word-number'),actions=document.getElementById('sieve-actions'),results=document.getElementById('sieve-results'),token=new URL(location.href).searchParams.get('game');
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,fn)=>{const b=el('button',text);b.type='button';b.addEventListener('click',fn);return b;};
@@ -22,7 +22,7 @@ function render(s){
  if(!s.status){root.append(el('p','Spiel wird geladen …'));return;}
  if(s.status.state==='unavailable'){root.append(el('p','Dieses Spiel ist beendet oder der Link ist nicht mehr aktiv.'));return;}
  const state=s.status;
- if(state.category)root.append(el('h2',SIEVE_CATEGORIES[state.category-1]));
+ if(state.category)root.append(el('h2',state.category_names?.[state.category-1]||SIEVE_CATEGORIES[state.category-1]||'Kategorie '+state.category));
  if(state.players.some(p=>p.team)){const teams=el('details',undefined,'game-section');teams.append(el('summary','Teams'));for(const team of ['A','B'])teams.append(el('p',`Team ${team}: ${state.players.filter(p=>p.team===team).map(p=>p.name).join(', ')}`));root.append(teams);}
  if(state.phase==='finished'){appendSieveResults(results,state.categories,{final:true});return;}
  if(!s.claimed){const form=el('form',undefined,'game-name-form'),select=el('select');select.required=true;select.setAttribute('aria-label','Deinen Namen auswählen');const empty=el('option','Deinen Namen auswählen');empty.value='';select.append(empty);for(const p of state.players){const option=el('option',p.name+(p.claimed?' – belegt':''));option.value=p.id;option.disabled=p.claimed;select.append(option);}if(state.players.some(p=>p.id===selected&&!p.claimed))select.value=selected;const confirm=el('button','Namen bestätigen');confirm.type='submit';form.append(select,confirm);form.addEventListener('submit',e=>{e.preventDefault();if(select.value)controller.select(select.value);});root.append(form,el('p','Wähle nur deinen eigenen Namen. Deine Auswahl bleibt in diesem Tab gespeichert. Nutze deshalb keinen privaten Tab. Die Namenswahl erfolgt auf Vertrauensbasis.','game-muted'));}

@@ -7,7 +7,7 @@ do $$declare g uuid;v jsonb;i int;begin
  g=(public.sieve_manage('create',null,'{"name":"Synthetic Rotes Sieb"}')->>'id')::uuid;
  begin perform public.sieve_manage('start',g);raise exception 'Too few players accepted';exception when raise_exception then if sqlerrm='Too few players accepted' then raise;end if;end;
  for i in 1..4 loop perform public.sieve_manage('player',g,jsonb_build_object('name','Synthetic sieve player '||i));end loop;
- begin perform public.sieve_manage('configure',g,'{"words_per_player":0,"category_count":5,"joker_limit":-1}');raise exception 'Bad configuration accepted';exception when check_violation then null;end;
+ begin perform public.sieve_manage('configure',g,'{"words_per_player":0,"category_count":4,"joker_limit":-1}');raise exception 'Bad configuration accepted';exception when check_violation then null;end;
  perform public.sieve_manage('configure',g,'{"words_per_player":2,"category_count":4,"joker_limit":2}');perform public.sieve_manage('start',g);v=public.sieve_manage('view',g);
  perform set_config('sieve.game',g::text,true);perform set_config('sieve.token',v->'game'->>'token',true);
  begin perform public.sieve_manage('player',g,'{"name":"Late player"}');raise exception 'Late player accepted';exception when raise_exception then if sqlerrm='Late player accepted' then raise;end if;end;

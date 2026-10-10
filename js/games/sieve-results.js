@@ -4,6 +4,6 @@ export function sieveWinner(categories){const {A,B}=sieveTotals(categories);retu
 export function appendSieveResults(container,categories,{final=false,create=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;}}={}){
  const completed=(categories||[]).filter(c=>c.completed);if(!completed.length)return;
  container.append(create('h3',final?'Endergebnis':'Runde beendet'));
- for(const c of completed){const detail=create('details');detail.className='game-section';detail.open=!final&&c===completed.at(-1);detail.append(create('summary',SIEVE_CATEGORIES[c.number-1]));detail.append(create('p',`Team A: ${c.words_a} Wörter (${c.jokers_a} Joker)${c.bonus_a?' · +1 Bonuspunkt':''}`),create('p',`Team B: ${c.words_b} Wörter (${c.jokers_b} Joker)${c.bonus_b?' · +1 Bonuspunkt':''}`));container.append(detail);}
+ for(const c of completed){const detail=create('details');detail.className='game-section';detail.open=!final&&c===completed.at(-1);detail.append(create('summary',c.name||SIEVE_CATEGORIES[c.number-1]||'Kategorie '+c.number));detail.append(create('p',`Team A: ${c.words_a} Wörter (${c.jokers_a} Joker)${c.bonus_a?' · +1 Bonuspunkt':''}`),create('p',`Team B: ${c.words_b} Wörter (${c.jokers_b} Joker)${c.bonus_b?' · +1 Bonuspunkt':''}`));container.append(detail);}
  const t=sieveTotals(completed);container.append(create('p',`Gesamt: Team A ${t.A} · Team B ${t.B}`));if(final)container.append(create('h2',sieveWinner(completed)));
 }

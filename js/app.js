@@ -1,7 +1,7 @@
-import { initImposter } from "./games/admin.js?v=1.97";
-import { initCelebrity } from "./games/celebrity-admin.js?v=1.97";
-import { initSieve } from "./games/sieve-admin.js?v=1.97";
-import { initNavigation } from './navigation.js?v=1.97';
+import { initImposter } from "./games/admin.js?v=1.98";
+import { initCelebrity } from "./games/celebrity-admin.js?v=1.98";
+import { initSieve } from "./games/sieve-admin.js?v=1.98";
+import { initNavigation } from './navigation.js?v=1.98';
 import { initDocuments } from "./documents/documents.js?v=1.71";
 // js/app.js
 import { initPushRouting } from "./push/push-routing.js?v=1.60";
