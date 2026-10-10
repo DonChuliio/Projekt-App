@@ -10,6 +10,7 @@ for(let i=0;i<matches.length;i++){
  const back=node({viewBack:attributes['data-view-back']});back.attributes=attributes;back.view=name;buttons.push(back);
  if(name==='watertest-entry')back.addEventListener('click',()=>ctx.showView('watertest'));
  if(name==='celebrity')back.addEventListener('click',()=>ctx.showView('games'));
+ if(name==='sieve')back.addEventListener('click',()=>ctx.showView('games'));
  if(name==='imposter')back.addEventListener('click',()=>ctx.showView('games'));
  if(name==='documents')back.addEventListener('click',()=>ctx.showView('documents'));
 }

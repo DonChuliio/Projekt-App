@@ -19,10 +19,10 @@
 
     <link
         rel="manifest"
-        href="manifest.json?v=1.95"
+        href="manifest.json?v=1.96"
     >
 
-    <link rel="apple-touch-icon" sizes="180x180" href="dock-icon-180.png?v=1.95">
+    <link rel="apple-touch-icon" sizes="180x180" href="dock-icon-180.png?v=1.96">
 
     <meta
         name="theme-color"
@@ -36,19 +36,19 @@
 
     <link
         rel="stylesheet"
-        href="style.css?v=1.95"
+        href="style.css?v=1.96"
     >
 
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=1.95"
+        src="js/app.js?v=1.96"
     ></script>
 
     <link rel="stylesheet" href="js/documents/documents.css?v=1.71">
     <title>Dock</title>
 
-    <link rel="stylesheet" href="js/games/games.css?v=1.95">
+    <link rel="stylesheet" href="js/games/games.css?v=1.96">
 </head>
 
 
@@ -178,7 +178,12 @@
     <div data-view="games" class="hidden">
         <button class="back-button" data-view-back="dashboard">Zurück</button><h2>Spiele</h2>
         <div class="tiles"><button type="button" class="tile" data-tile="imposter"><svg class="dashboard-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-1 10-7 6-7-6zM7 10h3M14 10h3M9 16h6"/></svg><span>Imposter</span></button>
-        <button type="button" class="tile" data-tile="celebrity"><svg class="dashboard-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z"/></svg><span>Promi-Raten</span></button></div>
+        <button type="button" class="tile" data-tile="celebrity"><svg class="dashboard-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z"/></svg><span>Promi-Raten</span></button>
+        <button type="button" class="tile" data-tile="sieve"><svg class="dashboard-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18l-6 8v6l-6 2v-8zM8 8h1M12 8h1M16 8h1"/></svg><span>Rotes Sieb</span></button></div>
+    </div>
+    <div data-view="sieve" class="hidden">
+        <button class="back-button" data-view-back="games" data-sieve-navigation>Zurück</button><h2>Rotes Sieb</h2>
+        <div id="sieve-content" class="game-module"></div>
     </div>
     <div data-view="celebrity" class="hidden">
         <button class="back-button" data-view-back="games" data-celebrity-navigation>Zurück</button><h2>Promi-Raten</h2>

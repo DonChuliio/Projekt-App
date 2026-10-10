@@ -1,0 +1,51 @@
+begin;
+select set_config('request.jwt.claim.sub',(select id::text from auth.users order by id limit 1),true);
+select set_config('sieve2.owner',current_setting('request.jwt.claim.sub'),true);
+set local role authenticated;
+do $$declare gid uuid;v jsonb;i int;begin
+ gid=(public.sieve_manage('create',null,'{"name":"Synthetic odd-team zero-joker game"}')->>'id')::uuid;
+ for i in 1..5 loop perform public.sieve_manage('player',gid,jsonb_build_object('name','Synthetic odd player '||i));end loop;
+ perform public.sieve_manage('configure',gid,'{"words_per_player":1,"category_count":1,"joker_limit":0}');perform public.sieve_manage('start',gid);v=public.sieve_manage('view',gid);perform set_config('sieve2.game',gid::text,true);perform set_config('sieve2.token',v->'game'->>'token',true);
+end $$;
+reset role;
+select set_config('request.jwt.claim.sub','',true);
+set local role anon;
+do $$declare token text:=current_setting('sieve2.token');v jsonb;p jsonb;t jsonb;secret text;args jsonb;i int;begin
+ v=public.sieve_status(token);for p in select value from jsonb_array_elements(v->'players') loop secret=replace(gen_random_uuid()::text||gen_random_uuid()::text,'-','');perform set_config('sieve2.secret.p'||replace(p->>'id','-',''),secret,true);perform public.sieve_claim(token,(p->>'id')::uuid,secret);
+  begin perform public.sieve_action(token,secret,gen_random_uuid(),'submit','{"words":["   "]}');raise exception 'Blank accepted';exception when raise_exception then if sqlerrm='Blank accepted' then raise;end if;end;
+  begin perform public.sieve_action(token,secret,gen_random_uuid(),'submit','{"words":[42]}');raise exception 'Non-string accepted';exception when raise_exception then if sqlerrm='Non-string accepted' then raise;end if;end;
+  begin perform public.sieve_action(token,secret,gen_random_uuid(),'submit',jsonb_build_object('words',jsonb_build_array(repeat('x',121))));raise exception 'Oversized word accepted';exception when raise_exception then if sqlerrm='Oversized word accepted' then raise;end if;end;
+  perform public.sieve_action(token,secret,gen_random_uuid(),'submit','{"words":["Synthetic allowed word"]}');
+ end loop;
+ v=public.sieve_status(token);if abs((select count(*) from jsonb_array_elements(v->'players') member where member->>'team'='A')-(select count(*) from jsonb_array_elements(v->'players') member where member->>'team'='B'))<>1 then raise exception 'Odd teams not balanced';end if;
+ t=v->'turn';secret=current_setting('sieve2.secret.p'||replace(t->>'player_id','-',''));args=jsonb_build_object('turn_id',t->>'id','word_number',1);perform public.sieve_action(token,secret,gen_random_uuid(),'confirm',args);perform public.sieve_action(token,secret,gen_random_uuid(),'start',args);
+ begin perform public.sieve_action(token,secret,gen_random_uuid(),'joker',args);raise exception 'Zero joker accepted';exception when raise_exception then if sqlerrm='Zero joker accepted' then raise;end if;end;
+ perform set_config('sieve2.actor',t->>'player_id',true);perform set_config('sieve2.old_secret',secret,true);
+end $$;
+reset role;
+do $$declare gid uuid:=current_setting('sieve2.game')::uuid;token text:=current_setting('sieve2.token');t jsonb;begin
+ update dock_sieve.games set joker_limit=1 where id=gid;t=public.sieve_status(token)->'turn';
+ begin perform public.sieve_action(token,current_setting('sieve2.old_secret'),gen_random_uuid(),'joker',jsonb_build_object('turn_id',t->>'id','word_number',1));raise exception 'Same-term joker accepted';exception when raise_exception then if sqlerrm='Same-term joker accepted' then raise;end if;end;
+ if exists(select 1 from dock_sieve.categories where game_id=gid and jokers_a+jokers_b<>0) then raise exception 'No-alternative joker consumed quota';end if;update dock_sieve.games set joker_limit=0 where id=gid;
+end $$;
+select set_config('request.jwt.claim.sub',current_setting('sieve2.owner'),true);
+set local role authenticated;
+select public.sieve_manage('reset_claim',current_setting('sieve2.game')::uuid,jsonb_build_object('id',current_setting('sieve2.actor')));
+reset role;
+set local role anon;
+do $$declare token text:=current_setting('sieve2.token');v jsonb;t jsonb;secret text;args jsonb;i int;begin
+ v=public.sieve_status(token);t=v->'turn';if public.sieve_player(token,current_setting('sieve2.old_secret')) is not null then raise exception 'Revoked credential still resolves';end if;
+ begin perform public.sieve_word(token,current_setting('sieve2.old_secret'),(t->>'id')::uuid,1);raise exception 'Revoked credential reveals';exception when raise_exception then if sqlerrm='Revoked credential reveals' then raise;end if;end;
+ secret=replace(gen_random_uuid()::text||gen_random_uuid()::text,'-','');perform public.sieve_claim(token,current_setting('sieve2.actor')::uuid,secret);
+ for i in 1..5 loop t=public.sieve_status(token)->'turn';args=jsonb_build_object('turn_id',t->>'id','word_number',t->>'word_number');perform public.sieve_action(token,secret,gen_random_uuid(),'solve',args);end loop;
+ v=public.sieve_status(token);if v->>'state'<>'finished' or jsonb_array_length(v->'categories')<>1 or (v->'categories'->0->>'jokers_a')::int+(v->'categories'->0->>'jokers_b')::int<>0 then raise exception 'One-category zero-joker final failed';end if;
+end $$;
+reset role;
+set local role authenticated;
+select public.sieve_manage('end',current_setting('sieve2.game')::uuid);
+do $$begin if jsonb_array_length(public.sieve_manage('view',current_setting('sieve2.game')::uuid)->'results')<>1 then raise exception 'Ended owner archive lost completed results';end if;end $$;
+reset role;
+set local role anon;
+do $$begin if public.sieve_status(current_setting('sieve2.token'))->>'state'<>'unavailable' then raise exception 'Manually ended link active';end if;end $$;
+reset role;
+rollback;

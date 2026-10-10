@@ -72,3 +72,11 @@
 #celebrity-notes {margin-top:16px;}
 #celebrity-notes textarea {min-height:88px;resize:vertical;}
 .celebrity-placements {margin-top:16px;}
+#sieve-reveal[hidden] {display:none;}
+#sieve-reveal-content {height:190px;display:flex;align-items:center;justify-content:center;overflow-y:auto;overflow-wrap:anywhere;}
+#sieve-reveal-content p {font-size:1.2rem;line-height:1.35;margin:6px 0;max-width:100%;}
+#sieve-word-number {margin:0 0 8px;font-size:1rem;}
+#sieve-reveal .game-muted {font-size:.9rem;}
+#sieve-actions button {min-width:0;overflow-wrap:anywhere;}
+#sieve-actions button:disabled {background:var(--border);color:var(--text-muted);opacity:.6;cursor:default;}
+.sieve-timer {font-size:1.4rem;font-variant-numeric:tabular-nums;}
