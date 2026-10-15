@@ -27,7 +27,7 @@ import { initSavingsCalculator } from "./finances/savings-calculator.js?v=1.69";
 import { initRecurringTransactions } from "./finances/recurring-transactions.js?v=1.74";
 import { initPocketMoney } from "./finances/pocket-money.js?v=1.54";
 import { initExpensesOverview } from "./finances/expenses-overview.js?v=1.60";
-import { initRecipes } from "./recipes/recipes.js?v=1.106";
+import { initRecipes } from "./recipes/recipes.js?v=1.107";
 /*
  Einstiegspunkt der App.
  Wird ausgeführt, sobald das DOM vollständig geladen ist.
