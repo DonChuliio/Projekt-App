@@ -1,7 +1,7 @@
 import { getSession } from '../auth/auth.js';
 import { showView } from '../router.js';
-import { loadReminders, loadReminder, saveReminder, deleteReminder, reminderId } from '../data/reminders-data.js?v=1.102';
-import { upcomingReminders, reminderDay, reminderLabel } from './model.js?v=1.102';
+import { loadReminders, loadReminder, saveReminder, deleteReminder, reminderId } from '../data/reminders-data.js?v=1.103';
+import { upcomingReminders, reminderDay, reminderLabel } from './model.js?v=1.103';
 export function initReminders() {
  const list=document.getElementById('reminders-content'),detail=document.getElementById('reminder-detail-content'),editor=document.getElementById('reminder-edit-content');
  if(!list||!detail||!editor)return;

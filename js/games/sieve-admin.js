@@ -1,5 +1,5 @@
-import { manageSieve } from './sieve-data.js?v=1.102';
-import { SIEVE_CATEGORIES,appendSieveResults } from './sieve-results.js?v=1.102';
+import { manageSieve } from './sieve-data.js?v=1.103';
+import { SIEVE_CATEGORIES,appendSieveResults } from './sieve-results.js?v=1.103';
 import { showView } from '../router.js';
 import { getSession } from '../auth/auth.js';
 export function initSieve(){

@@ -12,9 +12,11 @@ let ack=false;messages.message({data:{type:'dock:push-navigate',target:'expenses
 messages.message({data:{type:'dock:push-navigate',target:'https://evil.test'},ports:[]});a.equal(active,'expenses-overview');
 const handlers={},shown=[],opened=[];let windows=[],focuses=0,navigations=[];
 class Channel{constructor(){this.port1={close(){}};this.port2={postMessage:()=>this.port1.onmessage()};}}
-const worker={URL,Set,console,setTimeout,clearTimeout,MessageChannel:Channel,self:{location:{origin:'https://donchuliio.github.io'},addEventListener:(n,f)=>handlers[n]=f,skipWaiting(){},registration:{showNotification:async(t,o)=>shown.push(o)},clients:{claim(){},matchAll:async()=>windows,openWindow:async url=>opened.push(url)}}};
+const worker={URL,Set,console,setTimeout,clearTimeout,MessageChannel:Channel,self:{location:{origin:'https://donchuliio.github.io'},addEventListener:(n,f)=>handlers[n]=f,skipWaiting(){},registration:{showNotification:async(t,o)=>shown.push({title:t,...o})},clients:{claim(){},matchAll:async()=>windows,openWindow:async url=>opened.push(url)}}};
 vm.createContext(worker);vm.runInContext(fs.readFileSync('service-worker.js','utf8'),worker);
 let promise;handlers.push({data:{json:()=>({target:'todo',tag:'daily'})},waitUntil:p=>promise=p});await promise;a.equal(shown[0].data.target,'todo');a.equal(shown[0].tag,'daily');
+handlers.push({data:{json:()=>({title:'Mein Termin',body:'Kommentar',target:'reminders'})},waitUntil:p=>promise=p});await promise;a.equal(shown.at(-1).title,'Mein Termin');a.equal(shown.at(-1).body,'Kommentar');
+handlers.push({data:{json:()=>({title:'Ohne Kommentar',body:'',target:'reminders'})},waitUntil:p=>promise=p});await promise;a.equal(shown.at(-1).body,'');a.ok(!shown.at(-1).body.includes('Neue Benachrichtigung'));
 function click(target,reminderId){handlers.notificationclick({notification:{data:{target,reminderId},close(){}},waitUntil:p=>promise=p});return promise;}
 await click('todo');a.ok(opened[0].includes('push=todo'));
 windows=[{url:'https://donchuliio.github.io/Projekt-App/',focus:async()=>focuses++,postMessage:(data,ports)=>ports[0].postMessage({}),navigate:async url=>navigations.push(url)}];

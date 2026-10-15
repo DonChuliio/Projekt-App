@@ -14,7 +14,9 @@ export async function sendReminderPushes(db: any, webpush: any, subscriptions: a
   if(claim.error)throw claim.error;
   if(!claim.data)continue;
   const row=claim.data,kind='reminder:'+row.id;
-  const payload=JSON.stringify({title:'Dock · Erinnerung',body:row.title+(row.description&&row.description.length<=120?' · '+row.description:''),target:'reminders',reminderId:row.id,tag:'dock-reminder-'+row.id});
+  const comment=Array.from(String(row.description||'').trim());
+  const body=comment.slice(0,240).join('')+(comment.length>240?'…':'');
+  const payload=JSON.stringify({title:row.title,body,target:'reminders',reminderId:row.id,tag:'dock-reminder-'+row.id});
   let status='sent';
   try {
    await webpush.sendNotification({endpoint:subscription.endpoint,keys:{p256dh:subscription.p256dh,auth:subscription.auth}},payload,{TTL:60});

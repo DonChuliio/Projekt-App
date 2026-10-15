@@ -9,7 +9,7 @@ self.addEventListener("push", event => {
     let data = {};
     try { data = event.data?.json() || {}; } catch (error) { console.error(error); }
     event.waitUntil(self.registration.showNotification(data.title || "Dock", {
-        body: data.body || "Neue Benachrichtigung",
+        body: typeof data.body === "string" ? data.body : "Neue Benachrichtigung",
         tag: data.tag,
         renotify: false,
         data: { target: targetView(data.target), ...(validReminder(data.reminderId)?{reminderId:data.reminderId}:{}) }
