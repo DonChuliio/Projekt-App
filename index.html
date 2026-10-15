@@ -19,10 +19,10 @@
 
     <link
         rel="manifest"
-        href="manifest.json?v=1.100"
+        href="manifest.json?v=1.101"
     >
 
-    <link rel="apple-touch-icon" sizes="180x180" href="dock-icon-180.png?v=1.100">
+    <link rel="apple-touch-icon" sizes="180x180" href="dock-icon-180.png?v=1.101">
 
     <meta
         name="theme-color"
@@ -36,19 +36,20 @@
 
     <link
         rel="stylesheet"
-        href="style.css?v=1.100"
+        href="style.css?v=1.101"
     >
 
     <script
         type="module"
         id="app-script"
-        src="js/app.js?v=1.100"
+        src="js/app.js?v=1.101"
     ></script>
 
     <link rel="stylesheet" href="js/documents/documents.css?v=1.71">
     <title>Dock</title>
 
-    <link rel="stylesheet" href="js/games/games.css?v=1.100">
+    <link rel="stylesheet" href="js/games/games.css?v=1.101">
+    <link rel="stylesheet" href="js/reminders/reminders.css?v=1.101">
 </head>
 
 
@@ -200,6 +201,7 @@
         <div class="tiles">
             <div class="tile" data-tile="todo">To-Do</div>
             <div class="tile" data-tile="calendar-edit">Routinen</div>
+            <button class="tile" type="button" data-tile="reminders"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"></path></svg><span>Erinnerungen</span><span id="reminder-next" aria-live="polite">Erinnerungen werden geladen …</span></button>
         </div>
     </div>
 
@@ -211,6 +213,10 @@
          ROTER ORDNER
          ================================================== -->
 
+    <div data-view="reminders" class="hidden"><button id="reminders-back" class="back-button" data-view-back="planner" data-reminder-navigation>Zurück</button><h2>Erinnerungen</h2><div id="reminders-content" class="reminder-module"></div></div>
+    <div data-view="reminder-detail" class="hidden"><button id="reminder-detail-back" class="back-button" data-view-back="reminders" data-reminder-navigation>Zurück</button><h2>Erinnerung</h2><div id="reminder-detail-content" class="reminder-module"></div></div>
+    <div data-view="reminder-edit" class="hidden"><button id="reminder-edit-back" class="back-button" data-view-back="reminders" data-reminder-navigation>Zurück</button><h2>Erinnerung bearbeiten</h2><div id="reminder-edit-content" class="reminder-module"></div></div>
+
     <div data-view="good-morning" class="hidden">
         <button class="back-button" data-view-back="dashboard">Zurück</button>
         <header class="morning-header">
@@ -218,7 +224,7 @@
                 <circle cx="12" cy="12" r="4"></circle>
                 <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"></path>
             </svg></h2>
-            <p id="morning-date"></p>
+            <p id="morning-date"></p><p id="morning-summary" aria-live="polite"></p>
         </header>
         <section class="morning-section" aria-labelledby="morning-todo-title">
             <h3 id="morning-todo-title">Wichtige To-dos</h3>
@@ -226,6 +232,7 @@
             <div id="morning-todo-list" aria-live="polite"></div>
             <button id="morning-todo-open" type="button">Zu den To-dos</button>
         </section>
+        <section class="morning-section" aria-labelledby="morning-reminder-title"><h3 id="morning-reminder-title">Erinnerungen für heute</h3><div id="morning-reminder-list" aria-live="polite"></div><button id="morning-reminder-open" type="button">Zu den Erinnerungen</button></section>
         <button id="morning-dashboard" type="button">Weiter zum Dashboard</button>
     </div>
 

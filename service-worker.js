@@ -1,5 +1,6 @@
 // Push-Ziele bleiben auf bekannte App-Ansichten beschränkt.
-const PUSH_TARGETS = new Set(["todo", "expenses-overview", "dashboard"]);
+const PUSH_TARGETS = new Set(["todo", "expenses-overview", "dashboard", "reminders"]);
+const validReminder = id => typeof id==="string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 const targetView = value => PUSH_TARGETS.has(value) ? value : "dashboard";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", event => event.waitUntil(self.clients.claim()));
@@ -11,15 +12,17 @@ self.addEventListener("push", event => {
         body: data.body || "Neue Benachrichtigung",
         tag: data.tag,
         renotify: false,
-        data: { target: targetView(data.target) }
+        data: { target: targetView(data.target), ...(validReminder(data.reminderId)?{reminderId:data.reminderId}:{}) }
     }));
 });
 
 self.addEventListener("notificationclick", event => {
     event.notification.close();
     const target = targetView(event.notification.data?.target);
+    const reminderId = target==="reminders" && validReminder(event.notification.data?.reminderId) ? event.notification.data.reminderId : null;
     const url = new URL("/Projekt-App/", self.location.origin);
     url.searchParams.set("push", target);
+    if(reminderId)url.searchParams.set("reminder",reminderId);
     event.waitUntil((async () => {
         const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
         const existing = windows.find(client => {
@@ -35,8 +38,9 @@ self.addEventListener("notificationclick", event => {
             channel.port1.onmessage = () => {
                 clearTimeout(timer); channel.port1.close(); resolve(true);
             };
-            existing.postMessage({ type: "dock:push-navigate", target }, [channel.port2]);
+            existing.postMessage({ type: "dock:push-navigate", target, ...(reminderId?{reminderId}:{}) }, [channel.port2]);
         });
         if (!handled) await existing.navigate(url.href);
     })());
 });
+

@@ -8,6 +8,7 @@ for(let i=0;i<matches.length;i++){
  if(name==='dashboard'){assert.equal(tag,null);continue;}assert.ok(tag,'Back missing: '+name);
  const attributes=Object.fromEntries([...tag[0].matchAll(/(data-[a-z-]+)(?:="([^"]*)")?/g)].map(m=>[m[1],m[2]||'']));
  const back=node({viewBack:attributes['data-view-back']});back.attributes=attributes;back.view=name;buttons.push(back);
+ if(Object.hasOwn(attributes,'data-reminder-navigation'))back.addEventListener('click',()=>ctx.showView(attributes['data-view-back']));
  if(name==='watertest-entry')back.addEventListener('click',()=>ctx.showView('watertest'));
  if(name==='celebrity')back.addEventListener('click',()=>ctx.showView('games'));
  if(name==='sieve')back.addEventListener('click',()=>ctx.showView('games'));

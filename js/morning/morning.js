@@ -1,3 +1,5 @@
+import { loadReminders } from '../data/reminders-data.js?v=1.101';
+import { morningSummary, reminderLabel } from '../reminders/model.js?v=1.101';
 // Guten-Morgen-Ansicht: vorhandene Daten, keine eigenen Aufgabenbestände.
 import { getSession, isLoggedIn, getValidAccessToken } from "../auth/auth.js";
 import { loadTodos } from "../data/todo-data.js?v=1.59";
@@ -58,6 +60,12 @@ export async function maybeShowMorning() {
     dateLabel.textContent = today.toLocaleDateString("de-DE", {
         weekday: "long", day: "2-digit", month: "long"
     }) + " · KW " + week;
+    const reminders = document.getElementById("morning-reminder-list");
+    const summary = document.getElementById("morning-summary");
+    let todoCount = null, reminderCount = null;
+    const updateSummary = () => { if (summary) summary.textContent = morningSummary(todoCount, reminderCount); };
+    if (summary) summary.textContent = "Tagesübersicht wird geladen …";
+    if (reminders) message(reminders, "Erinnerungen werden geladen …");
     message(todos, "Wichtige To-dos werden geladen…");
     showView("good-morning");
     if (view.classList.contains("hidden")) return;
@@ -72,6 +80,8 @@ export async function maybeShowMorning() {
     } catch (error) {
         if (current()) {
             message(todos, "To-dos konnten nicht geladen werden.");
+            if(reminders)message(reminders,"Erinnerungen konnten nicht geladen werden.");
+            updateSummary();
         }
         return;
     }
@@ -86,6 +96,7 @@ export async function maybeShowMorning() {
         loadTodos("a").then(rows => {
             if (!current()) return;
             const open = rows.filter(row => row.priority === "a" && !row.completed_at);
+            todoCount=open.length; updateSummary();
             if (!open.length) {
                 message(todos, "Keine wichtigen To-dos offen. Ein guter Start!");
                 return;
@@ -93,12 +104,24 @@ export async function maybeShowMorning() {
             todos.replaceChildren();
             for (const row of open) taskButton(todos, row.text, openTodos);
         }).catch(() => {
-            if (current()) message(todos, "To-dos konnten nicht geladen werden.");
-        })
+            if (current()) {message(todos, "To-dos konnten nicht geladen werden.");updateSummary();}
+        }),
+        loadReminders(day).then(rows => {
+            if(!current())return;
+            const todayRows=rows.filter(r=>r.reminder_date===day);
+            reminderCount=todayRows.length;updateSummary();
+            if(!reminders)return;
+            reminders.replaceChildren();
+            if(!todayRows.length)message(reminders,"Keine Erinnerungen für heute.");
+            for(const row of todayRows)taskButton(reminders,row.title+" · "+reminderLabel(row),()=>{
+                generation++;document.dispatchEvent(new CustomEvent("dock:open-reminder",{detail:{id:row.id}}));
+            });
+        }).catch(()=>{if(current()){if(reminders)message(reminders,"Erinnerungen konnten nicht geladen werden.");updateSummary();}})
     ]);
 }
 
 export function initMorning() {
+    document.getElementById("morning-reminder-open")?.addEventListener("click", () => { generation++; showView("reminders"); });
     document.getElementById("morning-todo-open")?.addEventListener("click", openTodos);
     document.getElementById("morning-dashboard")?.addEventListener("click", () => {
         generation++;
@@ -127,3 +150,4 @@ export function initMorning() {
     });
     maybeShowMorning();
 }
+

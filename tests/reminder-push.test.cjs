@@ -1,0 +1,14 @@
+const fs=require('node:fs'),vm=require('node:vm'),a=require('node:assert/strict'),{stripTypeScriptTypes}=require('node:module');
+let due=[],claimed=new Set(),calls=[],sends=[],fail=false,expired=false;
+const subscription={id:1,user_id:'u',endpoint:'https://web.push.apple.com/synthetic',p256dh:'key',auth:'key'},id='11111111-1111-4111-8111-111111111111';
+class Query{constructor(table){this.table=table;}update(v){this.value=v;calls.push({table:this.table,update:v});return this;}delete(){calls.push({delete:this.table});return this;}eq(){return this;}then(resolve,reject){return Promise.resolve({error:null}).then(resolve,reject);}}
+const db={from:t=>new Query(t),rpc:async(name,args)=>{calls.push({name,args});if(name==='due_planner_reminders')return {data:due,error:null};if(expired)return {data:null};const key=args.p_reminder+':'+args.p_subscription;if(claimed.has(key))return {data:null};claimed.add(key);return {data:{id:args.p_reminder,title:'Current title',description:'Short',local_date:'2026-10-15'}};}};
+const ctx={URL,Date,console,webpush:{sendNotification:async(sub,payload,options)=>{if(fail)throw {statusCode:410};sends.push({payload:JSON.parse(payload),options});}}};vm.createContext(ctx);vm.runInContext(stripTypeScriptTypes(fs.readFileSync('supabase/functions/swift-processor/reminders.ts','utf8').replace('export ','')),ctx);
+(async()=>{
+ due=[{id,user_id:'u'},{id:'22222222-2222-4222-8222-222222222222',user_id:'u'}];a.equal(await ctx.sendReminderPushes(db,ctx.webpush,[subscription]),2);a.equal(sends.length,2);a.equal(sends[0].payload.target,'reminders');a.equal(sends[0].payload.reminderId,id);a.equal(sends[0].options.TTL,60);a.match(sends[0].payload.body,/Current title/);
+ await ctx.sendReminderPushes(db,ctx.webpush,[subscription]);a.equal(sends.length,2,'duplicate job');
+ claimed.clear();await ctx.sendReminderPushes(db,ctx.webpush,[]);a.equal(claimed.size,0,'push disabled/no subscription');await ctx.sendReminderPushes(db,ctx.webpush,[{...subscription,user_id:'other'}]);a.equal(claimed.size,0,'no foreign device');
+ await ctx.sendReminderPushes(db,ctx.webpush,[{...subscription,endpoint:'http://127.0.0.1/test'}]);a.equal(claimed.size,0,'unsafe endpoint blocked before claim');
+ expired=true;await ctx.sendReminderPushes(db,ctx.webpush,[subscription]);a.equal(sends.length,2,'stale/deleted reminder rechecked');expired=false;fail=true;await ctx.sendReminderPushes(db,ctx.webpush,[subscription]);a.ok(calls.some(c=>c.delete==='push_subscriptions'));a.ok(calls.some(c=>c.update?.status==='failed'));fail=false;await ctx.sendReminderPushes(db,ctx.webpush,[subscription]);a.equal(sends.length,2,'uncertain send not retried');
+ console.log('PASS: separate reminder push payloads, multiple reminders, per-device claims, fresh title, disabled/foreign/unsafe subscription, deleted/stale recheck, expiry and no resend after failure. Mocked transport.');
+})().catch(e=>{console.error(e);process.exitCode=1;});

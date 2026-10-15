@@ -13,7 +13,7 @@ class Query {
  if(this.table==='push_deliveries'&&this.mode==='insert'){const k=this.value.subscription_id+':'+this.value.local_date;if(claims.has(k))result.error={code:'23505'};else claims.add(k);}
  return Promise.resolve(result).then(resolve,reject);}
 }
-const ctx={Date:Clock,Intl,Set,Map,JSON,Response,Headers,URL,console,webpush:{setVapidDetails(){},async sendNotification(sub,payload){sends.push(JSON.parse(payload));}},createClient:()=>({from:t=>new Query(t),rpc:async(name)=>{if(name==='verify_push_cron_token')return {data:true,error:null};syncs++;open+=syncAdds;syncAdds=0;return {error:null};}}),Deno:{env:{get:key=>key==='SUPABASE_SECRET_KEYS'?'{"default":"secret"}':'configured'},serve:fn=>handler=fn}};
+const ctx={Date:Clock,Intl,Set,Map,JSON,Response,Headers,URL,console,sendReminderPushes:async()=>0,webpush:{setVapidDetails(){},async sendNotification(sub,payload){sends.push(JSON.parse(payload));}},createClient:()=>({from:t=>new Query(t),rpc:async(name)=>{if(name==='verify_push_cron_token')return {data:true,error:null};syncs++;open+=syncAdds;syncAdds=0;return {error:null};}}),Deno:{env:{get:key=>key==='SUPABASE_SECRET_KEYS'?'{"default":"secret"}':'configured'},serve:fn=>handler=fn}};
 vm.createContext(ctx);vm.runInContext(source,ctx);
 async function run(time){now=time;return (await handler({method:'POST',headers:new Headers({'x-dock-cron-token':'a'.repeat(64)})})).json();}
 function reset(){sends=[];claims=new Set();open=2;finance=false;syncAdds=0;queries=[];}
@@ -25,7 +25,7 @@ const originalCreateClient=ctx.createClient;
 ctx.createClient=()=>({rpc:async()=>({data:false,error:null})});
 a.equal((await handler({method:'POST',headers:new Headers({'x-dock-cron-token':'b'.repeat(64)})})).status,401);
 ctx.createClient=originalCreateClient;
-for(const [time,sent] of [['2026-07-01T07:00:00Z',1],['2026-07-01T08:00:00Z',0],['2026-01-01T08:00:00Z',1],['2026-01-01T07:00:00Z',0],['2026-03-29T07:00:00Z',1],['2026-10-25T08:00:00Z',1]]){
+for(const [time,sent] of [['2026-07-01T07:00:00Z',1],['2026-07-01T08:00:00Z',0],['2026-07-01T07:30:00Z',0],['2026-01-01T08:00:00Z',1],['2026-01-01T07:00:00Z',0],['2026-03-29T07:00:00Z',1],['2026-10-25T08:00:00Z',1]]){
  reset();const result=await run(time);a.equal(result.sent,sent,time);if(sent){a.equal(sends[0].target,'todo');a.ok(queries.some(q=>q[0]==='completed_at'&&q[1]===null));}
 }
 reset();await run('2026-07-01T07:00:00Z');await run('2026-07-01T07:00:00Z');a.equal(sends.length,1);
@@ -34,5 +34,7 @@ reset();open=0;syncAdds=3;await run('2026-07-01T07:00:00Z');a.equal(sends.length
 for(const [time,text]of[['2026-07-02T07:00:00Z','Monatsabgleich'],['2026-07-31T07:00:00Z','Sparkonto'],['2028-02-29T08:00:00Z','Sparkonto']]){
  reset();finance=true;await run(time);a.equal(sends.length,1);a.equal(sends[0].target,'expenses-overview');a.match(sends[0].body,new RegExp(text));
 }
+reset();ctx.sendReminderPushes=async()=>3;const reminderOnly=await run('2026-07-01T12:15:00Z');a.equal(reminderOnly.sent,3);a.equal(sends.length,0);ctx.sendReminderPushes=async()=>0;
 console.log('PASS: summer/winter 09:00, both DST transition days, daily deduplication, no empty push, routine sync/count, completed filter, combined finance push, leap month end.');
 })().catch(e=>{console.error(e);process.exitCode=1;});
+

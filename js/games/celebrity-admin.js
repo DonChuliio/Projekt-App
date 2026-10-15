@@ -1,4 +1,4 @@
-import { manageCelebrity } from './celebrity-data.js?v=1.100';
+import { manageCelebrity } from './celebrity-data.js?v=1.101';
 import { showView } from '../router.js';
 import { getSession } from '../auth/auth.js';
 export function initCelebrity(){

@@ -2,7 +2,7 @@ const fs=require('node:fs'),vm=require('node:vm'),a=require('node:assert/strict'
 let logged=false,active,events={},messages={},saved=new Map(),href='https://donchuliio.github.io/Projekt-App/?push=todo',refreshes=[];
 function app(){
  events={};messages={};
- const ctx={URL,Set,console,queueMicrotask,isLoggedIn:()=>logged,showView:v=>active=v,sessionStorage:{setItem:(k,v)=>saved.set(k,v),getItem:k=>saved.get(k),removeItem:k=>saved.delete(k)},history:{replaceState:(a,b,url)=>href=url},CustomEvent:class{constructor(type){this.type=type;}},window:{location:{href}},navigator:{serviceWorker:{addEventListener:(n,f)=>messages[n]=f}},document:{addEventListener:(n,f)=>events[n]=f,dispatchEvent:e=>refreshes.push(e.type),getElementById:()=>({scrollIntoView(){}})}};
+ const ctx={URL,Set,console,queueMicrotask,isLoggedIn:()=>logged,showView:v=>active=v,sessionStorage:{setItem:(k,v)=>saved.set(k,v),getItem:k=>saved.get(k),removeItem:k=>saved.delete(k)},history:{replaceState:(a,b,url)=>href=url},CustomEvent:class{constructor(type,options){this.type=type;this.detail=options?.detail;}},window:{location:{href}},navigator:{serviceWorker:{addEventListener:(n,f)=>messages[n]=f}},document:{addEventListener:(n,f)=>events[n]=f,dispatchEvent:e=>{refreshes.push(e.type);ctx.lastEvent=e;},getElementById:()=>({scrollIntoView(){}})}};
  vm.createContext(ctx);vm.runInContext(fs.readFileSync('js/push/push-routing.js','utf8').replace(/^import .*\n/gm,'').replace(/export /g,''),ctx);vm.runInContext('initPushRouting()',ctx);
 }
 (async()=>{
@@ -15,10 +15,13 @@ class Channel{constructor(){this.port1={close(){}};this.port2={postMessage:()=>t
 const worker={URL,Set,console,setTimeout,clearTimeout,MessageChannel:Channel,self:{location:{origin:'https://donchuliio.github.io'},addEventListener:(n,f)=>handlers[n]=f,skipWaiting(){},registration:{showNotification:async(t,o)=>shown.push(o)},clients:{claim(){},matchAll:async()=>windows,openWindow:async url=>opened.push(url)}}};
 vm.createContext(worker);vm.runInContext(fs.readFileSync('service-worker.js','utf8'),worker);
 let promise;handlers.push({data:{json:()=>({target:'todo',tag:'daily'})},waitUntil:p=>promise=p});await promise;a.equal(shown[0].data.target,'todo');a.equal(shown[0].tag,'daily');
-function click(target){handlers.notificationclick({notification:{data:{target},close(){}},waitUntil:p=>promise=p});return promise;}
+function click(target,reminderId){handlers.notificationclick({notification:{data:{target,reminderId},close(){}},waitUntil:p=>promise=p});return promise;}
 await click('todo');a.ok(opened[0].includes('push=todo'));
 windows=[{url:'https://donchuliio.github.io/Projekt-App/',focus:async()=>focuses++,postMessage:(data,ports)=>ports[0].postMessage({}),navigate:async url=>navigations.push(url)}];
 await click('expenses-overview');a.equal(focuses,1);a.equal(opened.length,1);a.equal(navigations.length,0);
 windows[0].postMessage=()=>{};await click('todo');a.equal(navigations.length,1);a.ok(navigations[0].includes('push=todo'));
+const id='11111111-1111-4111-8111-111111111111';href='https://donchuliio.github.io/Projekt-App/?push=reminders&reminder='+id;logged=false;saved.clear();active=undefined;app();a.equal(saved.get('dock-pending-push-target-reminder'),id);a.equal(active,undefined);app();logged=true;events['dock:auth-changed']();await Promise.resolve();a.equal(active,'reminders');a.ok(refreshes.includes('dock:open-reminder'));a.equal(saved.size,0);
+windows=[];await click('reminders',id);a.ok(opened.at(-1).includes('reminder='+id));await click('reminders','https://evil.test');a.ok(!opened.at(-1).includes('reminder='));
 console.log('PASS: pending target survives login/reload, push overrides greeting, task/finance reload, unsafe targets ignored, new window, focus/reuse existing window, old-client navigation fallback.');
 })().catch(e=>{console.error(e);process.exitCode=1;});
+

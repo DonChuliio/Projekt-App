@@ -1,3 +1,4 @@
+import { sendReminderPushes } from './reminders.ts';
 import webpush from "npm:web-push@3.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -44,18 +45,7 @@ Deno.serve(async (req) => {
 
          Zusätzliche Aufrufe werden durch den Versandnachweis abgefangen.
         */
-        if (
-            berlinHour !== "09"
-        ) {
-
-            return Response.json({
-                success: true,
-                sent: 0,
-                reason:
-                    `Außerhalb der 09-Uhr-Prüfung. Berlin-Stunde: ${berlinHour}`
-            });
-        }
-
+        const morningDue = berlinHour === "09" && now.getUTCMinutes() === 0;
 
         /* =================================================
            AKTUELLE DEUTSCHE KALENDERWOCHE
@@ -318,7 +308,8 @@ const reminderByUser =
            PUSH PRO BENUTZER
            ================================================= */
 
-        let sent = 0;
+        let sent = await sendReminderPushes(supabase, webpush, subscriptions);
+        if (!morningDue) return Response.json({success:true,sent});
 
 
         /*
