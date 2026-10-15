@@ -1,5 +1,5 @@
-import { initNutrition,openNutrition,appendNutritionSection } from './nutrition.js?v=1.105';
-import { loadNutritionRecipe } from '../data/nutrition-data.js?v=1.105';
+import { initNutrition,openNutrition,appendNutritionSection } from './nutrition.js?v=1.106';
+import { loadNutritionRecipe } from '../data/nutrition-data.js?v=1.106';
 // js/recipes/recipes.js
 
 import { showView } from "../router.js";

@@ -1,4 +1,4 @@
-const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info','Access-Control-Allow-Methods':'POST,OPTIONS','Cache-Control':'no-store'};
+const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info,prefer','Access-Control-Allow-Methods':'POST,OPTIONS','Cache-Control':'no-store'};
 const reply=(data:unknown,status=200)=>Response.json(data,{status,headers:cors});
 const nutrient=(value:unknown)=>typeof value==='number'&&Number.isFinite(value)&&value>=0&&value<=100000?value:null;
 export function foodProducts(raw:any){return (Array.isArray(raw?.products)?raw.products:[]).slice(0,8).filter((p:any)=>/^\d{4,20}$/.test(String(p.code))&&typeof p.product_name==='string'&&p.product_name.trim()).map((p:any)=>({name:(p.product_name+(p.brands?' · '+String(p.brands):'')).slice(0,200),basis:'',kcal:nutrient(p.nutriments?.['energy-kcal_100g']),protein:nutrient(p.nutriments?.proteins_100g),carbs:nutrient(p.nutriments?.carbohydrates_100g),fat:nutrient(p.nutriments?.fat_100g),source_ref:'https://world.openfoodfacts.org/product/'+p.code}));}
@@ -16,7 +16,7 @@ export async function handleFoodSearch(req:Request){
   const rpc=async(name:string,data:any)=>{const response=await fetch(url+'/rest/v1/rpc/'+name,{method:'POST',headers:rpcHeaders,body:JSON.stringify(data),signal:AbortSignal.timeout(8000)});if(!response.ok)throw Error('internal');const value=await response.text();return value?JSON.parse(value):null;};
   const gate=await rpc('begin_food_search',{p_query:term});if(gate.cached)return reply({products:gate.products});if(!gate.allowed)return reply({error:'Suchlimit erreicht. Bitte in einer Minute erneut versuchen oder eigene Werte verwenden.'},429);
   const search=new URL('https://world.openfoodfacts.org/cgi/search.pl');search.search=new URLSearchParams({search_terms:term,search_simple:'1',action:'process',json:'1',page_size:'8',fields:'code,product_name,brands,nutriments',lc:'de'}).toString();
-  const response=await fetch(search,{headers:{'User-Agent':'Dock/1.105 (https://donchuliio.github.io/Projekt-App/)','Accept':'application/json'},redirect:'error',signal:AbortSignal.timeout(10000)});
+  const response=await fetch(search,{headers:{'User-Agent':'Dock/1.106 (https://donchuliio.github.io/Projekt-App/)','Accept':'application/json'},redirect:'error',signal:AbortSignal.timeout(10000)});
   if(!response.ok)return reply({error:'Open Food Facts ist gerade nicht verfügbar. Eigene Werte bleiben möglich.'},503);
   const products=foodProducts(await response.json());await rpc('finish_food_search',{p_query:term,p_products:products});return reply({products});
  }catch{return reply({error:'Lebensmittelsuche momentan nicht verfügbar. Bitte erneut versuchen oder eigene Werte eingeben.'},503);}

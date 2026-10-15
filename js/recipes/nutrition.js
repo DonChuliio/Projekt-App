@@ -1,6 +1,6 @@
 import { getSession } from '../auth/auth.js';
 import { showView } from '../router.js';
-import { loadNutritionRecipe,loadPersonalFoods,savePersonalFood,deletePersonalFood,saveNutrition,savePortions,searchFoodProducts } from '../data/nutrition-data.js?v=1.105';
+import { loadNutritionRecipe,loadPersonalFoods,savePersonalFood,deletePersonalFood,saveNutrition,savePortions,searchFoodProducts } from '../data/nutrition-data.js?v=1.106';
 import { NUTRIENTS,UNITS,parseIngredient,numberValue,baseAmount,perPortion,nutrientText,personalMatches,conversionProposal,foodKey } from './nutrition-model.js?v=1.105';
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,fn)=>{const b=el('button',text);b.type='button';b.addEventListener('click',fn);return b;};
