@@ -5,7 +5,7 @@ export function initNavigation() {
  document.querySelectorAll('.back-button').forEach(back => {
   if(back.dataset.navigationBound)return;
   back.dataset.navigationBound='true';
-  if(!back.hasAttribute('data-document-navigation')&&!back.hasAttribute('data-imposter-navigation')&&!back.hasAttribute('data-celebrity-navigation')&&!back.hasAttribute('data-sieve-navigation')&&!back.hasAttribute('data-reminder-navigation')) {
+  if(!back.hasAttribute('data-document-navigation')&&!back.hasAttribute('data-imposter-navigation')&&!back.hasAttribute('data-celebrity-navigation')&&!back.hasAttribute('data-sieve-navigation')&&!back.hasAttribute('data-reminder-navigation')&&!back.hasAttribute('data-nutrition-navigation')) {
    if(back.dataset.viewBack)back.addEventListener('click',()=>showView(back.dataset.viewBack));
    else if(back.hasAttribute('data-back'))back.addEventListener('click',goToDashboard);
   }

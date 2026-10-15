@@ -1,18 +1,21 @@
+import { initNutrition,openNutrition,appendNutritionSection } from './nutrition.js?v=1.105';
+import { loadNutritionRecipe } from '../data/nutrition-data.js?v=1.105';
 // js/recipes/recipes.js
 
 import { showView } from "../router.js";
 
 import { SUPABASE_URL, SUPABASE_KEY } from "../config/supabase.js";
-import { getValidAccessToken } from "../auth/auth.js";
+import { getValidAccessToken,getSession } from "../auth/auth.js";
 import {
     loadRecipes,
     createRecipe,
     updateRecipe,
     deleteRecipe
-} from "../data/recipes-data.js?v=1.54";
+} from "../data/recipes-data.js?v=1.105";
 
 let recipes = [];
 let initialized = false;
+let recipeGeneration=0;
 
 function removeRecipeDialogs() {
     document.getElementById("recipe-action-dialog")?.remove();
@@ -131,11 +134,15 @@ export async function renderRecipes() {
 
     list.innerHTML = "";
 
+    const generation=++recipeGeneration,owner=getSession()?.user?.id;
     try {
-        recipes = await loadRecipes();
+        const loaded=await loadRecipes();
+        if(generation!==recipeGeneration||owner!==getSession()?.user?.id)return;
+        recipes=loaded;
 
         renderRecipeList();
     } catch (error) {
+        if(generation!==recipeGeneration||owner!==getSession()?.user?.id)return;
         console.error("Rezepte konnten nicht geladen werden:", error);
         const message = document.createElement("p");
         message.className = "recipes-empty";
@@ -196,18 +203,24 @@ function openRecipeMenu(recipe) {
     cancel.textContent = "Abbrechen";
     cancel.onclick = () => overlay.remove();
 
-    dialog.append(title, text, view, edit, bring, remove, cancel);
+    const nutrition=document.createElement('button');nutrition.type='button';nutrition.textContent='Nährwerte ermitteln';nutrition.onclick=()=>{removeRecipeDialogs();openNutrition(recipe);};
+    dialog.append(title, text, view, edit, nutrition, bring, remove, cancel);
     overlay.appendChild(dialog);
     document.body.appendChild(overlay);
 }
 
-function openRecipeView(recipe) {
+async function openRecipeView(recipe) {
     removeRecipeDialogs();
 
     const dialog = document.getElementById("recipe-view-content");
     if (!dialog) return;
     dialog.innerHTML = "";
     showView("recipe-view");
+    const owner=getSession()?.user?.id,generation=++recipeGeneration;
+    dialog.textContent='Rezept wird geladen …';
+    try{recipe=await loadNutritionRecipe(recipe.id);}catch(error){if(owner===getSession()?.user?.id&&generation===recipeGeneration)dialog.textContent=error.message;return;}
+    if(owner!==getSession()?.user?.id||generation!==recipeGeneration||document.querySelector('[data-view="recipe-view"]')?.classList.contains('hidden'))return;
+    dialog.replaceChildren();
 
     const title = document.createElement("h2");
     title.textContent = recipe.name;
@@ -241,7 +254,9 @@ function openRecipeView(recipe) {
     close.textContent = "Zurück zu den Rezepten";
     close.onclick = () => showView("red-folder");
 
-    dialog.append(title, ingredientsSection, descriptionSection, close);
+    dialog.append(title, ingredientsSection, descriptionSection);
+    appendNutritionSection(dialog,recipe,()=>openNutrition(recipe));
+    dialog.append(close);
 }
 
 function openRecipeEditor(recipe = null) {
@@ -443,6 +458,8 @@ function openRecipeExport(recipe) {
 export function initRecipes() {
     if (initialized) return;
     initialized = true;
+    initNutrition(openRecipeView);
+    document.addEventListener('dock:auth-changed',()=>{recipeGeneration++;recipes=[];removeRecipeDialogs();document.getElementById('recipe-view-content')?.replaceChildren();document.getElementById('recipe-editor-content')?.replaceChildren();renderRecipes();});
 
     document
         .getElementById("recipe-search")
@@ -460,3 +477,4 @@ export function initRecipes() {
 
     renderRecipes();
 }
+

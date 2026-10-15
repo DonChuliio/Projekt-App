@@ -1,7 +1,7 @@
 // js/data/recipes-data.js
 
 import { SUPABASE_URL, SUPABASE_KEY } from "../config/supabase.js";
-import { getValidAccessToken } from "../auth/auth.js";
+import { getValidAccessToken, getSession } from "../auth/auth.js";
 
 const TABLE_URL = `${SUPABASE_URL}/rest/v1/recipes`;
 
@@ -16,11 +16,17 @@ async function createHeaders(extra = {}) {
 }
 
 async function api(url, options = {}) {
+    const owner=getSession()?.user?.id;
+    if(!owner)throw Error('Bitte anmelden.');
+    const headers=await createHeaders(options.headers||{});
+    if(owner!==getSession()?.user?.id)throw Error('Anmeldung geändert.');
     const response = await fetch(url, {
+        cache:'no-store',
         ...options,
-        headers: await createHeaders(options.headers || {})
+        headers
     });
 
+    if(owner!==getSession()?.user?.id)throw Error("Anmeldung geändert.");
     if (!response.ok) {
         throw new Error(
             `Rezept-Fehler ${response.status}: ${await response.text()}`
@@ -32,7 +38,7 @@ async function api(url, options = {}) {
 
 export async function loadRecipes() {
     const response = await api(
-        `${TABLE_URL}?select=id,name,ingredients,description,created_at,updated_at&order=updated_at.desc,id.desc`
+        `${TABLE_URL}?select=id,name,ingredients,description,created_at,updated_at,nutrition_data,nutrition_portions,nutrition_stale&order=updated_at.desc,id.desc`
     );
     return response.json();
 }
@@ -81,3 +87,4 @@ export async function deleteRecipe(id) {
         }
     );
 }
+

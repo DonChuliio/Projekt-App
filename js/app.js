@@ -1,14 +1,14 @@
-import { initReminders } from './reminders/reminders.js?v=1.104';
-import { initImposter } from "./games/admin.js?v=1.104";
-import { initCelebrity } from "./games/celebrity-admin.js?v=1.104";
-import { initSieve } from "./games/sieve-admin.js?v=1.104";
-import { initNavigation } from './navigation.js?v=1.104';
+import { initReminders } from './reminders/reminders.js?v=1.105';
+import { initImposter } from "./games/admin.js?v=1.105";
+import { initCelebrity } from "./games/celebrity-admin.js?v=1.105";
+import { initSieve } from "./games/sieve-admin.js?v=1.105";
+import { initNavigation } from './navigation.js?v=1.105';
 import { initDocuments } from "./documents/documents.js?v=1.71";
 // js/app.js
-import { initPushRouting } from "./push/push-routing.js?v=1.104";
+import { initPushRouting } from "./push/push-routing.js?v=1.105";
 import { initRoutineTodos } from "./data/routine-todos-data.js?v=1.59";
 
-import { initMorning } from "./morning/morning.js?v=1.104";
+import { initMorning } from "./morning/morning.js?v=1.105";
 
 import { initDashboard } from "./dashboard.js?v=1.54";
 import { initNotes } from "./notes/notes.js?v=1.54";
@@ -27,7 +27,7 @@ import { initSavingsCalculator } from "./finances/savings-calculator.js?v=1.69";
 import { initRecurringTransactions } from "./finances/recurring-transactions.js?v=1.74";
 import { initPocketMoney } from "./finances/pocket-money.js?v=1.54";
 import { initExpensesOverview } from "./finances/expenses-overview.js?v=1.60";
-import { initRecipes } from "./recipes/recipes.js?v=1.56";
+import { initRecipes } from "./recipes/recipes.js?v=1.105";
 /*
  Einstiegspunkt der App.
  Wird ausgeführt, sobald das DOM vollständig geladen ist.
