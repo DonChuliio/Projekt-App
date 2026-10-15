@@ -1,7 +1,7 @@
-import { bindHold } from './hold.js?v=1.103';
-import { gameRpc } from './api.js?v=1.103';
-import { createSieveGame } from './sieve-controller.js?v=1.103';
-import { SIEVE_CATEGORIES,appendSieveResults } from './sieve-results.js?v=1.103';
+import { bindHold } from './hold.js?v=1.104';
+import { gameRpc } from './api.js?v=1.104';
+import { createSieveGame } from './sieve-controller.js?v=1.104';
+import { SIEVE_CATEGORIES,appendSieveResults } from './sieve-results.js?v=1.104';
 const root=document.getElementById('sieve-public'),reveal=document.getElementById('sieve-reveal'),content=document.getElementById('sieve-reveal-content'),hold=document.getElementById('sieve-hold'),number=document.getElementById('sieve-word-number'),actions=document.getElementById('sieve-actions'),results=document.getElementById('sieve-results'),token=new URL(location.href).searchParams.get('game');
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,fn)=>{const b=el('button',text);b.type='button';b.addEventListener('click',fn);return b;};

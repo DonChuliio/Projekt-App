@@ -6,6 +6,7 @@
 .reminder-row {display:flex;flex-direction:column;gap:8px;text-align:left;width:100%;padding:14px;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:12px;}
 .reminder-row span,.reminder-help {color:var(--text-muted);line-height:1.5;font-size:.9rem;}
 .reminder-description {white-space:pre-wrap;}
-.reminder-confirm {padding:16px;border:1px solid var(--border);border-radius:12px;}
-[data-tile="reminders"] {display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--text);font:inherit;}
-[data-tile="reminders"] svg {width:30px;height:30px;fill:none;stroke:var(--petrol);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+
+.reminder-actions {display:flex;gap:8px;}
+.reminder-module .reminder-icon {width:44px;height:44px;padding:10px;display:inline-flex;align-items:center;justify-content:center;background:var(--surface);color:var(--text-muted);border:1px solid var(--border);border-radius:10px;}
+.reminder-icon svg {width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}

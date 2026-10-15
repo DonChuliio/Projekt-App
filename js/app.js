@@ -1,14 +1,14 @@
-import { initReminders } from './reminders/reminders.js?v=1.103';
-import { initImposter } from "./games/admin.js?v=1.103";
-import { initCelebrity } from "./games/celebrity-admin.js?v=1.103";
-import { initSieve } from "./games/sieve-admin.js?v=1.103";
-import { initNavigation } from './navigation.js?v=1.103';
+import { initReminders } from './reminders/reminders.js?v=1.104';
+import { initImposter } from "./games/admin.js?v=1.104";
+import { initCelebrity } from "./games/celebrity-admin.js?v=1.104";
+import { initSieve } from "./games/sieve-admin.js?v=1.104";
+import { initNavigation } from './navigation.js?v=1.104';
 import { initDocuments } from "./documents/documents.js?v=1.71";
 // js/app.js
-import { initPushRouting } from "./push/push-routing.js?v=1.103";
+import { initPushRouting } from "./push/push-routing.js?v=1.104";
 import { initRoutineTodos } from "./data/routine-todos-data.js?v=1.59";
 
-import { initMorning } from "./morning/morning.js?v=1.103";
+import { initMorning } from "./morning/morning.js?v=1.104";
 
 import { initDashboard } from "./dashboard.js?v=1.54";
 import { initNotes } from "./notes/notes.js?v=1.54";
