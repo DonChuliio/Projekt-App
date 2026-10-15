@@ -24,7 +24,7 @@ create policy reminders_own_update on public.planner_reminders for update to aut
 create policy reminders_own_delete on public.planner_reminders for delete to authenticated using(user_id=(select auth.uid()));
 create function dock_private.prepare_planner_reminder() returns trigger language plpgsql security invoker set search_path='' as $$
 begin
- if not exists(select 1 from pg_catalog.pg_timezone_names where name=new.timezone) then raise exception 'Ungültige Zeitzone';end if;
+ new.timezone='Europe/Berlin';
  new.title=trim(new.title);
  new.push_at=(new.reminder_date+coalesce(new.reminder_time,time '09:00')) at time zone new.timezone;
  new.updated_at=clock_timestamp();

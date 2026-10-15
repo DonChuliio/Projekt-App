@@ -1,5 +1,5 @@
-import { loadReminders } from '../data/reminders-data.js?v=1.101';
-import { morningSummary, reminderLabel } from '../reminders/model.js?v=1.101';
+import { loadReminders } from '../data/reminders-data.js?v=1.102';
+import { morningSummary, reminderLabel } from '../reminders/model.js?v=1.102';
 // Guten-Morgen-Ansicht: vorhandene Daten, keine eigenen Aufgabenbestände.
 import { getSession, isLoggedIn, getValidAccessToken } from "../auth/auth.js";
 import { loadTodos } from "../data/todo-data.js?v=1.59";

@@ -14,8 +14,8 @@ do $$declare rid uuid;begin
  update public.planner_reminders set reminder_date='2026-10-25' where id=rid;
  if (select push_at from public.planner_reminders where id=rid)<>timestamptz '2026-10-25 01:30+00' then raise exception 'DST fold wrong';end if;
  update public.planner_reminders set reminder_date='2027-07-01',reminder_time='09:15',timezone='America/New_York',title='Synthetic edited' where id=rid;
- if (select push_at from public.planner_reminders where id=rid)<>timestamptz '2027-07-01 13:15+00' then raise exception 'Zone/edit not applied';end if;
- begin update public.planner_reminders set timezone='Not/AZone' where id=rid;raise exception 'Bad zone accepted';exception when raise_exception then if sqlerrm='Bad zone accepted' then raise;end if;end;
+ if (select push_at from public.planner_reminders where id=rid)<>timestamptz '2027-07-01 07:15+00' then raise exception 'Zone/edit not applied';end if;
+ update public.planner_reminders set timezone='Not/AZone' where id=rid;if (select timezone from public.planner_reminders where id=rid)<>'Europe/Berlin' then raise exception 'Berlin not enforced';end if;
  begin insert into public.planner_reminders(title,reminder_date) values('   ',current_date);raise exception 'Blank accepted';exception when check_violation then null;end;
  begin update public.planner_reminders set reminder_time='09:00:30' where id=rid;raise exception 'Seconds accepted';exception when check_violation then null;end;
  begin update public.planner_reminders set user_id=gen_random_uuid() where id=rid;raise exception 'Owner change allowed';exception when insufficient_privilege then null;end;

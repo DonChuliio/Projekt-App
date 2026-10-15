@@ -9,7 +9,8 @@ do $$declare rid uuid;begin
  update public.planner_reminders set reminder_date='2027-01-01',title='Synthetic edited' where id=rid;
  if (select push_at from public.planner_reminders where id=rid)<>timestamptz '2027-01-01 08:00+00' then raise exception 'Owner edit/winter failed';end if;
  update public.planner_reminders set timezone='America/New_York' where id=rid;
- if (select push_at from public.planner_reminders where id=rid)<>timestamptz '2027-01-01 14:00+00' then raise exception 'Zone edit failed';end if;
+ if (select push_at from public.planner_reminders where id=rid)<>timestamptz '2027-01-01 08:00+00' then raise exception 'Berlin invariant failed';end if;
+ if (select timezone from public.planner_reminders where id=rid)<>'Europe/Berlin' then raise exception 'Foreign zone persisted';end if;
 end $$;
 reset role;
 select set_config('request.jwt.claim.sub',gen_random_uuid()::text,true);

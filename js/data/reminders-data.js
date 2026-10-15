@@ -1,6 +1,6 @@
 import { SUPABASE_URL, SUPABASE_KEY } from '../config/supabase.js';
 import { getSession, getValidAccessToken } from '../auth/auth.js';
-import { validateReminder, reminderDay } from '../reminders/model.js?v=1.101';
+import { validateReminder, reminderDay } from '../reminders/model.js?v=1.102';
 const url = SUPABASE_URL+'/rest/v1/planner_reminders';
 const fields = 'id,title,reminder_date,reminder_time,description,timezone';
 export const reminderId = value => typeof value==='string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
