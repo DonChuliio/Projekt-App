@@ -11,5 +11,26 @@ export function totalsFor(lines){const result={};for(const [key] of NUTRIENTS){l
 export function perPortion(totals,portions){if(!Number.isInteger(portions)||portions<1||portions>2147483647)throw Error('Portionen müssen eine positive ganze Zahl sein.');return Object.fromEntries(NUTRIENTS.map(([key])=>[key,totals[key]===null||totals[key]===undefined?null:totals[key]/portions]));}
 export const nutrientText=(value,key)=>value===null||value===undefined?'— (fehlt)':Number(value).toLocaleString('de-DE',{maximumFractionDigits:key==='kcal'?0:1})+(key==='kcal'?' kcal':' g');
 export function personalMatches(name,foods){const key=foodKey(name);return foods.filter(f=>foodKey(f.name)===key||(f.aliases||[]).some(a=>foodKey(a)===key));}
-// Explicitly approximate proposals, never applied without pressing the proposal button.
-export function conversionProposal(unit,name,food){if(unit==='tbsp'||unit==='tsp'){const ml=unit==='tbsp'?15:5;if(food.basis==='ml')return {amount:ml,text:'Vorschlag: '+ml+' ml – bitte prüfen'};if(food.density>0)return {amount:ml*food.density,text:'Vorschlag aus '+ml+' ml und deiner Dichte – bitte prüfen'};return null;}if(unit!=='piece')return null;const key=foodKey(name),grams=/\b(ei|eier)\b/.test(key)?50:/\b(zwiebel|zwiebeln)\b/.test(key)?100:/\b(tomate|tomaten)\b/.test(key)?120:/\b(apfel|äpfel)\b/.test(key)?150:/\b(banane|bananen)\b/.test(key)?120:null;if(!grams||(food.basis==='ml'&&!(food.density>0)))return null;return {amount:food.basis==='g'?grams:grams/food.density,text:'Geschätztes Durchschnittsgewicht: '+grams+' g pro Stück – bitte prüfen/korrigieren'};}
+// Conservative food matching: never apply a fresh-vegetable weight to chips, sauces or powder.
+export function pieceReference(name){
+ const key=foodKey(String(name||'').split(' · ')[0]).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\b(bio|frisch|frische|frischer|roh|rohe|roher|rot|rote|roter|grun|grune|gruner|gelb|gelbe|gelber)\b/g,'').replace(/\s+/g,' ').trim();
+ const usda='https://www.ars.usda.gov/arsuserfiles/80400525/data/hg72/hg72_2002.pdf';
+ for(const [names,grams] of [[['paprika'],119],[['ei','eier'],50],[['zwiebel','zwiebeln'],110],[['tomate','tomaten'],123],[['apfel','apfel'],138],[['banane','bananen'],118]])if(names.includes(key))return {grams,source:usda,note:'Richtwert für ein mittelgroßes Stück, essbarer Anteil. Größe bitte prüfen.'};
+ if(['chinakohl','pekingkohl'].includes(key))return {grams:1400,source:'https://www.landwirtschaftskammer.de/verbraucher/rezepte/kohlrezepte.pdf',note:'Grobe Schätzung für einen Kopf: 800–2.000 g; Dock schlägt die Mitte vor. Strunk/Abschnitte ggf. abziehen.'};
+ return null;
+}
+export function densityProposal(name){
+ const key=foodKey(String(name||'').split(' · ')[0]);let value;
+ if(/^(wasser|leitungswasser)$/.test(key))value=1;
+ else if(/^(milch|vollmilch|kuhmilch|h-milch)(?:\s+\d[\d,.]*\s*%.*)?$/.test(key))value=1.03;
+ else if(/^(olivenöl|olivenoel)(?: nativ(?: extra)?)?$/.test(key))value=.918;
+ else if(/^(öl|oel|pflanzenöl|pflanzenoel|rapsöl|rapsoel)$/.test(key))value=.92;
+ return value?{value,source:'https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf',note:'Richtwert zur Umrechnung zwischen ml und g; bitte prüfen.'}:null;
+}
+export function needsDensity(unit,basis){return (['ml','l','tbsp','tsp'].includes(unit)&&basis==='g')||(['g','kg'].includes(unit)&&basis==='ml');}
+export function conversionProposal(unit,name,food){
+ if(unit==='tbsp'||unit==='tsp'){const ml=unit==='tbsp'?15:5;if(food.basis==='ml')return {amount:ml,text:'Vorschlag: '+ml+' ml – bitte prüfen'};if(food.density>0)return {amount:ml*food.density,text:'Vorschlag aus '+ml+' ml und deiner Dichte – bitte prüfen'};return null;}
+ if(unit!=='piece')return null;const reference=pieceReference(name);if(!reference||(food.basis==='ml'&&!(food.density>0)))return null;
+ return {amount:food.basis==='g'?reference.grams:reference.grams/food.density,text:'Dock-Richtwert: '+reference.grams+' g pro Stück – bitte prüfen/korrigieren',...reference};
+}
+export function ingredientPreview(quantity,unit,food){const amount=baseAmount(quantity,unit,food);return {amount,totals:perPortion(totalsFor([{quantity,unit,food}]),1)};}

@@ -12,3 +12,7 @@
 .nutrition-food-result {border:1px solid var(--border);border-radius:12px;padding:14px;margin:12px 0;}
 .nutrition-help {font-size:.9rem;color:var(--text-muted);line-height:1.5;}
 .nutrition-page a,.nutrition-section a {color:var(--petrol);}
+.nutrition-ingredient-preview {border:1px solid var(--petrol);border-radius:12px;padding:14px;margin:16px 0;}
+.nutrition-ingredient-preview h4 {margin-top:0;}
+.nutrition-ingredient-preview p {line-height:1.5;}
+.nutrition-page select {color:var(--text);background:#1e1e1e;border:1px solid var(--border);border-radius:10px;padding:10px;color-scheme:dark;}

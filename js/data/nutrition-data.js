@@ -1,6 +1,6 @@
 import { SUPABASE_URL,SUPABASE_KEY } from '../config/supabase.js';
 import { getSession,getValidAccessToken } from '../auth/auth.js';
-import { validateFood } from '../recipes/nutrition-model.js?v=1.105';
+import { validateFood } from '../recipes/nutrition-model.js?v=1.108';
 const foodFields='id,name,aliases,basis,kcal,protein,carbs,fat,density,unit_amounts,source_ref';
 const recipeFields='id,name,ingredients,description,nutrition_data,nutrition_stale,nutrition_portions';
 const recipeId=id=>/^\d+$/.test(String(id));

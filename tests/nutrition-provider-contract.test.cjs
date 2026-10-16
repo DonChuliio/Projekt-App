@@ -12,9 +12,9 @@ vm.createContext(ctx);vm.runInContext(fs.readFileSync('supabase/functions/food-s
 const request=()=>new Request('https://test',{method:'POST',headers:{Authorization:'Bearer synthetic'},body:JSON.stringify({term:'Paprika'})});
 (async()=>{
  let response=await ctx.handleFoodSearch(request());a.equal(response.status,200);const products=(await response.json()).products;
- a.equal(providerRequest.method,'POST');a.deepEqual(JSON.parse(providerRequest.body),{q:'paprika',langs:['de'],page_size:8,fields:['code','product_name','brands','nutriments']});
+ a.equal(providerRequest.method,'POST');a.deepEqual(JSON.parse(providerRequest.body),{q:'paprika',langs:['de'],page_size:8,fields:['code','product_name','brands','nutriments','product_quantity_unit']});
  a.equal(providerRequest.headers['Content-Type'],'application/json');a.equal(providerRequest.redirect,'error');a.ok(!providerRequest.headers.Authorization);
- a.equal(products.length,8);a.equal(products[0].name,'Paprika · Test, Marke');a.equal(products[0].kcal,24);a.equal(products[0].fat,0);a.equal(products[1].kcal,null);a.equal(products[0].basis,'');a.equal(cacheWrites,1);
+ a.equal(products.length,8);a.equal(products[0].name,'Paprika · Test, Marke');a.equal(products[0].kcal,24);a.equal(products[0].fat,0);a.equal(products[1].kcal,null);a.equal(products[0].basis,'');a.equal(cacheWrites,1);a.equal(ctx.foodProducts({hits:[{...hit,product_quantity_unit:'ml'}]})[0].basis,'ml');a.equal(ctx.foodProducts({hits:[{...hit,product_quantity_unit:'g'}]})[0].basis,'g');
  status=429;response=await ctx.handleFoodSearch(request());a.equal(response.status,429);a.match((await response.json()).error,/begrenzt/);a.equal(cacheWrites,1);
  status=503;response=await ctx.handleFoodSearch(request());a.equal(response.status,503);a.equal(cacheWrites,1);
  if(process.env.OFF_SEARCH_JSON){const raw=JSON.parse(fs.readFileSync(process.env.OFF_SEARCH_JSON,'utf8'));a.ok(Array.isArray(raw.hits)&&raw.hits.length);const parsed=ctx.foodProducts(raw);a.ok(parsed.length&&parsed.some(p=>p.kcal!==null));a.ok(parsed.every(p=>!('salt'in p)&&!('sugars'in p)));}
