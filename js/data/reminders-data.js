@@ -1,8 +1,8 @@
 import { SUPABASE_URL, SUPABASE_KEY } from '../config/supabase.js';
 import { getSession, getValidAccessToken } from '../auth/auth.js';
-import { validateReminder, reminderDay } from '../reminders/model.js?v=1.104';
+import { validateReminder, reminderDay } from '../reminders/model.js?v=1.109';
 const url = SUPABASE_URL+'/rest/v1/planner_reminders';
-const fields = 'id,title,reminder_date,reminder_time,description,timezone';
+const fields = 'id,title,reminder_date,reminder_time,description,timezone,archived_at,push_status,push_status_at,push_attempts,push_successes,push_failures';
 export const reminderId = value => typeof value==='string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 async function request(query='', method='GET', body) {
  const owner=getSession()?.user?.id;
@@ -19,7 +19,23 @@ async function request(query='', method='GET', body) {
 }
 export async function loadReminders(day=reminderDay()) {
  if(!/^\d{4}-\d{2}-\d{2}$/.test(day))throw Error('Ungültiges Datum.');
- return request('?select='+fields+'&reminder_date=gte.'+encodeURIComponent(day)+'&order=reminder_date.asc,reminder_time.asc.nullsfirst,title.asc');
+ return request('?select='+fields+'&archived_at=is.null&push_status=in.(pending,processing)&reminder_date=gte.'+encodeURIComponent(day)+'&order=reminder_date.asc,reminder_time.asc.nullsfirst,title.asc');
+}
+export async function loadReminderArchive(){
+ const owner=getSession()?.user?.id,rows=[],pageSize=200;
+ for(let offset=0;;offset+=pageSize){
+  const page=await request('?select='+fields+'&archived_at=not.is.null&order=reminder_date.desc,reminder_time.desc.nullslast,archived_at.desc,id.desc&limit='+pageSize+'&offset='+offset);
+  if(owner!==getSession()?.user?.id)throw Error('Anmeldung geändert.');
+  rows.push(...page);if(page.length<pageSize)return rows;
+ }
+}
+export function loadUnsentReminders(day=reminderDay()){
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(day))throw Error('Ungültiges Datum.');
+ return request('?select='+fields+'&archived_at=is.null&or=(reminder_date.lt.'+day+',push_status.in.(failed,no_subscription,missed,uncertain))&order=reminder_date.desc,reminder_time.desc.nullslast,id.desc');
+}
+export function loadTodayReminders(day=reminderDay()){
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(day))throw Error('Ungültiges Datum.');
+ return request('?select='+fields+'&reminder_date=eq.'+day+'&order=reminder_time.asc.nullsfirst,title.asc');
 }
 export async function loadReminder(id) {
  if(!reminderId(id))throw Error('Ungültige Erinnerung.');
@@ -29,7 +45,7 @@ export async function loadReminder(id) {
 }
 export async function saveReminder(value, id=null) {
  if(id!==null&&!reminderId(id))throw Error('Ungültige Erinnerung.');
- const rows=await request(id?'?id=eq.'+id:'',id?'PATCH':'POST',validateReminder(value));
+ const rows=await request(id?'?id=eq.'+id+'&archived_at=is.null&push_status=eq.pending':'',id?'PATCH':'POST',validateReminder(value));
  if(rows.length!==1)throw Error('Erinnerung nicht mehr vorhanden. Bitte Übersicht neu laden.');
  return rows[0];
 }

@@ -11,7 +11,13 @@ export function validateReminder(value) {
  return {title, reminder_date:day, reminder_time:time ? time.slice(0,5) : null, description, timezone};
 }
 export function upcomingReminders(rows, day = reminderDay()) {
- return rows.filter(r=>r.reminder_date>=day).sort((a,b)=>a.reminder_date.localeCompare(b.reminder_date)||(a.reminder_time||DEFAULT_REMINDER_TIME).localeCompare(b.reminder_time||DEFAULT_REMINDER_TIME)||a.title.localeCompare(b.title));
+ return rows.filter(r=>!r.archived_at&&(!r.push_status||['pending','processing'].includes(r.push_status))&&r.reminder_date>=day).sort((a,b)=>a.reminder_date.localeCompare(b.reminder_date)||(a.reminder_time||DEFAULT_REMINDER_TIME).localeCompare(b.reminder_time||DEFAULT_REMINDER_TIME)||a.title.localeCompare(b.title));
+}
+export function archivedReminders(rows){return rows.filter(r=>r.archived_at).sort((a,b)=>b.reminder_date.localeCompare(a.reminder_date)||(b.reminder_time||DEFAULT_REMINDER_TIME).localeCompare(a.reminder_time||DEFAULT_REMINDER_TIME)||b.archived_at.localeCompare(a.archived_at));}
+export function reminderPushLabel(row){
+ if(row.archived_at)return 'Archiviert: vom Push-Dienst für mindestens ein Gerät angenommen. Keine Empfangs- oder Lesebestätigung.'+(row.push_failures?' Für weitere Geräte gab es Versandfehler.':'');
+ const labels={pending:'Push steht noch aus.',processing:'Push-Versand wird verarbeitet.',failed:'Push-Versand fehlgeschlagen. Die Erinnerung bleibt gespeichert.',no_subscription:'Keine nutzbare Push-Anmeldung vorhanden. Es wurde kein erfolgreicher Versand registriert.',missed:'Kein erfolgreicher Versand registriert: Termin verpasst oder nachträglich angelegt.',uncertain:'Versand nicht bestätigt. Die Nachricht könnte versendet worden sein.'};
+ const state=row.push_status||'pending';return (labels[state]||labels.uncertain)+(['failed','no_subscription','missed','uncertain'].includes(state)?' Kein automatischer erneuter Versand. Für einen neuen Push bitte eine neue Erinnerung anlegen.':'');
 }
 export function reminderLabel(row) {
  const date = new Date(row.reminder_date+'T12:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});

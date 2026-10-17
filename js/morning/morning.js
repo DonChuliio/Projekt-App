@@ -1,5 +1,5 @@
-import { loadReminders } from '../data/reminders-data.js?v=1.104';
-import { morningSummary, reminderLabel } from '../reminders/model.js?v=1.104';
+import { loadTodayReminders } from '../data/reminders-data.js?v=1.109';
+import { morningSummary, reminderLabel } from '../reminders/model.js?v=1.109';
 // Guten-Morgen-Ansicht: vorhandene Daten, keine eigenen Aufgabenbestände.
 import { getSession, isLoggedIn, getValidAccessToken } from "../auth/auth.js";
 import { loadTodos } from "../data/todo-data.js?v=1.59";
@@ -106,7 +106,7 @@ export async function maybeShowMorning() {
         }).catch(() => {
             if (current()) {message(todos, "To-dos konnten nicht geladen werden.");updateSummary();}
         }),
-        loadReminders(day).then(rows => {
+        loadTodayReminders(day).then(rows => {
             if(!current())return;
             const todayRows=rows.filter(r=>r.reminder_date===day);
             reminderCount=todayRows.length;updateSummary();

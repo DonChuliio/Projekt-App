@@ -290,6 +290,8 @@ const reminderByUser =
         }
 
 
+        let sent = await sendReminderPushes(supabase, webpush, subscriptions || []);
+
         if (
             !subscriptions ||
             subscriptions.length === 0
@@ -308,7 +310,6 @@ const reminderByUser =
            PUSH PRO BENUTZER
            ================================================= */
 
-        let sent = await sendReminderPushes(supabase, webpush, subscriptions);
         if (!morningDue) return Response.json({success:true,sent});
 
 

@@ -1,6 +1,6 @@
 const fs=require('node:fs'),vm=require('node:vm'),a=require('node:assert/strict'),{stripTypeScriptTypes}=require('node:module');
 const source=stripTypeScriptTypes(fs.readFileSync('supabase/functions/swift-processor/send-push.ts','utf8').replace(/^import .*\n/gm,''));
-let now,handler,open=0,finance=false,sends=[],claims=new Set(),syncs=0,queries=[],syncAdds=0;
+let withSubscriptions=true;let now,handler,open=0,finance=false,sends=[],claims=new Set(),syncs=0,queries=[],syncAdds=0;
 class Clock extends Date{constructor(...args){super(...(args.length?args:[now]));}}
 class Query {
  constructor(table){this.table=table;this.mode='read';this.value=null;}
@@ -8,7 +8,7 @@ class Query {
  insert(value){this.mode='insert';this.value=value;return this;}
  update(value){this.mode='update';this.value=value;return this;}delete(){this.mode='delete';return this;}
  then(resolve,reject){let result={error:null};if(this.table==='calendar_settings')result.data=[{user_id:'u',month_start_balance_reminder:finance,month_end_savings_reminder:finance}];
- if(this.table==='push_subscriptions')result.data=[{id:1,user_id:'u',endpoint:'https://web.push.apple.com/test',p256dh:'key',auth:'key'}];
+ if(this.table==='push_subscriptions')result.data=withSubscriptions?[{id:1,user_id:'u',endpoint:'https://web.push.apple.com/test',p256dh:'key',auth:'key'}]:[];
  if(this.table==='todos')result.count=open;
  if(this.table==='push_deliveries'&&this.mode==='insert'){const k=this.value.subscription_id+':'+this.value.local_date;if(claims.has(k))result.error={code:'23505'};else claims.add(k);}
  return Promise.resolve(result).then(resolve,reject);}
@@ -35,6 +35,7 @@ for(const [time,text]of[['2026-07-02T07:00:00Z','Monatsabgleich'],['2026-07-31T0
  reset();finance=true;await run(time);a.equal(sends.length,1);a.equal(sends[0].target,'expenses-overview');a.match(sends[0].body,new RegExp(text));
 }
 reset();ctx.sendReminderPushes=async()=>3;const reminderOnly=await run('2026-07-01T12:15:00Z');a.equal(reminderOnly.sent,3);a.equal(sends.length,0);ctx.sendReminderPushes=async()=>0;
+reset();withSubscriptions=false;let noSubscriptionCalls=0;ctx.sendReminderPushes=async(_db,_push,subs)=>{a.equal(subs.length,0);noSubscriptionCalls++;return 0;};await run('2026-07-01T12:15:00Z');a.equal(noSubscriptionCalls,1,'status reconciliation also runs with no subscriptions');
 console.log('PASS: summer/winter 09:00, both DST transition days, daily deduplication, no empty push, routine sync/count, completed filter, combined finance push, leap month end.');
 })().catch(e=>{console.error(e);process.exitCode=1;});
 
