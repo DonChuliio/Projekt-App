@@ -15,6 +15,7 @@ export async function loadRoutineTemplates(){
 }
 export async function addRoutineColumn(name){return (await request('routine_columns','POST',{name}))[0];}
 export async function addRoutineTask(column_id,name){return (await request('routine_tasks','POST',{column_id,name,weeks:[]}))[0];}
+export async function renameRoutineTask(task_id,name){const rows=await request(`routine_tasks?task_id=eq.${encodeURIComponent(task_id)}&active=eq.true`,'PATCH',{name});if(rows.length!==1)throw new Error('Aufgabe geändert oder nicht mehr verfügbar. Bitte neu laden.');return rows[0];}
 export async function setRoutineWeeks(task_id,weeks,previousWeeks){const rows=await request(`routine_tasks?task_id=eq.${encodeURIComponent(task_id)}&active=eq.true&weeks=eq.${encodeURIComponent('{'+previousWeeks.join(',')+'}')}`,'PATCH',{weeks});if(rows.length!==1)throw new Error('Aufgabe geändert oder nicht mehr verfügbar. Bitte neu laden.');return rows[0];}
 export async function archiveRoutineTask(task_id){const rows=await request(`routine_tasks?task_id=eq.${encodeURIComponent(task_id)}&active=eq.true`,'PATCH',{active:false});if(rows.length!==1)throw new Error('Aufgabe geändert oder nicht mehr verfügbar. Bitte neu laden.');}
 export async function archiveRoutineColumn(id){await request('rpc/archive_routine_column','POST',{p_id:id});}

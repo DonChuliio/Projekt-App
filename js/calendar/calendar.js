@@ -1,6 +1,6 @@
 // js/calendar/calendar.js
 
-import { initRoutineEditor } from "./routine-editor.js?v=1.73";
+import { initRoutineEditor } from "./routine-editor.js?v=1.110";
 import { loadCalendarSettings, saveMonthEndSavingsReminder, saveMonthStartBalanceReminder } from "../data/calendar-settings-data.js?v=1.30";
 
 export function initCalendar() {

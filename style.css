@@ -1718,6 +1718,31 @@ html, body {
 .routine-week-choice input {width:22px;min-width:22px;height:22px;accent-color:var(--petrol);}
 .routine-week-choice span {min-width:100px;overflow-wrap:anywhere;}
 
+/* #36: one flat task per row; only the week strip scrolls. */
+.routine-grid-scroll {width:100%;max-width:100%;min-width:0;overflow-x:auto;margin-top:16px;-webkit-overflow-scrolling:touch;isolation:isolate;}
+.routine-grid-table {border-collapse:separate;border-spacing:0;table-layout:fixed;width:max-content;min-width:100%;}
+.routine-grid-table th,.routine-grid-table td {box-sizing:border-box;min-width:48px;width:48px;padding:0;text-align:center;border-bottom:1px solid var(--border);}
+.routine-grid-table thead th {height:44px;color:var(--text-muted);font-size:13px;white-space:nowrap;}
+.routine-grid-table th:first-child {position:sticky;left:0;z-index:2;min-width:140px;width:clamp(140px,42vw,200px);max-width:200px;padding:10px 12px;text-align:left;background:var(--surface);color:var(--text);border-right:1px solid var(--border);white-space:normal;overflow-wrap:anywhere;}
+.routine-grid-table thead th:first-child {z-index:3;}
+.routine-grid-choice {display:flex;align-items:center;justify-content:center;min-width:48px;min-height:44px;height:100%;margin:0;cursor:pointer;}
+.routine-grid-choice input {flex:none;width:22px;height:22px;margin:0;accent-color:var(--petrol);}
+.routine-task-management {padding:12px;border:1px solid var(--border);border-radius:12px;margin:16px 0;}
+.routine-task-management .routine-task-row {flex-wrap:wrap;}
+.routine-task-management .routine-task-row span {flex:1 1 140px;min-width:0;overflow-wrap:anywhere;}
+.routine-task-management button {min-height:44px;margin:0;font-size:14px;}
+
+/* #35: constrain native date controls and grid min-content width, scoped to pocket money. */
+#pocket-money-content,#pm-slot {min-width:0;max-width:100%;}
+#pocket-money-content .recurring-form {width:100%;max-width:100%;min-width:0;grid-template-columns:minmax(0,1fr);box-sizing:border-box;}
+#pocket-money-content .recurring-form > *,#pocket-money-content .recurring-form label {min-width:0;max-width:100%;}
+#pocket-money-content .recurring-form input {min-width:0;width:100%;max-width:100%;box-sizing:border-box;}
+#pocket-money-content .recurring-form .loan-input-unit input {width:0;flex:1 1 0;}
+#pocket-money-content .recurring-form .loan-input-unit span {min-width:0;flex:0 0 auto;}
+#pocket-money-content .recurring-form input[type="date"] {-webkit-appearance:none;appearance:none;}
+#pocket-money-content .recurring-form-actions {flex-wrap:wrap;}
+#pocket-money-content .recurring-form-actions button {min-width:0;flex:1 1 100px;white-space:normal;overflow-wrap:anywhere;}
+
 /* Recurring entries: full names and one fixed edit control on the right. */
 .recurring-row {display:grid;grid-template-columns:minmax(0,1fr) 44px;align-items:start;}
 .recurring-row > .recurring-row-actions {width:44px;min-width:44px;justify-self:end;}
