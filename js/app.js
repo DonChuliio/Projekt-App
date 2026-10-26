@@ -1,4 +1,5 @@
 import { initReminders } from './reminders/reminders.js?v=1.109';
+import { initBirthdays } from './birthdays/birthdays.js?v=1.111';
 import { initImposter } from "./games/admin.js?v=1.105";
 import { initCelebrity } from "./games/celebrity-admin.js?v=1.105";
 import { initSieve } from "./games/sieve-admin.js?v=1.105";
@@ -8,7 +9,7 @@ import { initDocuments } from "./documents/documents.js?v=1.71";
 import { initPushRouting } from "./push/push-routing.js?v=1.105";
 import { initRoutineTodos } from "./data/routine-todos-data.js?v=1.59";
 
-import { initMorning } from "./morning/morning.js?v=1.109";
+import { initMorning } from "./morning/morning.js?v=1.111";
 
 import { initDashboard } from "./dashboard.js?v=1.54";
 import { initNotes } from "./notes/notes.js?v=1.54";
@@ -73,6 +74,7 @@ initExpensesOverview();
 initRecipes();
 initDocuments();
 initReminders();
+initBirthdays();
 
     initNavigation();
 

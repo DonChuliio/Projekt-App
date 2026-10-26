@@ -1,0 +1,29 @@
+const fs=require('node:fs'),vm=require('node:vm'),a=require('node:assert/strict');
+const ctx={Date,Intl,console};vm.createContext(ctx);vm.runInContext(fs.readFileSync('js/birthdays/model.js','utf8').replace(/export /g,''),ctx);
+const row=(date,name='Name',id=date)=>({id,name,birth_date:date}),at=(y,m,d,h=8)=>new Date(y,m-1,d,h);
+a.equal(ctx.validateBirthday({name:'  Anne  ',birth_date:'1990-12-31'}).name,'Anne');
+for(const date of ['2025-02-29','2000-02-30','1900-02-29','0000-01-01','2026-13-01','2026-01-00','2026-1-01','2000-02-29T00:00:00Z'])a.throws(()=>ctx.validateBirthday({name:'A',birth_date:date}));
+a.ok(ctx.birthdayDate('2000-02-29'));a.ok(ctx.birthdayDate('0001-01-01'));a.throws(()=>ctx.validateBirthday({name:' ',birth_date:'2000-01-01'}));
+const beforeNewYear=at(2026,12,28),rows=[row('1990-01-04','Outside'),row('2000-01-03','Six'),row('1999-12-28','Today'),row('1988-01-01','New year'),row('2010-12-27','Passed')];
+const upcoming=ctx.upcomingBirthdays(rows,beforeNewYear);a.deepEqual(Array.from(upcoming,r=>[r.name,r.days,r.nextDate]),[['Today',0,'2026-12-28'],['New year',4,'2027-01-01'],['Six',6,'2027-01-03']]);
+a.equal(ctx.upcomingBirthdays([row('1900-01-04')],beforeNewYear).length,0);a.match(ctx.nextBirthdayLabel(upcoming[0]),/Heute/);a.match(ctx.nextBirthdayLabel(upcoming[1]),/In 4 Tagen/);
+a.equal(ctx.nextBirthday(row('2000-02-29'),at(2027,2,28)).days,0);a.equal(ctx.nextBirthday(row('2000-02-29'),at(2028,2,28)).days,1);a.equal(ctx.nextBirthday(row('2000-02-29'),at(2027,3,1)).nextDate,'2028-02-29');
+a.equal(ctx.nextBirthday(row('1980-01-01'),at(2026,1,1,23)).days,0);a.equal(ctx.nextBirthday(row('2027-01-01'),at(2026,1,1)).days,0,'original year never disables annual recurrence');
+// Calendar-day arithmetic survives both DST boundaries in each supplied timezone.
+for(const [today,birthday] of [[at(2026,3,28),'1990-03-30'],[at(2026,10,24),'1990-10-26']])a.equal(ctx.nextBirthday(row(birthday),today).days,2);
+const api={...ctx,SUPABASE_URL:'https://db.test',SUPABASE_KEY:'public',getSession:()=>owner?{user:{id:owner}}:null,getValidAccessToken:async()=>'jwt',fetch:async(url,options)=>{calls.push({url,...options});if(defer)return defer;return {ok:!fail,json:async()=>response};}};
+let owner='one',calls=[],response=[],fail=false,defer;
+vm.createContext(api);vm.runInContext(fs.readFileSync('js/birthdays/model.js','utf8').replace(/export /g,''),api);vm.runInContext(fs.readFileSync('js/data/birthdays-data.js','utf8').replace(/^import .*\n/gm,'').replace(/export /g,''),api);
+(async()=>{
+ owner=null;await a.rejects(()=>api.loadBirthdays(),/anmelden/);a.equal(calls.length,0);owner='one';
+ response=Array.from({length:200},(_,i)=>row('1990-01-01','Person '+i,String(i)));let pages=0;
+ api.fetch=async(url,options)=>{calls.push({url,...options});return {ok:true,json:async()=>pages++===0?response:[row('1991-01-02','Last','last')]};};
+ const all=await api.loadBirthdays();a.equal(all.length,201);a.match(calls.at(-1).url,/offset=200/);a.equal(calls[0].cache,'no-store');a.equal(calls[0].headers.Authorization,'Bearer jwt');
+ api.fetch=async(url,options)=>{calls.push({url,...options});if(defer)return defer;return {ok:!fail,json:async()=>response};};
+ const id='11111111-1111-4111-8111-111111111111';response=[{id,name:'Saved',birth_date:'2000-02-29'}];await api.saveBirthday({name:' Saved ',birth_date:'2000-02-29'});a.equal(calls.at(-1).method,'POST');a.deepEqual(JSON.parse(calls.at(-1).body),{name:'Saved',birth_date:'2000-02-29'});
+ await api.saveBirthday({name:'Edited',birth_date:'2000-02-29'},id);a.equal(calls.at(-1).method,'PATCH');a.match(calls.at(-1).url,/id=eq.11111111/);await api.deleteBirthday(id);a.equal(calls.at(-1).method,'DELETE');
+ const count=calls.length;await a.rejects(()=>api.saveBirthday({name:'Bad',birth_date:'2025-02-29'}));await a.rejects(()=>api.deleteBirthday('bad'));a.equal(calls.length,count);
+ response=[];await a.rejects(()=>api.loadBirthday(id),/nicht mehr/);await a.rejects(()=>api.saveBirthday({name:'Edited',birth_date:'2000-02-29'},id),/nicht mehr/);
+ fail=true;await a.rejects(()=>api.loadBirthdays(),/erneut/);fail=false;let resolve;defer=new Promise(r=>resolve=r);const loading=api.loadBirthdays();await new Promise(setImmediate);owner='two';resolve({ok:true,json:async()=>[row('2000-01-01')]});await a.rejects(()=>loading,/Anmeldung geändert/);
+ console.log('PASS: birthday validation, annual sorting, exact days 0–6 / excluding 7, rollover, leap day, DST/local calendar, paginated authenticated CRUD, no-store, errors and account-change isolation. TZ='+process.env.TZ);
+})().catch(e=>{console.error(e);process.exitCode=1;});

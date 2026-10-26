@@ -1,0 +1,19 @@
+const fs=require('node:fs'),vm=require('node:vm'),a=require('node:assert/strict');
+class Node{constructor(){this.children=[];this.events={};this.className='';this.hidden=true;}appendChild(n){this.children.push(n);}replaceChildren(){this.children=[];}addEventListener(n,f){this.events[n]=f;}}
+function setup({birthdays=[],fail=false,deferred}={}){
+ let active='dashboard',owner='one';const saved=new Map(),events=[],ids=Object.fromEntries(['morning-todo-list','morning-date','morning-sync-status','morning-reminder-list','morning-summary','morning-birthday-section','morning-birthday-list','morning-birthday-status'].map(n=>[n,new Node()]));
+ class Clock extends Date{constructor(...args){super(...(args.length?args:[2026,11,28,8]));}}
+ const ctx={Date:Clock,Map,localStorage:{getItem:k=>saved.get(k),setItem:(k,v)=>saved.set(k,v)},getSession:()=>owner?{user:{id:owner}}:null,isLoggedIn:()=>!!owner,getValidAccessToken:async()=> 'jwt',getISOWeek:()=>53,syncRoutineTodos:async()=>{},loadTodos:async()=>[{text:'Existing A',priority:'a'}],loadTodayReminders:async()=>[{id:'reminder',title:'Existing reminder',reminder_date:'2026-12-28'}],loadBirthdays:async()=>{if(deferred)return deferred;if(fail)throw Error('Birthday load failure');return birthdays;},showView:v=>active=v,document:{visibilityState:'visible',getElementById:n=>ids[n],querySelector:s=>({classList:{contains:()=>!s.includes('"'+active+'"')}}),createElement:()=>new Node(),dispatchEvent:e=>events.push(e)},CustomEvent:class{constructor(type,options){this.type=type;this.detail=options?.detail;}}};
+ vm.createContext(ctx);for(const f of ['js/reminders/model.js','js/birthdays/model.js','js/morning/morning.js'])vm.runInContext(fs.readFileSync(f,'utf8').replace(/^import .*\n/gm,'').replace(/export /g,''),ctx);
+ return {ctx,ids,events,get active(){return active;},set active(v){active=v;},set owner(v){owner=v;}};
+}
+(async()=>{
+ const rows=[{id:'one',name:'Heute',birth_date:'1990-12-28'},{id:'two',name:'Januar',birth_date:'1991-01-03'},{id:'outside',name:'Zu spät',birth_date:'2000-01-04'}];
+ let e=setup({birthdays:rows});await e.ctx.maybeShowMorning();a.equal(e.active,'good-morning');a.equal(e.ids['morning-birthday-section'].hidden,false);const list=e.ids['morning-birthday-list'];a.equal(list.children.length,2);a.match(list.children[0].textContent,/Heute.*Heute/);a.match(list.children[1].textContent,/03.01.*6 Tagen/);list.children[1].events.click();a.equal(e.events[0].type,'dock:open-birthday');a.equal(e.events[0].detail.id,'two');a.equal(e.ids['morning-todo-list'].children.length,1);a.equal(e.ids['morning-reminder-list'].children.length,1);
+ e=setup();await e.ctx.maybeShowMorning();a.equal(e.ids['morning-birthday-section'].hidden,true);a.equal(e.ids['morning-birthday-list'].children.length,0);
+ e=setup({birthdays:[rows[2]]});await e.ctx.maybeShowMorning();a.equal(e.ids['morning-birthday-section'].hidden,true);
+ e=setup({fail:true});await e.ctx.maybeShowMorning();a.equal(e.ids['morning-birthday-section'].hidden,true);a.match(e.ids['morning-birthday-status'].textContent,/nicht geladen/);a.equal(e.ids['morning-todo-list'].children.length,1);a.equal(e.ids['morning-reminder-list'].children.length,1);
+ let resolve;e=setup({deferred:new Promise(r=>resolve=r)});const load=e.ctx.maybeShowMorning();await new Promise(setImmediate);e.owner='other';resolve(rows);await load;a.equal(e.ids['morning-birthday-section'].hidden,true);a.equal(e.ids['morning-birthday-list'].children.length,0,'late other-account results discarded');
+ const html=fs.readFileSync('index.html','utf8');a.match(html,/<section id="morning-birthday-section"[^>]* hidden>/);a.match(html,/data-tile="birthdays">Geburtstage/);
+ console.log('PASS: morning hidden section/heading for empty or outside range, chronological birthday list today–6 days, New Year, navigation, error isolation and late account-change result; existing todos/reminders retained.');
+})().catch(e=>{console.error(e);process.exitCode=1;});

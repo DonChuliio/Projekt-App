@@ -1,5 +1,7 @@
 import { loadTodayReminders } from '../data/reminders-data.js?v=1.109';
 import { morningSummary, reminderLabel } from '../reminders/model.js?v=1.109';
+import { loadBirthdays } from '../data/birthdays-data.js?v=1.111';
+import { upcomingBirthdays, nextBirthdayLabel } from '../birthdays/model.js?v=1.111';
 // Guten-Morgen-Ansicht: vorhandene Daten, keine eigenen Aufgabenbestände.
 import { getSession, isLoggedIn, getValidAccessToken } from "../auth/auth.js";
 import { loadTodos } from "../data/todo-data.js?v=1.59";
@@ -62,6 +64,12 @@ export async function maybeShowMorning() {
     }) + " · KW " + week;
     const reminders = document.getElementById("morning-reminder-list");
     const summary = document.getElementById("morning-summary");
+    const birthdaySection = document.getElementById("morning-birthday-section");
+    const birthdayList = document.getElementById("morning-birthday-list");
+    const birthdayStatus = document.getElementById("morning-birthday-status");
+    if (birthdaySection) birthdaySection.hidden = true;
+    if (birthdayList) birthdayList.replaceChildren();
+    if (birthdayStatus) birthdayStatus.textContent = "";
     let todoCount = null, reminderCount = null;
     const updateSummary = () => { if (summary) summary.textContent = morningSummary(todoCount, reminderCount); };
     if (summary) summary.textContent = "Tagesübersicht wird geladen …";
@@ -81,6 +89,7 @@ export async function maybeShowMorning() {
         if (current()) {
             message(todos, "To-dos konnten nicht geladen werden.");
             if(reminders)message(reminders,"Erinnerungen konnten nicht geladen werden.");
+            if(birthdayStatus)birthdayStatus.textContent="Geburtstage konnten nicht geladen werden.";
             updateSummary();
         }
         return;
@@ -116,11 +125,22 @@ export async function maybeShowMorning() {
             for(const row of todayRows)taskButton(reminders,row.title+" · "+reminderLabel(row),()=>{
                 generation++;document.dispatchEvent(new CustomEvent("dock:open-reminder",{detail:{id:row.id}}));
             });
-        }).catch(()=>{if(current()){if(reminders)message(reminders,"Erinnerungen konnten nicht geladen werden.");updateSummary();}})
+        }).catch(()=>{if(current()){if(reminders)message(reminders,"Erinnerungen konnten nicht geladen werden.");updateSummary();}}),
+        birthdaySection && birthdayList ? loadBirthdays().then(rows => {
+            if (!current()) return;
+            const upcoming = upcomingBirthdays(rows, today);
+            birthdayList.replaceChildren();
+            for (const row of upcoming) taskButton(birthdayList, row.name + " · " + nextBirthdayLabel(row), () => {
+                generation++;
+                document.dispatchEvent(new CustomEvent("dock:open-birthday", {detail:{id:row.id}}));
+            });
+            birthdaySection.hidden = upcoming.length === 0;
+        }).catch(() => { if(current() && birthdayStatus)birthdayStatus.textContent="Geburtstage konnten nicht geladen werden."; }) : Promise.resolve()
     ]);
 }
 
 export function initMorning() {
+    document.getElementById("morning-birthday-open")?.addEventListener("click", () => { generation++; showView("birthdays"); });
     document.getElementById("morning-reminder-open")?.addEventListener("click", () => { generation++; showView("reminders"); });
     document.getElementById("morning-todo-open")?.addEventListener("click", openTodos);
     document.getElementById("morning-dashboard")?.addEventListener("click", () => {
@@ -129,6 +149,11 @@ export function initMorning() {
     });
     document.addEventListener("dock:auth-changed", () => {
         generation++;
+        const birthdays = document.getElementById("morning-birthday-section");
+        if (birthdays) birthdays.hidden = true;
+        document.getElementById("morning-birthday-list")?.replaceChildren();
+        const birthdayStatus = document.getElementById("morning-birthday-status");
+        if (birthdayStatus) birthdayStatus.textContent = "";
         showView("dashboard");
         maybeShowMorning();
     });
