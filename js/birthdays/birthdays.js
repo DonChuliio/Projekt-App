@@ -1,7 +1,7 @@
 import { getSession } from '../auth/auth.js';
 import { showView } from '../router.js';
-import { loadBirthdays,loadBirthday,saveBirthday,deleteBirthday,birthdayId } from '../data/birthdays-data.js?v=1.111';
-import { orderedBirthdays,birthdayLabel,nextBirthdayLabel } from './model.js?v=1.111';
+import { loadBirthdays,loadBirthday,saveBirthday,deleteBirthday,birthdayId } from '../data/birthdays-data.js?v=1.112';
+import { orderedBirthdays,birthdayLabel,nextBirthdayLabel,birthdayInputDate } from './model.js?v=1.112';
 
 export function initBirthdays(){
  const list=document.getElementById('birthdays-content'),editor=document.getElementById('birthday-edit-content');if(!list||!editor)return;
@@ -38,12 +38,12 @@ export function initBirthdays(){
  }
  function edit(row){
   if(busy||!getSession()?.user?.id)return;serial++;showView('birthday-edit');editor.replaceChildren();document.getElementById('birthday-edit-title').textContent=row?'Geburtstag bearbeiten':'Neuer Geburtstag';
-  const form=el('form'),nameLabel=el('label','Name'),name=el('input'),dateLabel=el('label','Geburtsdatum'),date=el('input');
+  const form=el('form'),nameLabel=el('label','Name'),name=el('input'),dateLabel=el('label','Geburtstag (TTMM)'),date=el('input');
   name.type='text';name.required=true;name.maxLength=200;name.value=row?.name||'';name.setAttribute('aria-label','Name');name.autocomplete='off';
-  date.type='date';date.required=true;date.min='0001-01-01';date.max='9999-12-31';date.value=row?.birth_date||'';date.setAttribute('aria-label','Geburtsdatum');
+  date.type='text';date.inputMode='numeric';date.required=true;date.maxLength=6;date.placeholder='TTMM, z. B. 2412';date.autocomplete='off';date.value=row?birthdayLabel(row).replaceAll('.',''):'';date.setAttribute('aria-label','Geburtstag (TTMM)');
   nameLabel.append(name);dateLabel.append(date);const submit=el('button','Speichern');submit.type='submit';
   form.append(nameLabel,dateLabel,submit,button('Abbrechen',()=>{if(busy)return;showView('birthdays');refresh();}));
-  form.addEventListener('submit',event=>{event.preventDefault();run(form,async valid=>{await saveBirthday({name:name.value,birth_date:date.value},row?.id||null);if(!valid())return;notify();if(visible('birthday-edit')){showView('birthdays');await refresh();}});});editor.append(form);
+  form.addEventListener('submit',event=>{event.preventDefault();run(form,async valid=>{await saveBirthday({name:name.value,birth_date:birthdayInputDate(date.value,row?.birth_date)},row?.id||null);if(!valid())return;notify();if(visible('birthday-edit')){showView('birthdays');await refresh();}});});editor.append(form);
  }
  async function open(id){
   if(busy||!birthdayId(id)||!getSession()?.user?.id)return;const owner=getSession()?.user?.id,generation=++epoch,request=++serial;showView('birthday-edit');editor.replaceChildren(el('p','Geburtstag wird geladen …'));

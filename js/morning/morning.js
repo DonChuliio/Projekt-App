@@ -1,7 +1,7 @@
 import { loadTodayReminders } from '../data/reminders-data.js?v=1.109';
 import { morningSummary, reminderLabel } from '../reminders/model.js?v=1.109';
-import { loadBirthdays } from '../data/birthdays-data.js?v=1.111';
-import { upcomingBirthdays, nextBirthdayLabel } from '../birthdays/model.js?v=1.111';
+import { loadBirthdays } from '../data/birthdays-data.js?v=1.112';
+import { upcomingBirthdays, nextBirthdayLabel } from '../birthdays/model.js?v=1.112';
 // Guten-Morgen-Ansicht: vorhandene Daten, keine eigenen Aufgabenbestände.
 import { getSession, isLoggedIn, getValidAccessToken } from "../auth/auth.js";
 import { loadTodos } from "../data/todo-data.js?v=1.59";

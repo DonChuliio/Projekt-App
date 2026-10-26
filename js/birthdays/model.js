@@ -1,6 +1,15 @@
 const DAY=86400000;
 const leap=year=>year%4===0&&(year%100!==0||year%400===0);
 const daysInMonth=(year,month)=>[31,leap(year)?29:28,31,30,31,30,31,31,30,31,30,31][month-1];
+export function birthdayInputDate(value,previous=''){
+ const match=typeof value==='string'&&value.trim().match(/^(\d{2})\.?([0-9]{2})\.?$/);
+ if(!match)throw Error('Bitte Tag und Monat als TTMM eingeben, zum Beispiel 2412.');
+ const [,day,month]=match,old=birthdayDate(previous);
+ if(old&&old.day===Number(day)&&old.month===Number(month))return previous;
+ const result=`2000-${month}-${day}`;
+ if(!birthdayDate(result))throw Error('Bitte einen gültigen Tag und Monat eingeben.');
+ return result;
+}
 export function birthdayDate(value){
  if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return null;
  const [year,month,day]=value.split('-').map(Number);
@@ -26,6 +35,6 @@ export function orderedBirthdays(rows,today=new Date()){
 }
 export function upcomingBirthdays(rows,today=new Date()){return orderedBirthdays(rows,today).filter(row=>row.days>=0&&row.days<=6);}
 export function birthdayLabel(row){
- const birth=birthdayDate(row.birth_date);return birth?`${String(birth.day).padStart(2,'0')}.${String(birth.month).padStart(2,'0')}.${String(birth.year).padStart(4,'0')}`:'';
+ const birth=birthdayDate(row.birth_date);return birth?`${String(birth.day).padStart(2,'0')}.${String(birth.month).padStart(2,'0')}.`:'';
 }
 export function nextBirthdayLabel(row){const [,month,day]=row.nextDate.split('-');return `${day}.${month}. · ${row.days===0?'Heute':row.days===1?'In 1 Tag':`In ${row.days} Tagen`}`;}

@@ -1,6 +1,8 @@
 const fs=require('node:fs'),vm=require('node:vm'),a=require('node:assert/strict');
 const ctx={Date,Intl,console};vm.createContext(ctx);vm.runInContext(fs.readFileSync('js/birthdays/model.js','utf8').replace(/export /g,''),ctx);
 const row=(date,name='Name',id=date)=>({id,name,birth_date:date}),at=(y,m,d,h=8)=>new Date(y,m-1,d,h);
+a.equal(ctx.birthdayInputDate('2412'),'2000-12-24');a.equal(ctx.birthdayInputDate('24.12.'),'2000-12-24');a.equal(ctx.birthdayInputDate('2902'),'2000-02-29');a.equal(ctx.birthdayInputDate('2412','1980-12-24'),'1980-12-24');a.equal(ctx.birthdayLabel({birth_date:'1980-12-24'}),'24.12.');
+for(const value of ['3102','0001','0113','123','24122000'])a.throws(()=>ctx.birthdayInputDate(value));
 a.equal(ctx.validateBirthday({name:'  Anne  ',birth_date:'1990-12-31'}).name,'Anne');
 for(const date of ['2025-02-29','2000-02-30','1900-02-29','0000-01-01','2026-13-01','2026-01-00','2026-1-01','2000-02-29T00:00:00Z'])a.throws(()=>ctx.validateBirthday({name:'A',birth_date:date}));
 a.ok(ctx.birthdayDate('2000-02-29'));a.ok(ctx.birthdayDate('0001-01-01'));a.throws(()=>ctx.validateBirthday({name:' ',birth_date:'2000-01-01'}));

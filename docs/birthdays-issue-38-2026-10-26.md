@@ -1,5 +1,9 @@
 # Geburtstage – Issue 38 – v1.111
 
+## Anpassung v1.112
+
+Die Eingabe erfolgt jetzt ohne Kalender und ohne Jahr in einem Textfeld mit Zifferntastatur: TTMM, etwa 2412; TT.MM. wird ebenfalls akzeptiert. Die Übersicht zeigt nur Tag und Monat. Ungültige Kombinationen werden abgewiesen, der 29. Februar ist erlaubt. Die vorhandene Datumsspalte wird kompatibel weiterverwendet: neue beziehungsweise geänderte Termine verwenden intern das Schaltjahr 2000 als neutrales Bezugsjahr. Bei unverändertem Tag/Monat bleibt ein bereits gespeichertes Datum erhalten. Keine Datenmigration. Die drei Geburtstags-Testdateien bestehen auch mit der geänderten Eingabe; Parser-Prüfungen decken ungültige Tage, den Schalttag und Bestandsdaten ab.
+
 ## Verhalten
 
 Planer → Geburtstage bietet Hinzufügen, Anzeigen, Bearbeiten und Löschen mit Name und Geburtsdatum. Die Liste sortiert nach dem nächsten jährlichen Termin. Bearbeiten und Löschen verwenden die bestehende ID. Zurück führt eine Ebene zurück, Home zum Dashboard. Einträge und Formulare werden bei einem Kontowechsel geleert; verspätete Antworten werden verworfen.

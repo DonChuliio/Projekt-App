@@ -1,6 +1,6 @@
 import { SUPABASE_URL,SUPABASE_KEY } from '../config/supabase.js';
 import { getSession,getValidAccessToken } from '../auth/auth.js';
-import { validateBirthday } from '../birthdays/model.js?v=1.111';
+import { validateBirthday } from '../birthdays/model.js?v=1.112';
 const base=SUPABASE_URL+'/rest/v1/planner_birthdays';
 const fields='id,name,birth_date';
 export const birthdayId=value=>typeof value==='string'&&/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(value);
