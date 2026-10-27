@@ -2,6 +2,8 @@
    CSS VARIABLES (Theme)
    ====================================================== */
 
+.morning-section[hidden] {display:none;}
+
 :root {
     --bg: #121212;
     --surface: #1e1e1e;

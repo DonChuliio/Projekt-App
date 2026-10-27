@@ -1,7 +1,8 @@
-import { loadTodayReminders } from '../data/reminders-data.js?v=1.109';
+import { loadTodayReminders } from '../data/reminders-data.js?v=1.114';
 import { morningSummary, reminderLabel } from '../reminders/model.js?v=1.109';
 import { loadBirthdays } from '../data/birthdays-data.js?v=1.112';
-import { upcomingBirthdays, nextBirthdayLabel } from '../birthdays/model.js?v=1.112';
+import { upcomingBirthdays, nextBirthdayLabel } from '../birthdays/model.js?v=1.114';
+import { morningEnd, morningReminders } from './model.js?v=1.114';
 // Guten-Morgen-Ansicht: vorhandene Daten, keine eigenen Aufgabenbestände.
 import { getSession, isLoggedIn, getValidAccessToken } from "../auth/auth.js";
 import { loadTodos } from "../data/todo-data.js?v=1.59";
@@ -50,6 +51,7 @@ export async function maybeShowMorning() {
         document.visibilityState === "hidden") return;
 
     const day = localDay(today);
+    const end = morningEnd(today);
     const key = "dock-morning-last-shown:" + userId;
     let stored;
     try { stored = localStorage.getItem(key); } catch { /* Session fallback */ }
@@ -64,6 +66,10 @@ export async function maybeShowMorning() {
     }) + " · KW " + week;
     const reminders = document.getElementById("morning-reminder-list");
     const summary = document.getElementById("morning-summary");
+    const todoSection=document.getElementById('morning-todo-section'),reminderSection=document.getElementById('morning-reminder-section');
+    const todoStatus=document.getElementById('morning-todo-status'),reminderStatus=document.getElementById('morning-reminder-status');
+    if(todoSection)todoSection.hidden=true;if(reminderSection)reminderSection.hidden=true;
+    if(todoStatus)todoStatus.textContent='';if(reminderStatus)reminderStatus.textContent='';
     const birthdaySection = document.getElementById("morning-birthday-section");
     const birthdayList = document.getElementById("morning-birthday-list");
     const birthdayStatus = document.getElementById("morning-birthday-status");
@@ -71,7 +77,7 @@ export async function maybeShowMorning() {
     if (birthdayList) birthdayList.replaceChildren();
     if (birthdayStatus) birthdayStatus.textContent = "";
     let todoCount = null, reminderCount = null;
-    const updateSummary = () => { if (summary) summary.textContent = morningSummary(todoCount, reminderCount); };
+    const updateSummary = () => { if (summary) summary.textContent = todoCount===null||reminderCount===null?'Die Tagesübersicht ist noch nicht vollständig verfügbar.':`Offene wichtige To-dos: ${todoCount} · Erinnerungen bis übermorgen: ${reminderCount}`; };
     if (summary) summary.textContent = "Tagesübersicht wird geladen …";
     if (reminders) message(reminders, "Erinnerungen werden geladen …");
     message(todos, "Wichtige To-dos werden geladen…");
@@ -87,8 +93,8 @@ export async function maybeShowMorning() {
         await getValidAccessToken();
     } catch (error) {
         if (current()) {
-            message(todos, "To-dos konnten nicht geladen werden.");
-            if(reminders)message(reminders,"Erinnerungen konnten nicht geladen werden.");
+            if(todoStatus)todoStatus.textContent="To-dos konnten nicht geladen werden.";
+            if(reminderStatus)reminderStatus.textContent="Erinnerungen konnten nicht geladen werden.";
             if(birthdayStatus)birthdayStatus.textContent="Geburtstage konnten nicht geladen werden.";
             updateSummary();
         }
@@ -106,29 +112,30 @@ export async function maybeShowMorning() {
             if (!current()) return;
             const open = rows.filter(row => row.priority === "a" && !row.completed_at);
             todoCount=open.length; updateSummary();
+            if(todoSection)todoSection.hidden=open.length===0;
             if (!open.length) {
-                message(todos, "Keine wichtigen To-dos offen. Ein guter Start!");
+                todos.replaceChildren();
                 return;
             }
             todos.replaceChildren();
             for (const row of open) taskButton(todos, row.text, openTodos);
         }).catch(() => {
-            if (current()) {message(todos, "To-dos konnten nicht geladen werden.");updateSummary();}
+            if (current()) {if(todoStatus)todoStatus.textContent="To-dos konnten nicht geladen werden.";updateSummary();}
         }),
-        loadTodayReminders(day).then(rows => {
+        loadTodayReminders(day,end).then(rows => {
             if(!current())return;
-            const todayRows=rows.filter(r=>r.reminder_date===day);
+            const todayRows=morningReminders(rows,day,end);
             reminderCount=todayRows.length;updateSummary();
             if(!reminders)return;
             reminders.replaceChildren();
-            if(!todayRows.length)message(reminders,"Keine Erinnerungen für heute.");
+            if(reminderSection)reminderSection.hidden=todayRows.length===0;
             for(const row of todayRows)taskButton(reminders,row.title+" · "+reminderLabel(row),()=>{
                 generation++;document.dispatchEvent(new CustomEvent("dock:open-reminder",{detail:{id:row.id}}));
             });
-        }).catch(()=>{if(current()){if(reminders)message(reminders,"Erinnerungen konnten nicht geladen werden.");updateSummary();}}),
+        }).catch(()=>{if(current()){if(reminderStatus)reminderStatus.textContent="Erinnerungen konnten nicht geladen werden.";updateSummary();}}),
         birthdaySection && birthdayList ? loadBirthdays().then(rows => {
             if (!current()) return;
-            const upcoming = upcomingBirthdays(rows, today);
+            const upcoming = upcomingBirthdays(rows, today,3);
             birthdayList.replaceChildren();
             for (const row of upcoming) taskButton(birthdayList, row.name + " · " + nextBirthdayLabel(row), () => {
                 generation++;

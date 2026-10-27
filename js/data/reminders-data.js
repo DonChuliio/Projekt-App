@@ -33,9 +33,12 @@ export function loadUnsentReminders(day=reminderDay()){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(day))throw Error('Ungültiges Datum.');
  return request('?select='+fields+'&archived_at=is.null&or=(reminder_date.lt.'+day+',push_status.in.(failed,no_subscription,missed,uncertain))&order=reminder_date.desc,reminder_time.desc.nullslast,id.desc');
 }
-export function loadTodayReminders(day=reminderDay()){
+export async function loadTodayReminders(day=reminderDay(),end=day){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(day))throw Error('Ungültiges Datum.');
- return request('?select='+fields+'&reminder_date=eq.'+day+'&order=reminder_time.asc.nullsfirst,title.asc');
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(end)||end<day)throw Error('Ungültiges Datum.');
+ if(end===day)return request('?select='+fields+'&reminder_date=eq.'+day+'&order=reminder_time.asc.nullsfirst,title.asc');
+ const owner=getSession()?.user?.id,rows=[];
+ for(let offset=0;;offset+=200){const page=await request('?select='+fields+'&reminder_date=gte.'+day+'&reminder_date=lte.'+end+'&order=reminder_date.asc,reminder_time.asc.nullsfirst,title.asc,id.asc&limit=200&offset='+offset);if(owner!==getSession()?.user?.id)throw Error('Anmeldung geändert.');rows.push(...page);if(page.length<200)return rows;}
 }
 export async function loadReminder(id) {
  if(!reminderId(id))throw Error('Ungültige Erinnerung.');

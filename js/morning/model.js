@@ -1,0 +1,2 @@
+export function morningEnd(date){const end=new Date(date);end.setDate(end.getDate()+2);return [end.getFullYear(),String(end.getMonth()+1).padStart(2,'0'),String(end.getDate()).padStart(2,'0')].join('-');}
+export function morningReminders(rows,start,end){return rows.filter(r=>r.reminder_date>=start&&r.reminder_date<=end).sort((a,b)=>a.reminder_date.localeCompare(b.reminder_date)||(a.reminder_time||'09:00').localeCompare(b.reminder_time||'09:00')||a.title.localeCompare(b.title));}

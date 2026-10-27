@@ -33,7 +33,7 @@ export function nextBirthday(row,today=new Date()){
 export function orderedBirthdays(rows,today=new Date()){
  return rows.map(row=>nextBirthday(row,today)).filter(Boolean).sort((a,b)=>a.days-b.days||a.name.localeCompare(b.name,'de')||String(a.id).localeCompare(String(b.id)));
 }
-export function upcomingBirthdays(rows,today=new Date()){return orderedBirthdays(rows,today).filter(row=>row.days>=0&&row.days<=6);}
+export function upcomingBirthdays(rows,today=new Date(),days=7){return orderedBirthdays(rows,today).filter(row=>row.days>=0&&row.days<days);}
 export function birthdayLabel(row){
  const birth=birthdayDate(row.birth_date);return birth?`${String(birth.day).padStart(2,'0')}.${String(birth.month).padStart(2,'0')}.`:'';
 }

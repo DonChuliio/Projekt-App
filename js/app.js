@@ -9,7 +9,7 @@ import { initDocuments } from "./documents/documents.js?v=1.71";
 import { initPushRouting } from "./push/push-routing.js?v=1.105";
 import { initRoutineTodos } from "./data/routine-todos-data.js?v=1.59";
 
-import { initMorning } from "./morning/morning.js?v=1.112";
+import { initMorning } from "./morning/morning.js?v=1.114";
 
 import { initDashboard } from "./dashboard.js?v=1.54";
 import { initNotes } from "./notes/notes.js?v=1.54";
