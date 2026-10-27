@@ -1,5 +1,5 @@
 import { initReminders } from './reminders/reminders.js?v=1.109';
-import { initBirthdays } from './birthdays/birthdays.js?v=1.112';
+import { initBirthdays } from './birthdays/birthdays.js?v=1.113';
 import { initImposter } from "./games/admin.js?v=1.105";
 import { initCelebrity } from "./games/celebrity-admin.js?v=1.105";
 import { initSieve } from "./games/sieve-admin.js?v=1.105";

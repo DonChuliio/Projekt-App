@@ -24,7 +24,7 @@ export function initBirthdays(){
   if(!rows.length)list.append(el('p','Noch keine Geburtstage gespeichert.'));
   for(const row of orderedBirthdays(rows)){
    const card=el('div',undefined,'birthday-row'),body=el('div',undefined,'birthday-person'),actions=el('div',undefined,'birthday-actions');
-   body.append(el('strong',row.name),el('span',birthdayLabel(row)),el('span',nextBirthdayLabel(row)));
+   body.append(el('strong',row.name),el('span',nextBirthdayLabel(row)));
    actions.append(icon('Bearbeiten: '+row.name,'M16 3l5 5M4 16l-1 5 5-1L21 7l-5-5L4 16',()=>edit(row)),icon('Löschen: '+row.name,'M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7',()=>run(list,async valid=>{await deleteBirthday(row.id);if(!valid())return;notify();if(visible('birthdays'))await refresh();})));
    card.append(body,actions);list.append(card);
   }
@@ -38,9 +38,9 @@ export function initBirthdays(){
  }
  function edit(row){
   if(busy||!getSession()?.user?.id)return;serial++;showView('birthday-edit');editor.replaceChildren();document.getElementById('birthday-edit-title').textContent=row?'Geburtstag bearbeiten':'Neuer Geburtstag';
-  const form=el('form'),nameLabel=el('label','Name'),name=el('input'),dateLabel=el('label','Geburtstag (TTMM)'),date=el('input');
+  const form=el('form'),nameLabel=el('label','Name'),name=el('input'),dateLabel=el('label','Geburtstag (TT.MM.)'),date=el('input');
   name.type='text';name.required=true;name.maxLength=200;name.value=row?.name||'';name.setAttribute('aria-label','Name');name.autocomplete='off';
-  date.type='text';date.inputMode='numeric';date.required=true;date.maxLength=6;date.placeholder='TTMM, z. B. 2412';date.autocomplete='off';date.value=row?birthdayLabel(row).replaceAll('.',''):'';date.setAttribute('aria-label','Geburtstag (TTMM)');
+  date.type='text';date.inputMode='text';date.required=true;date.maxLength=6;date.placeholder='TT.MM., z. B. 24.12.';date.autocomplete='off';date.value=row?birthdayLabel(row):'';date.setAttribute('aria-label','Geburtstag (TT.MM.)');
   nameLabel.append(name);dateLabel.append(date);const submit=el('button','Speichern');submit.type='submit';
   form.append(nameLabel,dateLabel,submit,button('Abbrechen',()=>{if(busy)return;showView('birthdays');refresh();}));
   form.addEventListener('submit',event=>{event.preventDefault();run(form,async valid=>{await saveBirthday({name:name.value,birth_date:birthdayInputDate(date.value,row?.birth_date)},row?.id||null);if(!valid())return;notify();if(visible('birthday-edit')){showView('birthdays');await refresh();}});});editor.append(form);
