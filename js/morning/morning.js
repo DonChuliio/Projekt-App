@@ -41,13 +41,13 @@ function openTodos() {
     document.dispatchEvent(new CustomEvent("dock:todos-changed"));
 }
 
-export async function maybeShowMorning() {
+export async function maybeShowMorning({manual=false}={}) {
     const today = new Date();
     const userId = getSession()?.user?.id;
     const view = document.querySelector('[data-view="good-morning"]');
     const dashboard = document.querySelector('[data-view="dashboard"]');
-    if (!userId || !isLoggedIn() || today.getHours() >= 12 || !view ||
-        !dashboard || dashboard.classList.contains("hidden") ||
+    if (!userId || !isLoggedIn() || (!manual && today.getHours() >= 12) || !view ||
+        !dashboard || (!manual && dashboard.classList.contains("hidden")) ||
         document.visibilityState === "hidden") return;
 
     const day = localDay(today);
@@ -55,7 +55,7 @@ export async function maybeShowMorning() {
     const key = "dock-morning-last-shown:" + userId;
     let stored;
     try { stored = localStorage.getItem(key); } catch { /* Session fallback */ }
-    if (stored === day || shownThisSession.get(userId) === day) return;
+    if (!manual && (stored === day || shownThisSession.get(userId) === day)) return;
 
     const week = getISOWeek(today);
     const todos = document.getElementById("morning-todo-list");
@@ -83,8 +83,10 @@ export async function maybeShowMorning() {
     message(todos, "Wichtige To-dos werden geladen…");
     showView("good-morning");
     if (view.classList.contains("hidden")) return;
-    shownThisSession.set(userId, day);
-    try { localStorage.setItem(key, day); } catch { /* Session fallback */ }
+    if (!manual) {
+        shownThisSession.set(userId, day);
+        try { localStorage.setItem(key, day); } catch { /* Session fallback */ }
+    }
     const request = ++generation;
     const current = () => request === generation &&
         getSession()?.user?.id === userId &&
@@ -147,6 +149,7 @@ export async function maybeShowMorning() {
 }
 
 export function initMorning() {
+    document.getElementById("settings-morning-open")?.addEventListener("click", () => maybeShowMorning({manual:true}));
     document.getElementById("morning-birthday-open")?.addEventListener("click", () => { generation++; showView("birthdays"); });
     document.getElementById("morning-reminder-open")?.addEventListener("click", () => { generation++; showView("reminders"); });
     document.getElementById("morning-todo-open")?.addEventListener("click", openTodos);
