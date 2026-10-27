@@ -1,5 +1,5 @@
 import { loadTodayReminders } from '../data/reminders-data.js?v=1.114';
-import { morningSummary, reminderLabel } from '../reminders/model.js?v=1.109';
+import { reminderLabel } from '../reminders/model.js?v=1.109';
 import { loadBirthdays } from '../data/birthdays-data.js?v=1.112';
 import { upcomingBirthdays, nextBirthdayLabel } from '../birthdays/model.js?v=1.114';
 import { morningEnd, morningReminders } from './model.js?v=1.114';
@@ -65,7 +65,6 @@ export async function maybeShowMorning({manual=false}={}) {
         weekday: "long", day: "2-digit", month: "long"
     }) + " · KW " + week;
     const reminders = document.getElementById("morning-reminder-list");
-    const summary = document.getElementById("morning-summary");
     const todoSection=document.getElementById('morning-todo-section'),reminderSection=document.getElementById('morning-reminder-section');
     const todoStatus=document.getElementById('morning-todo-status'),reminderStatus=document.getElementById('morning-reminder-status');
     if(todoSection)todoSection.hidden=true;if(reminderSection)reminderSection.hidden=true;
@@ -76,9 +75,6 @@ export async function maybeShowMorning({manual=false}={}) {
     if (birthdaySection) birthdaySection.hidden = true;
     if (birthdayList) birthdayList.replaceChildren();
     if (birthdayStatus) birthdayStatus.textContent = "";
-    let todoCount = null, reminderCount = null;
-    const updateSummary = () => { if (summary) summary.textContent = todoCount===null||reminderCount===null?'Die Tagesübersicht ist noch nicht vollständig verfügbar.':`Offene wichtige To-dos: ${todoCount} · Erinnerungen bis übermorgen: ${reminderCount}`; };
-    if (summary) summary.textContent = "Tagesübersicht wird geladen …";
     if (reminders) message(reminders, "Erinnerungen werden geladen …");
     message(todos, "Wichtige To-dos werden geladen…");
     showView("good-morning");
@@ -98,7 +94,7 @@ export async function maybeShowMorning({manual=false}={}) {
             if(todoStatus)todoStatus.textContent="To-dos konnten nicht geladen werden.";
             if(reminderStatus)reminderStatus.textContent="Erinnerungen konnten nicht geladen werden.";
             if(birthdayStatus)birthdayStatus.textContent="Geburtstage konnten nicht geladen werden.";
-            updateSummary();
+            
         }
         return;
     }
@@ -113,7 +109,6 @@ export async function maybeShowMorning({manual=false}={}) {
         loadTodos("a").then(rows => {
             if (!current()) return;
             const open = rows.filter(row => row.priority === "a" && !row.completed_at);
-            todoCount=open.length; updateSummary();
             if(todoSection)todoSection.hidden=open.length===0;
             if (!open.length) {
                 todos.replaceChildren();
@@ -122,19 +117,18 @@ export async function maybeShowMorning({manual=false}={}) {
             todos.replaceChildren();
             for (const row of open) taskButton(todos, row.text, openTodos);
         }).catch(() => {
-            if (current()) {if(todoStatus)todoStatus.textContent="To-dos konnten nicht geladen werden.";updateSummary();}
+            if (current()) {if(todoStatus)todoStatus.textContent="To-dos konnten nicht geladen werden.";}
         }),
         loadTodayReminders(day,end).then(rows => {
             if(!current())return;
             const todayRows=morningReminders(rows,day,end);
-            reminderCount=todayRows.length;updateSummary();
             if(!reminders)return;
             reminders.replaceChildren();
             if(reminderSection)reminderSection.hidden=todayRows.length===0;
             for(const row of todayRows)taskButton(reminders,row.title+" · "+reminderLabel(row),()=>{
                 generation++;document.dispatchEvent(new CustomEvent("dock:open-reminder",{detail:{id:row.id}}));
             });
-        }).catch(()=>{if(current()){if(reminderStatus)reminderStatus.textContent="Erinnerungen konnten nicht geladen werden.";updateSummary();}}),
+        }).catch(()=>{if(current()){if(reminderStatus)reminderStatus.textContent="Erinnerungen konnten nicht geladen werden.";}}),
         birthdaySection && birthdayList ? loadBirthdays().then(rows => {
             if (!current()) return;
             const upcoming = upcomingBirthdays(rows, today,3);
