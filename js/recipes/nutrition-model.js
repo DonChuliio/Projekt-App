@@ -1,36 +1,40 @@
-export const NUTRIENTS=[['kcal','kcal'],['protein','Eiweiß'],['carbs','KH'],['fat','Fett']];
-export const UNITS=[['g','g'],['kg','kg'],['ml','ml'],['l','l'],['piece','Stück'],['tbsp','EL'],['tsp','TL'],['pinch','Prise'],['pack','Packung'],['can','Dose']];
+export const NUTRIENTS=[['kcal','kcal'],['carbs','KH'],['protein','Eiweiß'],['fat','Fett']];
+export const UNITS=[['g','g'],['kg','kg'],['ml','ml'],['l','l'],['piece','Stück']];
+export const BASES=[['g','100 g'],['ml','100 ml'],['piece','1 Stück']];
+export const basisLabel=basis=>BASES.find(([key])=>key===basis)?.[1]||'';
 export const foodKey=value=>String(value||'').trim().toLocaleLowerCase('de').replace(/\s+/g,' ');
-export function numberValue(value){if(value===null||value===undefined||String(value).trim()==='')return null;const text=String(value).trim().replace(',','.');if(!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(text))throw Error('Bitte eine gültige Zahl eingeben.');const n=Number(text);if(!Number.isFinite(n)||n<0||n>1000000)throw Error('Zahl außerhalb des gültigen Bereichs.');return n;}
-const aliases={g:'g',gr:'g',gramm:'g',kg:'kg',kilogramm:'kg',ml:'ml',milliliter:'ml',l:'l',liter:'l',stück:'piece',stueck:'piece',stk:'piece',st:'piece',el:'tbsp',esslöffel:'tbsp',essloeffel:'tbsp',tl:'tsp',teelöffel:'tsp',teeloeffel:'tsp',prise:'pinch',prisen:'pinch',packung:'pack',packungen:'pack',dose:'can',dosen:'can'};
-export function parseIngredient(raw){const text=String(raw).trim(),match=text.match(/^(\d+\s*\/\s*\d+|\d+(?:[.,]\d+)?)\s*(.*)$/);if(!match)return {raw:text,quantity:null,unit:'',name:text};let quantity;if(/^\d{1,3}\.\d{3}$/.test(match[1])||/^(?:[-–—]|bis\b|\/)/i.test(match[2].trim()))return {raw:text,quantity:null,unit:'',name:text};if(match[1].includes('/')){const [a,b]=match[1].split('/').map(Number);quantity=b? a/b:null;}else quantity=numberValue(match[1]);const rest=match[2].trim(),unitMatch=rest.match(/^([\p{L}]+)\.?\s*(.*)$/u),unit=unitMatch?aliases[foodKey(unitMatch[1])]:null;return {raw:text,quantity,unit:unit||'',name:unit?unitMatch[2].trim():rest};}
-export function validateFood(value){const name=String(value.name||'').trim();if(!name||name.length>200)throw Error('Bitte einen Lebensmittelnamen eingeben (maximal 200 Zeichen).');if(!['g','ml'].includes(value.basis))throw Error('Bitte die Bezugsgröße 100 g oder 100 ml bestätigen.');const nutrients=Object.fromEntries(NUTRIENTS.map(([key])=>[key,numberValue(value[key])]));if(Object.values(nutrients).some(n=>n!==null&&n>100000))throw Error('Nährwert ist zu groß.');const density=numberValue(value.density);if(density!==null&&(density<=0||density>100))throw Error('Dichte muss größer 0 und höchstens 100 g/ml sein.');const units={};for(const [unit,amount] of Object.entries(value.unit_amounts||{})){if(!UNITS.some(([key])=>key===unit)||['g','kg','ml','l'].includes(unit))throw Error('Ungültige Umrechnung.');const n=numberValue(amount);if(n!==null){if(n<=0)throw Error('Umrechnung muss größer 0 sein.');units[unit]=n;}}
- const names=[...new Set((value.aliases||[]).map(foodKey).filter(Boolean))];if(names.length>32||names.some(n=>n.length>120))throw Error('Höchstens 32 Aliasnamen mit je 120 Zeichen.');let source_ref=null;if(value.source_ref){if(!/^https:\/\/world\.openfoodfacts\.org\/product\/\d{4,20}$/.test(value.source_ref))throw Error('Ungültige Quellenangabe.');source_ref=value.source_ref;}return {name,basis:value.basis,...nutrients,density,aliases:names,unit_amounts:units,source_ref};}
-export function baseAmount(quantity,unit,food){const n=numberValue(quantity);if(n===null||n<=0)throw Error('Bitte eine Menge größer 0 bestätigen.');let amount=n;if(unit==='kg')amount*=1000;if(unit==='l')amount*=1000;if(['g','kg'].includes(unit)){if(food.basis==='ml'){if(!(food.density>0))throw Error('Für g → ml fehlt die bestätigte Dichte.');amount/=food.density;}}else if(['ml','l'].includes(unit)){if(food.basis==='g'){if(!(food.density>0))throw Error('Für ml → g fehlt die bestätigte Dichte.');amount*=food.density;}}else{const conversion=food.unit_amounts?.[unit];if(!(conversion>0))throw Error('Bitte die Umrechnung für diese Einheit bestätigen.');amount*=conversion;}if(!Number.isFinite(amount)||amount<=0||amount>1000000000)throw Error('Ungültige umgerechnete Menge.');return amount;}
-export function totalsFor(lines){const result={};for(const [key] of NUTRIENTS){let sum=0,complete=true;for(const line of lines){const value=line.food[key];if(value===null||value===undefined){complete=false;break;}sum+=Number(value)*baseAmount(line.quantity,line.unit,line.food)/100;}result[key]=complete?sum:null;}return result;}
-export function perPortion(totals,portions){if(!Number.isInteger(portions)||portions<1||portions>2147483647)throw Error('Portionen müssen eine positive ganze Zahl sein.');return Object.fromEntries(NUTRIENTS.map(([key])=>[key,totals[key]===null||totals[key]===undefined?null:totals[key]/portions]));}
-export const nutrientText=(value,key)=>value===null||value===undefined?'— (fehlt)':Number(value).toLocaleString('de-DE',{maximumFractionDigits:key==='kcal'?0:1})+(key==='kcal'?' kcal':' g');
-export function personalMatches(name,foods){const key=foodKey(name);return foods.filter(f=>foodKey(f.name)===key||(f.aliases||[]).some(a=>foodKey(a)===key));}
-// Conservative food matching: never apply a fresh-vegetable weight to chips, sauces or powder.
-export function pieceReference(name){
- const key=foodKey(String(name||'').split(' · ')[0]).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\b(bio|frisch|frische|frischer|roh|rohe|roher|rot|rote|roter|grun|grune|gruner|gelb|gelbe|gelber)\b/g,'').replace(/\s+/g,' ').trim();
- const usda='https://www.ars.usda.gov/arsuserfiles/80400525/data/hg72/hg72_2002.pdf';
- for(const [names,grams] of [[['paprika'],119],[['ei','eier'],50],[['zwiebel','zwiebeln'],110],[['tomate','tomaten'],123],[['apfel','apfel'],138],[['banane','bananen'],118]])if(names.includes(key))return {grams,source:usda,note:'Richtwert für ein mittelgroßes Stück, essbarer Anteil. Größe bitte prüfen.'};
- if(['chinakohl','pekingkohl'].includes(key))return {grams:1400,source:'https://www.landwirtschaftskammer.de/verbraucher/rezepte/kohlrezepte.pdf',note:'Grobe Schätzung für einen Kopf: 800–2.000 g; Dock schlägt die Mitte vor. Strunk/Abschnitte ggf. abziehen.'};
- return null;
+export function numberValue(value){
+ if(value===null||value===undefined||String(value).trim()==='')return null;
+ const text=String(value).trim().replace(',','.');if(!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(text))throw Error('Bitte eine gültige Zahl eingeben.');
+ const n=Number(text);if(!Number.isFinite(n)||n<0||n>1000000)throw Error('Zahl außerhalb des gültigen Bereichs.');return n;
 }
-export function densityProposal(name){
- const key=foodKey(String(name||'').split(' · ')[0]);let value;
- if(/^(wasser|leitungswasser)$/.test(key))value=1;
- else if(/^(milch|vollmilch|kuhmilch|h-milch)(?:\s+\d[\d,.]*\s*%.*)?$/.test(key))value=1.03;
- else if(/^(olivenöl|olivenoel)(?: nativ(?: extra)?)?$/.test(key))value=.918;
- else if(/^(öl|oel|pflanzenöl|pflanzenoel|rapsöl|rapsoel)$/.test(key))value=.92;
- return value?{value,source:'https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_01.pdf',note:'Richtwert zur Umrechnung zwischen ml und g; bitte prüfen.'}:null;
+const units={g:'g',gr:'g',gramm:'g',kg:'kg',kilogramm:'kg',ml:'ml',milliliter:'ml',l:'l',liter:'l',stück:'piece',stueck:'piece',stk:'piece',st:'piece'};
+export function parseIngredient(raw){
+ const text=String(raw).trim(),unknown={raw:text,quantity:null,unit:'',name:text};
+ const match=text.match(/^(\d+\s*\/\s*\d+|\d+(?:[.,]\d+)?)(\s*)(.*)$/);
+ if(!match||/^\d{1,3}\.\d{3}$/.test(match[1])||/^(?:[-–—~x×/.,\d]|bis\b)/i.test(match[3]))return unknown;
+ const [a,b]=match[1].split('/').map(part=>Number(part.replace(',','.'))),quantity=b===undefined?a:a/b;
+ const rest=match[3].trim(),word=rest.match(/^([\p{L}]+)\.?\s*(.*)$/u),key=foodKey(word?.[1]),unit=Object.hasOwn(units,key)?units[key]:null;
+ if(!Number.isFinite(quantity)||quantity<=0||quantity>1000000||!rest)return unknown;
+ if(unit)return {raw:text,quantity,unit,name:word[2].trim()};
+ if(!match[2]||/^(?:el|tl|esslöffel|teelöffel|prisen?|packung(?:en)?|pckg?|dosen?|becher|bund|scheiben?|handvoll|tassen?|tropfen|mg|cl|dl|oz|lb)$/.test(key))return {...unknown,name:word?.[2]?.trim()||rest};
+ return {raw:text,quantity,unit:'piece',name:rest};
 }
-export function needsDensity(unit,basis){return (['ml','l','tbsp','tsp'].includes(unit)&&basis==='g')||(['g','kg'].includes(unit)&&basis==='ml');}
-export function conversionProposal(unit,name,food){
- if(unit==='tbsp'||unit==='tsp'){const ml=unit==='tbsp'?15:5;if(food.basis==='ml')return {amount:ml,text:'Vorschlag: '+ml+' ml – bitte prüfen'};if(food.density>0)return {amount:ml*food.density,text:'Vorschlag aus '+ml+' ml und deiner Dichte – bitte prüfen'};return null;}
- if(unit!=='piece')return null;const reference=pieceReference(name);if(!reference||(food.basis==='ml'&&!(food.density>0)))return null;
- return {amount:food.basis==='g'?reference.grams:reference.grams/food.density,text:'Dock-Richtwert: '+reference.grams+' g pro Stück – bitte prüfen/korrigieren',...reference};
+export function validateFood(value){
+ const name=String(value.name||'').trim();if(!name||name.length>200)throw Error('Bitte einen Lebensmittelnamen eingeben (maximal 200 Zeichen).');
+ if(!basisLabel(value.basis))throw Error('Bitte 100 g, 100 ml oder 1 Stück als Bezugsgröße wählen.');
+ const nutrients=Object.fromEntries(NUTRIENTS.map(([key,title])=>{const n=numberValue(value[key]);if(n===null)throw Error(title+' fehlt. Bitte den Wert eintragen.');if(n>100000)throw Error(title+' ist zu groß.');return [key,n];}));
+ return {name,basis:value.basis,...nutrients};
 }
-export function ingredientPreview(quantity,unit,food){const amount=baseAmount(quantity,unit,food);return {amount,totals:perPortion(totalsFor([{quantity,unit,food}]),1)};}
+export function baseAmount(quantity,unit,food){
+ const n=numberValue(quantity);if(n===null||n<=0)throw Error('Bitte eine Menge größer 0 eingeben.');
+ if(!UNITS.some(([key])=>key===unit))throw Error('Bitte eine passende Einheit auswählen.');
+ const basis=unit==='kg'?'g':unit==='l'?'ml':unit;
+ if(basis!==food.basis)throw Error('Mengeneinheit und Bezugsgröße passen nicht zusammen. Bitte korrigieren.');
+ return n*(unit==='kg'||unit==='l'?1000:1);
+}
+export function totalsFor(lines){
+ return Object.fromEntries(NUTRIENTS.map(([key])=>[key,lines.length&&lines.every(line=>line.food[key]!=null)?lines.reduce((sum,line)=>sum+Number(line.food[key])*baseAmount(line.quantity,line.unit,line.food)/(line.food.basis==='piece'?1:100),0):null]));
+}
+export function perPortion(totals,portions){if(!Number.isInteger(portions)||portions<1||portions>2147483647)throw Error('Portionen müssen eine positive ganze Zahl sein.');return Object.fromEntries(NUTRIENTS.map(([key])=>[key,totals[key]==null?null:totals[key]/portions]));}
+export const nutrientText=(value,key)=>value==null?'— (fehlt)':Number(value).toLocaleString('de-DE',{maximumFractionDigits:key==='kcal'?0:1})+(key==='kcal'?' kcal':' g');

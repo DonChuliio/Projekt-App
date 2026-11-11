@@ -16,3 +16,9 @@
 .nutrition-ingredient-preview h4 {margin-top:0;}
 .nutrition-ingredient-preview p {line-height:1.5;}
 .nutrition-page select {color:var(--text);background:#1e1e1e;border:1px solid var(--border);border-radius:10px;padding:10px;color-scheme:dark;}
+.nutrition-entry-heading {display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.nutrition-entry-heading h4 {margin:0;}
+.nutrition-page .nutrition-library-icon {display:inline-grid;place-items:center;min-width:44px;padding:9px;background:var(--surface);color:var(--text);border:1px solid var(--border);}
+.nutrition-library-icon svg {width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round;}
+.nutrition-page .nutrition-replace {display:flex;align-items:center;gap:10px;font-size:.9rem;}
+.nutrition-page .nutrition-replace input {order:-1;flex:none;width:20px;min-height:20px;margin:0;accent-color:var(--petrol);}
