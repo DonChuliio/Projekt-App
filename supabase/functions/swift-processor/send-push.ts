@@ -2,6 +2,32 @@ import { sendReminderPushes } from './reminders.ts';
 import webpush from "npm:web-push@3.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
+async function birthdayPushText(db: ReturnType<typeof createClient>, userId: string, year: number, month: number, day: number) {
+    const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+    const names: string[] = [];
+    let count = 0;
+    const pageSize = 200;
+    for (let offset = 0; ; offset += pageSize) {
+        const { data, error } = await db.from("planner_birthdays").select("name, birth_date")
+            .eq("user_id", userId).order("id").range(offset, offset + pageSize - 1);
+        if (error) throw error;
+        const rows = data ?? [];
+        for (const row of rows) {
+            const [, birthMonth, birthDay] = row.birth_date.split("-").map(Number);
+            const annualDay = birthMonth === 2 && birthDay === 29 && !leapYear ? 28 : birthDay;
+            if (birthMonth !== month || annualDay !== day) continue;
+            count++;
+            if (names.length < 3) {
+                const name = Array.from(row.name.trim().replace(/\s+/g, " "));
+                names.push(name.slice(0, 60).join("") + (name.length > 60 ? "…" : ""));
+            }
+        }
+        if (rows.length < pageSize) break;
+    }
+    if (!count) return "";
+    const extra = count - names.length;
+    return `Heute ${count === 1 ? "Geburtstag" : "Geburtstage"}: ${names.join(", ")}${extra ? ` und ${extra} weitere` : ""}.`;
+}
 
 Deno.serve(async (req) => {
 
@@ -381,6 +407,13 @@ if (
             if (todoError) throw todoError;
             const todoCount = openA || 0;
             const weekCount = 0;
+            let birthdayMessage = "";
+            try {
+                birthdayMessage = await birthdayPushText(supabase, userId, berlinYear, berlinMonth, berlinDay);
+            } catch {
+                // A birthday lookup failure must not block existing To-do or finance pushes.
+                console.warn("Geburtstage für den Morgen-Push konnten nicht geladen werden.");
+            }
 
             console.log(
                 "Offene Aufgaben:",
@@ -399,7 +432,8 @@ if (
 if (
     todoCount === 0 &&
     weekCount === 0 &&
-    reminderMessages.length === 0
+    reminderMessages.length === 0 &&
+    !birthdayMessage
 ) {
     continue;
 }
@@ -431,12 +465,13 @@ if (messageParts.length > 0) {
         `Offen: ${messageParts.join(" und ")}.`
     );
 }
+if (birthdayMessage) bodyParts.push(birthdayMessage);
 
 const payload =
     JSON.stringify({
         title: "Dock",
         body: bodyParts.join(" · "),
-        target: reminderMessages.length ? "expenses-overview" : "todo",
+        target: reminderMessages.length ? "expenses-overview" : todoCount > 0 ? "todo" : "dashboard",
         tag: "dock-morning-" + berlinDateText
     });
 

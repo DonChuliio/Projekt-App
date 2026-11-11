@@ -1,22 +1,24 @@
 const fs=require('node:fs'),vm=require('node:vm'),a=require('node:assert/strict'),{stripTypeScriptTypes}=require('node:module');
 const source=stripTypeScriptTypes(fs.readFileSync('supabase/functions/swift-processor/send-push.ts','utf8').replace(/^import .*\n/gm,''));
 let withSubscriptions=true;let now,handler,open=0,finance=false,sends=[],claims=new Set(),syncs=0,queries=[],syncAdds=0;
+let birthdays=[],birthdayError=false;
 class Clock extends Date{constructor(...args){super(...(args.length?args:[now]));}}
 class Query {
  constructor(table){this.table=table;this.mode='read';this.value=null;}
- select(){return this;}not(){return this;}eq(...args){queries.push(args);return this;}is(...args){queries.push(args);return this;}
+ select(){return this;}not(){return this;}eq(...args){queries.push(args);if(args[0]==='user_id')this.owner=args[1];return this;}is(...args){queries.push(args);return this;}order(){return this;}range(start,end){this.start=start;this.end=end;return this;}
  insert(value){this.mode='insert';this.value=value;return this;}
  update(value){this.mode='update';this.value=value;return this;}delete(){this.mode='delete';return this;}
  then(resolve,reject){let result={error:null};if(this.table==='calendar_settings')result.data=[{user_id:'u',month_start_balance_reminder:finance,month_end_savings_reminder:finance}];
  if(this.table==='push_subscriptions')result.data=withSubscriptions?[{id:1,user_id:'u',endpoint:'https://web.push.apple.com/test',p256dh:'key',auth:'key'}]:[];
  if(this.table==='todos')result.count=open;
+ if(this.table==='planner_birthdays'){result.data=birthdays.filter(r=>r.user_id===this.owner).slice(this.start,this.end+1);if(birthdayError)result.error={code:'test'};}
  if(this.table==='push_deliveries'&&this.mode==='insert'){const k=this.value.subscription_id+':'+this.value.local_date;if(claims.has(k))result.error={code:'23505'};else claims.add(k);}
  return Promise.resolve(result).then(resolve,reject);}
 }
 const ctx={Date:Clock,Intl,Set,Map,JSON,Response,Headers,URL,console,sendReminderPushes:async()=>0,webpush:{setVapidDetails(){},async sendNotification(sub,payload){sends.push(JSON.parse(payload));}},createClient:()=>({from:t=>new Query(t),rpc:async(name)=>{if(name==='verify_push_cron_token')return {data:true,error:null};syncs++;open+=syncAdds;syncAdds=0;return {error:null};}}),Deno:{env:{get:key=>key==='SUPABASE_SECRET_KEYS'?'{"default":"secret"}':'configured'},serve:fn=>handler=fn}};
 vm.createContext(ctx);vm.runInContext(source,ctx);
 async function run(time){now=time;return (await handler({method:'POST',headers:new Headers({'x-dock-cron-token':'a'.repeat(64)})})).json();}
-function reset(){sends=[];claims=new Set();open=2;finance=false;syncAdds=0;queries=[];}
+function reset(){sends=[];claims=new Set();open=2;finance=false;syncAdds=0;queries=[];birthdays=[];birthdayError=false;}
 (async()=>{
 a.equal((await handler({method:'GET'})).status,405);
 a.equal((await handler({method:'POST',headers:new Headers()})).status,401);
@@ -35,6 +37,11 @@ for(const [time,text]of[['2026-07-02T07:00:00Z','Monatsabgleich'],['2026-07-31T0
  reset();finance=true;await run(time);a.equal(sends.length,1);a.equal(sends[0].target,'expenses-overview');a.match(sends[0].body,new RegExp(text));
 }
 reset();ctx.sendReminderPushes=async()=>3;const reminderOnly=await run('2026-07-01T12:15:00Z');a.equal(reminderOnly.sent,3);a.equal(sends.length,0);ctx.sendReminderPushes=async()=>0;
+const birthday=(name,birth_date,user_id='u')=>({name,birth_date,user_id});
+reset();birthdays=[birthday('Lisa','1999-07-01'),birthday('Morgen','2000-07-02'),birthday('Fremd','2000-07-01','other')];await run('2026-07-01T07:00:00Z');await run('2026-07-01T07:00:00Z');a.equal(sends.length,1);a.match(sends[0].body,/2 wichtige To-Dos.*Heute Geburtstag: Lisa/);a.doesNotMatch(sends[0].body,/Morgen|Fremd/);a.equal(sends[0].target,'todo');
+reset();open=0;birthdays=[...Array.from({length:200},()=>birthday('Anderer Tag','2000-07-02')),birthday('Lisa','2000-07-01'),birthday('Paul','2000-07-01')];await run('2026-07-01T06:59:00Z');a.equal(sends.length,0);await run('2026-07-01T07:00:00Z');a.equal(sends.length,1);a.match(sends[0].body,/Heute Geburtstage: Lisa, Paul/);a.equal(sends[0].target,'dashboard');
+reset();open=0;birthdays=[birthday('Schalttag','2000-02-29')];await run('2027-02-28T08:00:00Z');a.equal(sends.length,1);await run('2028-02-28T08:00:00Z');a.equal(sends.length,1);await run('2028-02-29T08:00:00Z');a.equal(sends.length,2);
+reset();birthdayError=true;await run('2026-07-01T07:00:00Z');a.equal(sends.length,1);a.match(sends[0].body,/wichtige To-Dos/);
 reset();withSubscriptions=false;let noSubscriptionCalls=0;ctx.sendReminderPushes=async(_db,_push,subs)=>{a.equal(subs.length,0);noSubscriptionCalls++;return 0;};await run('2026-07-01T12:15:00Z');a.equal(noSubscriptionCalls,1,'status reconciliation also runs with no subscriptions');
 console.log('PASS: summer/winter 09:00, both DST transition days, daily deduplication, no empty push, routine sync/count, completed filter, combined finance push, leap month end.');
 })().catch(e=>{console.error(e);process.exitCode=1;});
